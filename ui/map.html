@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Career-Ops India — Your career map</title>
+
+  <script type="module" src="https://ui-sdk.dev/web.js"></script>
+  <link rel="stylesheet" href="https://ui-sdk.dev/web.css" />
+  <link rel="stylesheet" href="design.css" />
+
+  <style>
+    :root { --max: 860px; --footer-h: 104px; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      display: flex; flex-direction: column; min-height: 100vh;
+    }
+
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: 20px 32px; max-width: 1200px; margin: 0 auto;
+    }
+    .wordmark { font-size: 18px; letter-spacing: -0.01em; }
+    .wordmark b { font-weight: 600; }
+    .wordmark span { color: var(--muted); font-weight: 400; }
+    .step-count { color: var(--muted); font-size: 14px; }
+
+    main {
+      flex: 1 0 auto; width: 100%; max-width: var(--max); margin: 0 auto;
+      padding: 32px 32px calc(var(--footer-h) + 56px);
+      animation: rise .3s ease both;
+    }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    h1 {
+      font-size: clamp(30px, 4.4vw, 44px); font-weight: 300;
+      letter-spacing: -0.02em; line-height: 1.1; margin: 0 0 10px;
+    }
+    .sub { color: var(--muted); font-size: 18px; margin: 0 0 32px; max-width: 62ch; }
+    h2 {
+      font-size: 13px; font-weight: 500; text-transform: uppercase;
+      letter-spacing: .07em; color: var(--muted);
+      margin: 40px 0 14px;
+    }
+    .hint { color: var(--muted); font-size: 14px; margin: 14px 0 0; }
+
+    /* confirmed direction strip */
+    .strip {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+      background: var(--border); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+    }
+    @media (max-width: 700px) { .strip { grid-template-columns: 1fr 1fr; } }
+    .strip div { background: var(--surface); padding: 16px 18px; }
+    .strip .k { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+    .strip .v { font-size: 15px; font-weight: 500; }
+    .strip .v.small { font-weight: 400; font-size: 14px; }
+
+    /* search titles */
+    .titles { display: flex; flex-direction: column; gap: 8px; }
+    .title-row {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 18px;
+      transition: border-color .16s ease, background .16s ease;
+    }
+    .title-row[data-off] { background: #fbfbfc; border-color: #eceef1; }
+    .title-row[data-off] .name { color: var(--muted); text-decoration: line-through; text-decoration-color: #c4c7cb; }
+    .title-row .name { flex: 1; font-size: 15px; }
+    .title-row .name .primary {
+      font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+      background: var(--accent-soft); color: var(--accent-ink);
+      border-radius: 4px; padding: 2px 6px; margin-left: 8px;
+      text-decoration: none; display: inline-block;
+    }
+    .title-row .score { font-variant-numeric: tabular-nums; font-size: 14px; color: var(--muted); min-width: 52px; text-align: right; }
+    .title-row .score b { color: var(--ink); font-weight: 600; }
+
+    .switch {
+      appearance: none; border: 0; cursor: pointer; padding: 0;
+      width: 42px; height: 24px; border-radius: 999px; background: #c4c7cb;
+      position: relative; flex: 0 0 auto; transition: background .18s ease;
+    }
+    .switch::after {
+      content: ""; position: absolute; top: 3px; left: 3px;
+      width: 18px; height: 18px; border-radius: 50%; background: #fff;
+      transition: transform .18s ease;
+    }
+    .switch[aria-checked="true"] { background: var(--accent); }
+    .switch[aria-checked="true"]::after { transform: translateX(18px); }
+    .switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* sources */
+    .sources { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .src-row { display: flex; align-items: center; gap: 14px; background: var(--surface); padding: 14px 18px; }
+    .src-row .n { flex: 1; font-size: 15px; }
+    .src-row .n small { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .tag {
+      font-size: 12px; padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+      background: var(--chip); color: var(--muted);
+    }
+    .tag.live { background: #e6f4ea; color: #137333; }
+    .tag.login { background: var(--accent-soft); color: var(--accent-ink); }
+    .tag.off { background: #fce8e6; color: #c5221f; }
+
+    /* how a "your session" source is connected */
+    .connect {
+      margin-top: 14px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+    }
+    .connect-head { display: flex; align-items: center; gap: 12px; padding: 14px 18px; }
+    .connect-ico {
+      display: grid; place-items: center; flex: 0 0 auto;
+      width: 32px; height: 32px; border-radius: 9px;
+      background: var(--accent-soft); color: var(--accent-ink);
+    }
+    .connect-ico svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; }
+    .connect-t { flex: 1; min-width: 0; }
+    .connect-t b { display: block; font-size: 14.5px; font-weight: 600; }
+    .connect-t small { display: block; margin-top: 2px; font-size: 12.5px; color: var(--muted); }
+    .connect-steps {
+      margin: 0; padding: 4px 18px 16px 18px;
+      border-top: 1px solid var(--border);
+      list-style: none; counter-reset: cs;
+    }
+    .connect-steps li {
+      position: relative; counter-increment: cs;
+      padding: 11px 0 11px 34px; font-size: 13.5px; line-height: 1.55; color: var(--ink-2);
+      border-bottom: 1px solid var(--line);
+    }
+    .connect-steps li:last-child { border-bottom: 0; }
+    .connect-steps li::before {
+      content: counter(cs);
+      position: absolute; left: 0; top: 11px;
+      display: grid; place-items: center;
+      width: 21px; height: 21px; border-radius: 50%;
+      background: var(--surface-3); color: var(--muted);
+      font-size: 11px; font-weight: 650;
+    }
+    .connect-steps code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px; background: var(--surface-3);
+      padding: 1px 5px; border-radius: 4px;
+    }
+    .connect-note {
+      margin: 0; padding: 0 18px 16px; font-size: 12.5px; line-height: 1.55; color: var(--faint);
+    }
+    .connect-actions {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      padding: 0 18px 16px;
+    }
+    .connect-actions[hidden] { display: none; }
+    @media (max-width: 560px) {
+      .connect-head { flex-wrap: wrap; }
+      .connect-head .btn { width: 100%; }
+    }
+
+    /* next steps */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 700px) { .steps { grid-template-columns: 1fr; } }
+    .step-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+    .step-card .num {
+      width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+      background: var(--accent-soft); color: var(--accent-ink);
+      font-size: 12px; font-weight: 600; margin-bottom: 12px;
+    }
+    .step-card .t { font-size: 15px; font-weight: 500; margin-bottom: 5px; }
+    .step-card .d { font-size: 13px; color: var(--muted); line-height: 1.45; }
+
+    .note {
+      background: #fef7e0; border: 1px solid #f2d98c; color: #7a5c00;
+      border-radius: 10px; padding: 12px 16px; font-size: 14px; margin: 20px 0 0;
+    }
+
+    footer {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+      background: var(--bg); border-top: 1px solid #eceef1; padding: 20px 32px 24px;
+    }
+    .footer-inner { max-width: var(--max); margin: 0 auto; display: flex; justify-content: flex-end; gap: 12px; }
+    .btn { appearance: none; border-radius: 10px; padding: 14px 28px; font: inherit; font-weight: 500; cursor: pointer; min-width: 108px; }
+    .btn-ghost { background: var(--surface); border: 1px solid var(--border); color: var(--accent); }
+    .btn-ghost:hover { background: #f1f3f4; }
+    .btn-primary { background: var(--accent); border: 1px solid var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1765cc; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wordmark"><b>career</b> <span>ops india</span></div>
+    <div class="step-count" id="count">Career map</div>
+  </header>
+
+  <main>
+    <h1>Your career map is ready.</h1>
+    <p class="sub">
+      These are the titles we will search for. Turn any of them off — nothing is searched
+      that you have not approved.
+    </p>
+
+    <div class="strip" id="strip"></div>
+
+    <h2>Search titles</h2>
+    <div class="titles" id="titles"></div>
+    <p class="hint">
+      Match is scored against your confirmed profile, not the title alone. Adjacent titles are
+      searched at a lower weight and never treated as the same role.
+    </p>
+
+    <h2>Where we look</h2>
+    <div class="sources" id="sources"></div>
+
+    <div class="connect">
+      <div class="connect-head">
+        <span class="connect-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1.5-1.5"/></svg>
+        </span>
+        <span class="connect-t">
+          <b>How “your session” works</b>
+          <small>No password is ever typed into this app.</small>
+        </span>
+        <button class="btn btn-sm btn-primary" id="connectBtn" type="button" aria-expanded="false" aria-controls="connectSteps">
+          <span class="btn-label">Connect Naukri</span>
+        </button>
+      </div>
+      <ol class="connect-steps" id="connectSteps" hidden>
+        <li><b>Press Connect Naukri.</b> A real Chrome opens <em>inside Career-Ops</em> — not a separate window — at naukri.com. It runs on this machine, not on a server.</li>
+        <li><b>Sign in there yourself</b> — password, Google, or the OTP Naukri sends. This app never sees the password and never stores it.</li>
+        <li><b>We keep only the session folder</b> at <code>data/browser-profile</code>. That is what lets the next search run as you without asking again.</li>
+        <li><b>Discovery reads the public search pages</b> and stores the posting, its date and the link. Nothing is submitted.</li>
+        <li><b>On a posting, Apply opens the real form.</b> We fill what your profile already answers; you press submit. Many Naukri apply buttons hand off to the company's own ATS (Lever, Greenhouse, Workday) — those we can fill directly.</li>
+      </ol>
+      <div class="connect-actions" id="connectActions" hidden>
+        <a class="btn btn-sm btn-primary" href="browser.html?naukri=1">
+          <span class="btn-label">Open the browser</span>
+        </a>
+        <a class="btn btn-sm btn-ghost" href="browser.html?indeed=1">
+          <span class="btn-label">Open Indeed India</span>
+        </a>
+      </div>
+      <p class="connect-note">
+        Naukri has no “sign in with Career-Ops” button and no permission screen to grant. There is no third-party OAuth.
+        The only honest route is the one above: you sign in on Naukri's own page, in your own browser.
+        If Naukri shows a bot check, the window waits for you — we never solve it.
+      </p>
+    </div>
+
+    <p class="hint">
+      Sources marked <em>live</em> need no login. Sources marked <em>your session</em> open the real
+      site in your browser and you sign in yourself — we never see the password.
+    </p>
+
+    <h2>What happens next</h2>
+    <div class="steps">
+      <div class="step-card">
+        <div class="num">1</div>
+        <div class="t">Discover</div>
+        <div class="d">We pull live postings from the approved titles and keep the posting date separate from the date we found it.</div>
+      </div>
+      <div class="step-card">
+        <div class="num">2</div>
+        <div class="t">Score</div>
+        <div class="d">Every posting gets a deterministic 100-point score. A model writes the explanation; it never writes the number.</div>
+      </div>
+      <div class="step-card">
+        <div class="num">3</div>
+        <div class="t">You approve</div>
+        <div class="d">We fill the form. You review it and submit. Nothing is sent without your click.</div>
+      </div>
+    </div>
+
+    <div class="note" id="note" hidden></div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <button class="btn btn-ghost" id="back" type="button">Back</button>
+      <button class="btn btn-primary" id="start" type="button">Start discovery</button>
+    </div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script>
+    /* ---------- what onboarding handed over ---------- */
+
+    const RAW = sessionStorage.getItem("co.onboarding");
+    const saved = RAW ? JSON.parse(RAW) : null;
+    if (!saved) location.replace("index.html");
+
+    const FALLBACK = {
+      role: "",
+      family: null,
+      tasks: [],
+      cities: ["Chennai"],
+      modes: ["Hybrid"],
+      exp: ["Mid-level"],
+      file: null
+    };
+
+    const state = { ...FALLBACK, ...(saved || {}) };
+
+    /* ---------- the path table, same shape as the onboarding step ---------- */
+
+    const fam = state.family ? window.CO.FAMILIES[state.family] : null;
+    const paths = fam
+      ? fam.paths.map((p) => ({ role: p.role, rel: p.rel, score: p.score }))
+      : [];
+
+    /* every path starts on, except a progression more than 20 points away */
+    const enabled = new Set(paths.filter(p => p.score >= 55).map(p => p.role));
+
+    /* no taxonomy for this role: search the exact title the user typed */
+    if (!paths.length && state.role) enabled.add(state.role);
+
+    /* ---------- render ---------- */
+
+    const $ = (s) => document.querySelector(s);
+
+    function renderStrip() {
+      const cities = state.cities.length ? state.cities.join(", ") : "Anywhere in India";
+      const modes = state.modes.length ? state.modes.join(", ") : "Any";
+      const level = state.exp.length ? state.exp[0] : "Any";
+      const tasks = state.tasks.length ? `${state.tasks.length} confirmed` : "not confirmed";
+
+      $("#strip").innerHTML = `
+        <div><div class="k">Target role</div><div class="v">${state.role || "—"}</div></div>
+        <div><div class="k">Location</div><div class="v small">${cities}</div></div>
+        <div><div class="k">Work mode</div><div class="v small">${modes}</div></div>
+        <div><div class="k">Level</div><div class="v small">${level} · ${tasks}</div></div>`;
+    }
+
+    function renderTitles() {
+      const box = $("#titles");
+      box.innerHTML = "";
+
+      if (!paths.length) {
+        box.innerHTML = `
+          <div class="title-row">
+            <span class="name">${state.role || "Your role"}<span class="primary">only title</span></span>
+            <span class="score">—</span>
+          </div>`;
+        $("#note").hidden = false;
+        $("#note").textContent =
+          "No taxonomy exists for this role yet, so we search the exact title you entered. " +
+          "Once your resume is parsed we build the adjacent map from your actual experience.";
+        return;
+      }
+
+      paths.forEach((p) => {
+        const row = document.createElement("div");
+        row.className = "title-row";
+        const on = enabled.has(p.role);
+        if (!on) row.setAttribute("data-off", "");
+
+        const isPrimary = p.role.toLowerCase() === (state.role || "").toLowerCase();
+
+        row.innerHTML = `
+          <span class="name">${p.role}${isPrimary ? '<span class="primary">your target</span>' : ""}</span>
+          <span class="score"><b>${p.score}</b>/100</span>`;
+
+        const sw = document.createElement("button");
+        sw.type = "button";
+        sw.className = "switch";
+        sw.setAttribute("role", "switch");
+        sw.setAttribute("aria-checked", on ? "true" : "false");
+        sw.setAttribute("aria-label", `Search ${p.role}`);
+        sw.addEventListener("click", () => {
+          if (enabled.has(p.role)) enabled.delete(p.role);
+          else enabled.add(p.role);
+          renderTitles();
+          renderStart();
+        });
+
+        row.appendChild(sw);
+        box.appendChild(row);
+      });
+    }
+
+    const SOURCES = [
+      { n: "Company career pages & ATS feeds", d: "Lever, Greenhouse, Ashby, SmartRecruiters, Workable", tag: "live", cls: "live" },
+      { n: "Naukri", d: "You search and apply; we prepare the application", tag: "your session", cls: "login" },
+      { n: "Indeed India", d: "Live search in a real Chrome profile; apply hands off to the employer", tag: "live", cls: "live" },
+      { n: "Instahyre", d: "Sign in with LinkedIn, Google or email", tag: "your session", cls: "login" },
+      { n: "Cutshort · Hirist · iimjobs · Wellfound", d: "Sign in on the real site", tag: "your session", cls: "login" },
+      { n: "LinkedIn", d: "Discovery only. Their terms prohibit automated submission.", tag: "no auto-apply", cls: "off" },
+    ];
+
+    function renderSources() {
+      $("#sources").innerHTML = SOURCES.map(s => `
+        <div class="src-row">
+          <span class="n">${s.n}<small>${s.d}</small></span>
+          <span class="tag ${s.cls}">${s.tag}</span>
+        </div>`).join("");
+    }
+
+    function renderStart() {
+      const n = enabled.size;
+      $("#start").disabled = n === 0;
+      $("#start").textContent = n === 0 ? "Pick a title" : `Start discovery · ${n} title${n === 1 ? "" : "s"}`;
+      $("#count").textContent = `${n} of ${paths.length || 1} titles on`;
+    }
+
+    /* ---------- navigation ---------- */
+
+    const connectBtn = $("#connectBtn");
+    const connectSteps = $("#connectSteps");
+    const connectActions = $("#connectActions");
+    connectBtn.addEventListener("click", () => {
+      const open = connectSteps.hidden;
+      connectSteps.hidden = !open;
+      connectActions.hidden = !open;
+      connectBtn.setAttribute("aria-expanded", String(open));
+      connectBtn.querySelector(".btn-label").textContent = open ? "Hide the steps" : "Connect Naukri";
+      if (open) {
+        connectSteps.animate(
+          [{ opacity: 0, transform: "translateY(-4px)" }, { opacity: 1, transform: "none" }],
+          { duration: 220, easing: "cubic-bezier(.22,.61,.36,1)" }
+        );
+      }
+    });
+
+    $("#back").addEventListener("click", () => { location.href = "index.html"; });
+
+    $("#start").addEventListener("click", () => {
+      sessionStorage.setItem("co.map", JSON.stringify({
+        ...state,
+        titles: [...enabled]
+      }));
+      location.href = "workspace.html";
+    });
+
+    renderStrip();
+    renderTitles();
+    renderSources();
+    renderStart();
+  </script>
+</body>
+</html>

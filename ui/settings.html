@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Career-Ops India — Connections</title>
+
+  <script type="module" src="https://ui-sdk.dev/web.js"></script>
+  <link rel="stylesheet" href="https://ui-sdk.dev/web.css" />
+  <link rel="stylesheet" href="design.css" />
+
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      background: var(--bg); color: var(--ink);
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      display: flex; align-items: center; gap: 20px;
+      padding: 14px 24px; background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .wordmark { font-size: 17px; letter-spacing: -0.01em; white-space: nowrap; }
+    .wordmark b { font-weight: 600; }
+    .wordmark span { color: var(--muted); font-weight: 400; }
+    .head-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+
+    .wrap { max-width: 980px; margin: 0 auto; padding: 32px 24px 80px; }
+    h1 { font-size: 28px; font-weight: 500; letter-spacing: -0.02em; margin: 0 0 6px; }
+    .sub { color: var(--muted); margin: 0 0 28px; font-size: 15px; }
+    h2 { font-size: 15px; font-weight: 600; margin: 34px 0 4px; letter-spacing: 0.01em; }
+    .hint { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 18px 20px;
+    }
+
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .row + .row { margin-top: 12px; }
+    label.f { display: block; font-size: 13px; color: var(--muted); margin-bottom: 5px; }
+    .field { flex: 1 1 220px; min-width: 0; }
+    input[type="text"], input[type="password"], select {
+      width: 100%; padding: 9px 12px; border: 1px solid var(--border);
+      border-radius: 8px; font: inherit; font-size: 14px; background: var(--bg); color: var(--ink);
+    }
+    input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+
+    .btn {
+      appearance: none; border: 1px solid var(--border); background: var(--surface);
+      border-radius: 8px; padding: 9px 16px; font: inherit; font-size: 14px;
+      cursor: pointer; color: var(--ink); white-space: nowrap;
+    }
+    .btn:hover { background: #f1f3f4; }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-ink); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .status { font-size: 13px; margin-top: 12px; padding: 10px 12px; border-radius: 8px; display: none; }
+    .status.show { display: block; }
+    .status.ok { background: var(--ok-soft); color: var(--ok); }
+    .status.bad { background: var(--bad-soft); color: var(--bad); }
+    .status.info { background: var(--accent-soft); color: var(--accent-ink); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th {
+      text-align: left; font-weight: 500; font-size: 12px; letter-spacing: 0.04em;
+      text-transform: uppercase; color: var(--muted); padding: 0 10px 8px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    td { padding: 11px 10px 11px 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    /* endpoints are long unbroken strings; let them wrap instead of pushing
+       the table past the card on a narrow screen */
+    td, th { overflow-wrap: anywhere; }
+    tr:last-child td { border-bottom: 0; }
+    .name { font-weight: 500; }
+    .meta { color: var(--muted); font-size: 12.5px; }
+
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 7px; }
+    .dot.ok { background: var(--ok); }
+    .dot.bad { background: var(--bad); }
+    .dot.wait { background: #bdc1c6; }
+
+    .tag {
+      display: inline-block; font-size: 11.5px; padding: 2px 8px; border-radius: 999px;
+      background: var(--chip); color: var(--muted); white-space: nowrap;
+    }
+    .tag.ok { background: var(--ok-soft); color: var(--ok); }
+    .tag.warn { background: var(--warn-soft); color: var(--warn); }
+    .tag.bad { background: var(--bad-soft); color: var(--bad); }
+
+    .note {
+      border-left: 2px solid var(--border); padding: 2px 0 2px 12px;
+      color: var(--muted); font-size: 13px; margin-top: 14px;
+    }
+    a { color: var(--accent-ink); }
+
+    /* the seven stages, always visible so the page says what the app does */
+    .pipe {
+      display: flex; align-items: stretch; gap: 0; flex-wrap: wrap;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden; margin: 0 0 8px;
+    }
+    .pipe-step {
+      flex: 1 1 0; min-width: 108px; padding: 12px 12px 13px;
+      border-right: 1px solid var(--line); position: relative;
+    }
+    .pipe-step:last-child { border-right: 0; }
+    .pipe-step b { display: block; font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
+    .pipe-step span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
+    .pipe-step i {
+      font-style: normal; font-size: 10.5px; color: var(--accent-ink);
+      background: var(--accent-soft); border-radius: 999px; padding: 1px 7px;
+      position: absolute; top: 10px; right: 10px;
+    }
+    .pipe-step.done b { color: var(--ok); }
+    .pipe-step.now { background: var(--accent-soft); }
+    .pipe-step.now b { color: var(--accent-ink); }
+
+    @media (max-width: 640px) {
+      header { flex-wrap: wrap; gap: 10px 12px; padding: 12px 16px; }
+      .wrap { padding: 22px 16px 64px; }
+      h1 { font-size: 23px; }
+      .field { flex: 1 1 100%; }
+      .card { padding: 14px 14px; }
+      table { font-size: 13px; }
+      th, td { padding-right: 8px; }
+      .conn-table th:nth-child(3), .conn-table td:nth-child(3) { display: none; }
+      .pipe-step { flex: 1 1 46%; border-bottom: 1px solid var(--line); }
+      .pipe-step:nth-child(2n) { border-right: 0; }
+      .pipe-step:nth-last-child(-n+2) { border-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wordmark"><b>career</b> <span>ops india</span></div>
+    <div class="head-right">
+      <a class="btn" href="workspace.html">Workspace</a>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <h1>Connections</h1>
+    <p class="sub">What this app can reach, and the key it uses. Everything here runs on your machine.</p>
+
+    <div class="pipe" aria-label="The seven stages of the pipeline">
+      <div class="pipe-step done"><b>Discover</b><span>27 ATS boards, 5 free remote APIs, Naukri, Indeed India</span></div>
+      <div class="pipe-step done"><b>Analyse</b><span>Read the JD, extract the real requirements</span></div>
+      <div class="pipe-step done"><b>Recommend</b><span>100-point score, matched vs other</span></div>
+      <div class="pipe-step done"><b>Prepare</b><span>Tailor the CV, fill the form</span></div>
+      <div class="pipe-step now"><b>Apply</b><span>You approve, then it submits</span></div>
+      <div class="pipe-step"><b>Track</b><span>Every application, with evidence</span></div>
+      <div class="pipe-step"><b>Improve</b><span>Learn from what got replies</span></div>
+    </div>
+    <p class="hint" style="margin-top:10px">Green is built and running. Blue is the step you are on. The last two are the next milestone.</p>
+
+    <!-- ---------------- AI ---------------- -->
+    <h2>AI provider</h2>
+    <p class="hint">Sarvam is included. Bring your own key to use another provider. With no key, scoring still works — only the written explanation is skipped.</p>
+
+    <div class="card">
+      <div class="row">
+        <div class="field">
+          <label class="f" for="provider">Provider</label>
+          <select id="provider"></select>
+        </div>
+        <div class="field">
+          <label class="f" for="model">Model</label>
+          <input id="model" type="text" spellcheck="false" />
+          <div class="hint" style="margin-top:6px">Sarvam accepts <code>sarvam-105b</code> and <code>sarvam-105b-conversations</code>.</div>
+        </div>
+      </div>
+      <div class="row" id="baseRow" style="display:none">
+        <div class="field">
+          <label class="f" for="baseUrl">Base URL (OpenAI-compatible)</label>
+          <input id="baseUrl" type="text" spellcheck="false" placeholder="https://your-host/v1" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="f" for="key">API key</label>
+          <input id="key" type="password" spellcheck="false" placeholder="Paste a key, or leave blank to use the included one" />
+        </div>
+        <button class="btn" id="saveKey" type="button">Save key</button>
+        <button class="btn" id="clearKey" type="button">Remove</button>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary" id="test" type="button">Test connection</button>
+        <span class="meta" id="keyState">Checking…</span>
+      </div>
+      <div class="status" id="aiStatus"></div>
+      <p class="note">
+        The key is stored in <code>data/secrets.json</code> on this machine and is never sent back to the page.
+        It is not written to the database, the repo, or any log.
+      </p>
+    </div>
+
+    <!-- ---------------- connectors ---------------- -->
+    <h2>Job connectors</h2>
+    <p class="hint">Live status, checked just now. These are public employer feeds — no login, no key, no scraping.</p>
+
+    <div class="card">
+      <table class="conn-table">
+        <thead>
+          <tr><th>Source</th><th>Status</th><th>Postings</th><th>In India</th><th>Latency</th></tr>
+        </thead>
+        <tbody id="connBody">
+          <tr><td colspan="5" class="meta">Checking each feed…</td></tr>
+        </tbody>
+      </table>
+      <div class="row" style="margin-top:14px">
+        <button class="btn" id="refresh" type="button">Re-check</button>
+        <span class="meta" id="connSummary"></span>
+      </div>
+    </div>
+
+    <h2>Free sources — no key, no signup</h2>
+    <p class="hint">
+      These six publish an open JSON endpoint. They are the only job sources that work the moment you
+      clone the repo. The five remote boards are global, so each posting is kept only when its location
+      allows India, APAC or “worldwide”. Freelancer.com is a project marketplace: contracts, not
+      salaries, and open to India.
+    </p>
+
+    <div class="card">
+      <table>
+        <thead><tr><th>Source</th><th>Endpoint</th><th>Cost</th></tr></thead>
+        <tbody>
+          <tr><td class="name">Himalayas</td><td class="meta">himalayas.app/jobs/api</td><td><span class="tag ok">free</span></td></tr>
+          <tr><td class="name">Remotive</td><td class="meta">remotive.com/api/remote-jobs</td><td><span class="tag ok">free</span></td></tr>
+          <tr><td class="name">Remote OK</td><td class="meta">remoteok.com/api</td><td><span class="tag ok">free</span></td></tr>
+          <tr><td class="name">Jobicy</td><td class="meta">jobicy.com/api/v2/remote-jobs</td><td><span class="tag ok">free</span></td></tr>
+          <tr><td class="name">Working Nomads</td><td class="meta">workingnomads.com/api/exposed_jobs</td><td><span class="tag ok">free</span></td></tr>
+          <tr><td class="name">Freelancer.com</td><td class="meta">freelancer.com/api/projects/0.1</td><td><span class="tag ok">free</span></td></tr>
+        </tbody>
+      </table>
+      <p class="note">
+        Also free and already wired: 27 employer ATS boards (Lever, Greenhouse, Ashby, SmartRecruiters)
+        and Naukri through your own Chrome profile. No key is needed for any of them.
+      </p>
+      <p class="note">
+        Checked and not usable without payment or a scrape: Upwork and Guru RSS return 403; Fiverr,
+        PeoplePerHour, Truelancer, Twine and Contra publish HTML only. Fiverr is a gig marketplace —
+        sellers list services — so it is not a job source at all.
+      </p>
+    </div>
+
+    <h2>Free keys — optional</h2>
+    <p class="hint">
+      LinkedIn has no public jobs API, and scraping it breaks their terms. These aggregators already hold
+      a licence to redistribute the listings — including LinkedIn-sourced ones — so a key here is the
+      legal way to widen coverage. All three are free; each stays dormant until you paste a key.
+    </p>
+
+    <div class="card" id="sourceCards">
+      <div class="meta">Checking…</div>
+    </div>
+
+    <h2>Paid — not used</h2>
+    <p class="hint">These charge per call or after a trial, so this app does not call them.</p>
+
+    <div class="card">
+      <table>
+        <thead><tr><th>Service</th><th>Why it is excluded</th><th>Cost</th></tr></thead>
+        <tbody>
+          <tr><td class="name">Adzuna</td><td class="meta">25 free calls, then billed monthly</td><td><span class="tag bad">£8/month</span></td></tr>
+          <tr><td class="name">Careerjet Job Data API</td><td class="meta">Structured salary, billed per call</td><td><span class="tag bad">$2 / 1k</span></td></tr>
+          <tr><td class="name">LinkedIn Talent Solutions</td><td class="meta">Enterprise contract only</td><td><span class="tag bad">quoted</span></td></tr>
+          <tr><td class="name">Indeed Publisher</td><td class="meta">Programme closed to new applicants</td><td><span class="tag bad">n/a</span></td></tr>
+          <tr><td class="name">Glassdoor API</td><td class="meta">Partner-only, no public access</td><td><span class="tag bad">n/a</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Sources that need your session</h2>
+    <p class="hint">These have no public feed. The app opens the real site and you sign in there; it never sees your password.</p>
+
+    <div class="card">
+      <table>
+        <thead><tr><th>Source</th><th>How it would work</th><th>State</th></tr></thead>
+        <tbody id="manualBody"></tbody>
+      </table>
+    </div>
+
+    <!-- ---------------- MCP ---------------- -->
+    <h2>MCP server</h2>
+    <p class="hint">This install ships its own MCP server. Point Claude Desktop, Cursor or any MCP client at it and the agent can search Indian postings, score a CV and build an application plan.</p>
+
+    <div class="card">
+      <table>
+        <thead><tr><th>Server</th><th>What it gives</th><th>State</th></tr></thead>
+        <tbody id="mcpBody"></tbody>
+      </table>
+      <p class="note">
+        The server speaks JSON-RPC over stdio and never writes anything except protocol messages to stdout.
+        It uses the same discovery and scoring code as this page, so a tool call and a page load cannot disagree.
+      </p>
+      <div style="margin-top:14px">
+        <div class="hint" style="margin-bottom:6px">Add this to your MCP client config:</div>
+        <pre id="mcpConfig" style="background:#0f172a;color:#e2e8f0;border-radius:10px;padding:14px 16px;font-size:12.5px;line-height:1.55;overflow:auto;margin:0"></pre>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn" id="copyMcp" type="button">Copy config</button>
+          <span class="hint" id="copyNote" style="align-self:center"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (s) => document.querySelector(s);
+
+    const MANUAL = [
+      { name: "Naukri", how: "Discovery runs in your local Chrome profile. You sign in there; the agent reads the page and never sees the password.", state: "live" },
+      { name: "Indeed India", how: "Discovery runs in a real Chrome profile. Cloudflare clears on the first visit, so no sign-in is needed to search. The posting page is read on demand for the full description; Apply usually hands off to the employer's own ATS, which we fill.", state: "live" },
+      { name: "LinkedIn", how: "No public jobs API, and scraping breaks their terms. Covered legally through the licensed APIs above.", state: "via aggregator" },
+      { name: "Apna", how: "You sign in; the agent fills the form, you submit.", state: "not built" },
+      { name: "Instahyre", how: "You sign in; the agent fills the form, you submit.", state: "not built" },
+      { name: "Cutshort", how: "You sign in; the agent fills the form, you submit.", state: "not built" },
+      { name: "Hirist", how: "You sign in; the agent fills the form, you submit.", state: "not built" },
+      { name: "iimjobs", how: "You sign in; the agent fills the form, you submit.", state: "not built" },
+      { name: "Internshala", how: "You sign in; the agent fills the form, you submit.", state: "not built" }
+    ];
+
+    const MCP = [
+      { name: "career-ops-india", what: "search_jobs · score_job · list_connectors · plan_application", state: "live" },
+      { name: "playwright", what: "Drives the browser for a site with no API.", state: "built in" },
+      { name: "sarvam", what: "sarvam-105b for explanations and tailoring; Sarvam Vision for scanned resumes.", state: "live" }
+    ];
+
+    function tag(state) {
+      const cls =
+        state === "live" || state === "built in" || state === "via aggregator"
+          ? "ok"
+          : state === "blocked by policy"
+            ? "bad"
+            : "warn";
+      return `<span class="tag ${cls}">${state}</span>`;
+    }
+
+    /* ---------- AI settings ---------- */
+
+    let providers = {};
+
+    async function loadSettings() {
+      const r = await fetch("/api/settings");
+      const s = await r.json();
+      providers = s.providers || {};
+
+      const sel = $("#provider");
+      sel.innerHTML = Object.entries(providers)
+        .map(([id, p]) => `<option value="${id}">${p.label}</option>`)
+        .join("");
+      sel.value = s.provider;
+      $("#model").value = s.model;
+      $("#baseUrl").value = s.baseUrl;
+      $("#baseRow").style.display = s.provider === "custom" ? "flex" : "none";
+      $("#keyState").textContent = s.hasKey ? "A key is stored on this machine." : "No key stored.";
+      $("#clearKey").disabled = !s.hasKey;
+      $("#test").disabled = s.provider === "none";
+
+      renderSources(s.sources || []);
+    }
+
+    /* ---------- licensed job APIs ---------- */
+
+    function renderSources(list) {
+      const box = $("#sourceCards");
+      if (!list.length) {
+        box.innerHTML = `<div class="meta">No licensed sources configured.</div>`;
+        return;
+      }
+      box.innerHTML = list
+        .map(
+          (s) => `
+        <div class="src-row" data-src="${s.id}" style="padding:14px 0;border-bottom:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <b style="font-size:14px">${s.label}</b>
+            <span class="tag ${s.hasKey ? "ok" : "warn"}">${s.hasKey ? "key stored" : "needs key"}</span>
+            <span class="meta" style="margin-left:auto">${s.free}</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+            ${s.fields
+              .map(
+                (f) => `<input class="src-in" data-field="${f.key}" type="text" spellcheck="false"
+                  placeholder="${f.label}" style="flex:1;min-width:150px;padding:8px 11px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:13px" />`
+              )
+              .join("")}
+            <button class="btn btn-primary" data-act="save" type="button">Save</button>
+            <button class="btn" data-act="clear" type="button" ${s.hasKey ? "" : "disabled"}>Remove</button>
+            <a class="btn" href="${s.signup}" target="_blank" rel="noopener" style="text-decoration:none">Get a key</a>
+          </div>
+          <div class="status" data-status></div>
+        </div>`
+        )
+        .join("");
+
+      box.querySelectorAll(".src-row").forEach((row) => {
+        const id = row.dataset.src;
+        const status = row.querySelector("[data-status]");
+        row.querySelector('[data-act="save"]').addEventListener("click", async () => {
+          const values = {};
+          row.querySelectorAll(".src-in").forEach((i) => {
+            if (i.value.trim()) values[i.dataset.field] = i.value.trim();
+          });
+          if (!Object.keys(values).length) {
+            status.className = "status show bad";
+            status.textContent = "Paste a key first.";
+            return;
+          }
+          const r = await fetch("/api/settings/source-key", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ source: id, values })
+          });
+          const j = await r.json();
+          if (!j.ok) {
+            status.className = "status show bad";
+            status.textContent = j.error || "Could not save.";
+            return;
+          }
+          status.className = "status show ok";
+          status.textContent = "Saved. It runs on the next live search.";
+          row.querySelectorAll(".src-in").forEach((i) => (i.value = ""));
+          loadSettings();
+        });
+        row.querySelector('[data-act="clear"]').addEventListener("click", async () => {
+          await fetch(`/api/settings/source-key?source=${encodeURIComponent(id)}`, { method: "DELETE" });
+          loadSettings();
+        });
+      });
+    }
+
+    $("#provider").addEventListener("change", async (e) => {
+      const p = providers[e.target.value];
+      $("#model").value = p.model;
+      $("#baseUrl").value = p.baseUrl;
+      $("#baseRow").style.display = e.target.value === "custom" ? "flex" : "none";
+      $("#test").disabled = e.target.value === "none";
+      await fetch("/api/settings", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ provider: e.target.value, model: p.model, baseUrl: p.baseUrl })
+      });
+    });
+
+    $("#model").addEventListener("change", async () => {
+      await fetch("/api/settings", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ model: $("#model").value.trim() })
+      });
+    });
+
+    $("#baseUrl").addEventListener("change", async () => {
+      await fetch("/api/settings", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ baseUrl: $("#baseUrl").value.trim() })
+      });
+    });
+
+    function say(el, kind, text) {
+      el.className = "status show " + kind;
+      el.textContent = text;
+    }
+
+    $("#saveKey").addEventListener("click", async () => {
+      const key = $("#key").value.trim();
+      if (!key) return say($("#aiStatus"), "bad", "Paste a key first.");
+      const r = await fetch("/api/settings/key", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ apiKey: key })
+      });
+      const j = await r.json();
+      if (!j.ok) return say($("#aiStatus"), "bad", j.error || "Could not save the key.");
+      $("#key").value = "";
+      $("#keyState").textContent = "A key is stored on this machine.";
+      $("#clearKey").disabled = false;
+      say($("#aiStatus"), "ok", "Key saved. It will not be shown again.");
+    });
+
+    $("#clearKey").addEventListener("click", async () => {
+      await fetch("/api/settings/key", { method: "DELETE" });
+      $("#keyState").textContent = "No key stored.";
+      $("#clearKey").disabled = true;
+      say($("#aiStatus"), "info", "Key removed. Scoring still works; explanations are skipped.");
+    });
+
+    $("#test").addEventListener("click", async () => {
+      const btn = $("#test");
+      btn.disabled = true;
+      say($("#aiStatus"), "info", "Calling the provider…");
+      try {
+        const r = await fetch("/api/ai/test", { method: "POST" });
+        const j = await r.json();
+        if (j.ok) say($("#aiStatus"), "ok", `Connected in ${j.ms} ms. ${j.message || ""}`);
+        else say($("#aiStatus"), "bad", j.hint || `${j.status ? "HTTP " + j.status + " — " : ""}${j.error || "Failed."}`);
+      } catch (e) {
+        say($("#aiStatus"), "bad", String(e.message || e));
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    /* ---------- connectors ---------- */
+
+    async function loadConnectors() {
+      const body = $("#connBody");
+      body.innerHTML = `<tr><td colspan="5" class="meta">Checking each feed…</td></tr>`;
+      $("#connSummary").textContent = "";
+      try {
+        const r = await fetch("/api/connectors");
+        const j = await r.json();
+        const rows = j.connectors || [];
+        body.innerHTML = rows.map((c) => `
+          <tr>
+            <td><span class="name">${c.company}</span><div class="meta">${c.kind} · ${c.id}</div></td>
+            <td><span class="dot ${c.ok ? "ok" : "bad"}"></span>${c.ok ? "live" : c.kind === "api" ? "needs key" : "error"}</td>
+            <td>${c.count ?? "—"}</td>
+            <td>${c.india ?? "—"}</td>
+            <td class="meta">${c.ms ? c.ms + " ms" : "—"}</td>
+          </tr>`).join("");
+        const ok = rows.filter((c) => c.ok).length;
+        const total = rows.reduce((a, c) => a + (c.count || 0), 0);
+        const india = rows.reduce((a, c) => a + (c.india || 0), 0);
+        $("#connSummary").textContent = `${ok} of ${rows.length} live · ${total} postings · ${india} in India`;
+      } catch (e) {
+        body.innerHTML = `<tr><td colspan="5" class="meta">Server not reachable. Run <code>pnpm ui</code>.</td></tr>`;
+      }
+    }
+
+    $("#refresh").addEventListener("click", loadConnectors);
+
+    /* ---------- static tables ---------- */
+
+    $("#manualBody").innerHTML = MANUAL.map((m) => `
+      <tr>
+        <td class="name">${m.name}</td>
+        <td class="meta">${m.how}</td>
+        <td>${tag(m.state)}</td>
+      </tr>`).join("");
+
+    $("#mcpBody").innerHTML = MCP.map((m) => `
+      <tr>
+        <td class="name">${m.name}</td>
+        <td class="meta">${m.what}</td>
+        <td>${tag(m.state)}</td>
+      </tr>`).join("");
+
+    /* The config is generated from the page's own origin so it points at the
+       folder this install actually runs from. */
+    const mcpConfig = {
+      mcpServers: {
+        "career-ops-india": {
+          command: "node",
+          args: ["node_modules/tsx/dist/cli.mjs", "server/mcp.ts"],
+          cwd: "<absolute path to this repo>"
+        }
+      }
+    };
+    $("#mcpConfig").textContent = JSON.stringify(mcpConfig, null, 2);
+
+    $("#copyMcp").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText($("#mcpConfig").textContent);
+        $("#copyNote").textContent = "Copied";
+      } catch {
+        $("#copyNote").textContent = "Select the text and copy it";
+      }
+      setTimeout(() => { $("#copyNote").textContent = ""; }, 2500);
+    });
+
+    loadSettings();
+    loadConnectors();
+  </script>
+</body>
+</html>

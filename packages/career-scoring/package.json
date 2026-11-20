@@ -1,0 +1,13 @@
+{
+  "name": "@career-ops/career-scoring",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@career-ops/contracts": "workspace:*",
+    "@career-ops/career-taxonomy": "workspace:*"
+  }
+}

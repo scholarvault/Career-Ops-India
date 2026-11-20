@@ -1,0 +1,42 @@
+# dependencies
+node_modules/
+
+# build output
+.next/
+dist/
+build/
+out/
+
+# environment
+.env
+.env.*
+!.env.example
+
+# local user data - never committed
+data/
+data/secrets.json
+data/settings.json
+data/browser-profile/
+data/browser-profile-indeed/
+
+# documents and keys
+*.pdf
+!docs/**/*.pdf
+*.docx
+*.pem
+*.key
+*.p12
+*.pfx
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# editor
+.vscode/
+.idea/
+
+# logs
+*.log
+npm-debug.log*

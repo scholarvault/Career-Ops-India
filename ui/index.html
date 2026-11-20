@@ -1,0 +1,1890 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Career-Ops India — Set up your profile</title>
+
+  <script type="module" src="https://ui-sdk.dev/web.js"></script>
+  <link rel="stylesheet" href="https://ui-sdk.dev/web.css" />
+  <link rel="stylesheet" href="design.css" />
+
+  <!-- local, so extraction works offline: pdf.js + mammoth -->
+  <script src="vendor/pdf.min.js"></script>
+  <script src="vendor/mammoth.browser.min.js"></script>
+
+  <style>
+    /* page-specific only: tokens, buttons, chips, toasts live in design.css */
+    html, body { height: 100%; }
+    body { display: flex; min-height: 100vh; background: var(--bg); }
+
+    /* ---------------- shell ---------------- */
+
+    .shell { display: grid; grid-template-columns: 268px 1fr; width: 100%; min-height: 100vh; }
+
+    /* ---------------- side rail ---------------- */
+
+    .side {
+      display: flex; flex-direction: column;
+      padding: 22px 18px 18px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: sticky; top: 0; height: 100vh;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 0 6px 22px; }
+    .mark {
+      display: grid; place-items: center; width: 32px; height: 32px;
+      border-radius: 10px; background: linear-gradient(145deg, var(--accent), #0a4fc4);
+      color: #fff; font-size: 13px; font-weight: 700; letter-spacing: -0.03em;
+      box-shadow: 0 2px 8px rgba(13, 85, 201, 0.32);
+    }
+    .brand .wm { font-size: 15px; letter-spacing: -0.015em; line-height: 1.2; }
+    .brand .wm b { font-weight: 650; }
+    .brand .wm span { color: var(--muted); font-weight: 400; }
+
+    .steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+    .steps li { position: relative; }
+    .steps button {
+      display: flex; align-items: center; gap: 11px; width: 100%;
+      padding: 9px 10px; border: 0; border-radius: var(--r-md);
+      background: transparent; color: var(--muted);
+      font: inherit; font-size: 13px; text-align: left; cursor: pointer;
+      transition: background var(--t-fast), color var(--t-fast);
+    }
+    .steps button:hover:not(:disabled) { background: var(--surface-2); color: var(--ink-2); }
+    .steps button:disabled { cursor: default; opacity: 0.55; }
+    .steps button:focus-visible { outline: 3px solid var(--accent-ring); outline-offset: 1px; }
+    .steps .num {
+      display: grid; place-items: center; flex: 0 0 auto;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--surface-3); color: var(--faint);
+      font-size: 10.5px; font-weight: 700;
+      transition: background var(--t-mid) var(--ease-out), color var(--t-mid), transform var(--t-mid) var(--ease-spring);
+    }
+    .steps .lbl { flex: 1; }
+    .steps .state { font-size: 10px; color: var(--faint); }
+    .steps li[data-state="done"] button { color: var(--ink-2); }
+    .steps li[data-state="done"] .num { background: var(--ok-soft); color: var(--ok); }
+    .steps li[data-state="now"] button { color: var(--accent-ink); font-weight: 600; background: var(--accent-soft); }
+    .steps li[data-state="now"] .num { background: var(--accent); color: #fff; transform: scale(1.06); }
+    .steps li[data-state="now"] .state { color: var(--accent-ink); }
+
+    .side-foot { margin-top: auto; padding: 14px 8px 0; border-top: 1px solid var(--line); }
+    .side-foot p { margin: 0 0 8px; font-size: 11.5px; line-height: 1.5; color: var(--faint); }
+    .side-foot .lock { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted); }
+    .side-foot .lock svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ---------------- main column ---------------- */
+
+    .main { display: flex; flex-direction: column; min-width: 0; min-height: 100vh; }
+
+    .topbar {
+      display: none; align-items: center; gap: 10px;
+      padding: 12px 16px; background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 20;
+    }
+    .topbar .count { margin-left: auto; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    .progress { display: none; height: 3px; background: var(--surface-3); }
+    .progress > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 380ms var(--ease-out); }
+
+    main { flex: 1 0 auto; width: 100%; max-width: 720px; margin: 0 auto; padding: 44px 32px 40px; }
+
+    /* wide screens: the centre scrolls, the summary on the right stays put */
+    @media (min-width: 1180px) {
+      main {
+        max-width: 1060px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 288px;
+        gap: 44px;
+        align-items: start;
+      }
+      main > .step { grid-column: 1; grid-row: 1; }
+      main > .aside { grid-column: 2; grid-row: 1; }
+    }
+
+    .aside { display: none; }
+    @media (min-width: 1180px) {
+      .aside {
+        display: block;
+        position: sticky; top: 24px;
+        align-self: start;
+      }
+    }
+    .aside-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-lg); padding: 16px 16px 14px;
+      box-shadow: var(--sh-1);
+    }
+    .aside-card h3 {
+      margin: 0 0 12px; font-size: 10.5px; font-weight: 650;
+      text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted);
+    }
+    .aside-row { display: flex; align-items: baseline; gap: 10px; padding: 7px 0; border-top: 1px solid var(--line); }
+    .aside-row:first-of-type { border-top: 0; }
+    .aside-row .k { flex: 0 0 84px; font-size: 11.5px; color: var(--faint); }
+    .aside-row .v { flex: 1; min-width: 0; font-size: 12.5px; font-weight: 550; color: var(--ink-2); overflow-wrap: anywhere; }
+    .aside-row .v.empty { color: var(--faint); font-weight: 400; }
+    .aside-note { margin: 12px 0 0; font-size: 11.5px; line-height: 1.5; color: var(--faint); }
+    .aside-prog { height: 5px; border-radius: 3px; background: var(--surface-3); overflow: hidden; margin: 12px 0 4px; }
+    .aside-prog > i { display: block; height: 100%; background: var(--accent); transition: width 380ms var(--ease-out); }
+
+    .step { display: none; }
+    .step[data-active] { display: block; }
+    .step[data-active][data-enter] > * { animation: rise 380ms var(--ease-out) both; }
+    .step[data-active][data-enter] > *:nth-child(1) { animation-delay: 0ms; }
+    .step[data-active][data-enter] > *:nth-child(2) { animation-delay: 55ms; }
+    .step[data-active][data-enter] > *:nth-child(3) { animation-delay: 110ms; }
+    .step[data-active][data-enter] > *:nth-child(n+4) { animation-delay: 165ms; }
+
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-bottom: 10px; padding: 3px 9px;
+      border-radius: var(--r-pill); background: var(--accent-soft);
+      color: var(--accent-ink); font-size: 10.5px; font-weight: 650;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    h1 {
+      margin: 0 0 8px; font-size: clamp(26px, 3.4vw, 34px);
+      font-weight: 600; letter-spacing: -0.025em; line-height: 1.15;
+    }
+    .sub { margin: 0 0 26px; color: var(--muted); font-size: 14.5px; line-height: 1.55; max-width: 62ch; }
+    .hint { margin: 14px 0 0; color: var(--faint); font-size: 12.5px; line-height: 1.5; }
+
+    /* ---------------- role step ---------------- */
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field > label { font-size: 12px; font-weight: 600; color: var(--muted); }
+    .searchbox { position: relative; }
+    .searchbox svg {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      width: 17px; height: 17px; fill: none; stroke: var(--faint); stroke-width: 2; stroke-linecap: round;
+    }
+    .searchbox input {
+      width: 100%; height: 48px; padding: 0 14px 0 42px;
+      border: 1px solid var(--border); border-radius: var(--r-md);
+      background: var(--surface); color: var(--ink); font: inherit; font-size: 15px;
+      transition: border-color var(--t-fast), box-shadow var(--t-fast);
+    }
+    .searchbox input:hover { border-color: var(--border-strong); }
+    .searchbox input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+    .searchbox input[aria-invalid="true"] { border-color: var(--bad); box-shadow: 0 0 0 3px rgba(179, 38, 30, 0.15); }
+    .searchbox .clear {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      display: none; place-items: center; width: 28px; height: 28px;
+      border: 0; border-radius: 50%; background: var(--surface-3); color: var(--muted); cursor: pointer;
+    }
+    .searchbox .clear:hover { background: var(--border); color: var(--ink); }
+    .searchbox.has-value .clear { display: grid; }
+
+    .family-tag {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
+      padding: 4px 10px; border-radius: var(--r-pill);
+      background: var(--accent-soft); color: var(--accent-ink);
+      font-size: 11.5px; font-weight: 600;
+    }
+    .family-tag.custom { background: var(--surface-3); color: var(--muted); }
+
+    .results-head {
+      margin: 24px 0 9px; font-size: 10.5px; font-weight: 650;
+      letter-spacing: 0.07em; text-transform: uppercase; color: var(--faint);
+    }
+    .results { display: flex; flex-direction: column; gap: 6px; }
+    .result {
+      display: flex; align-items: center; gap: 12px; width: 100%;
+      padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--r-md);
+      background: var(--surface); color: var(--ink); font: inherit; font-size: 14px;
+      text-align: left; cursor: pointer;
+      transition: border-color var(--t-fast), background var(--t-fast), transform var(--t-fast) var(--ease-spring);
+    }
+    .result:hover { border-color: var(--border-strong); background: var(--surface-2); }
+    .result:active { transform: scale(0.99); }
+    .result:focus-visible { outline: 3px solid var(--accent-ring); outline-offset: 1px; }
+    .result[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+    .result .nm { flex: 1; font-weight: 500; }
+    .result[aria-pressed="true"] .nm { color: var(--accent-ink); font-weight: 600; }
+    .result .mt {
+      padding: 2px 7px; border-radius: 5px; font-size: 10px; font-weight: 650;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      background: var(--surface-3); color: var(--muted); white-space: nowrap;
+    }
+    .mt.exact { background: var(--ok-soft); color: var(--ok); }
+    .mt.alias { background: var(--warn-soft); color: var(--warn); }
+    .mt.spec { background: #f3e8fd; color: #6b21a8; }
+    .mt.rel { background: var(--accent-soft); color: var(--accent-ink); }
+
+    .fallback {
+      margin-top: 14px; padding: 14px 16px;
+      border: 1px dashed var(--border-strong); border-radius: var(--r-md);
+      background: var(--surface-2);
+    }
+    .fallback .q { margin: 0 0 10px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .fallback .why { margin: 10px 0 0; font-size: 12px; color: var(--faint); line-height: 1.5; }
+
+    /* ---------------- option rows ---------------- */
+
+    .opts { display: flex; flex-direction: column; gap: 7px; margin-top: 20px; }
+    .opts.two { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    @media (max-width: 620px) { .opts.two { grid-template-columns: 1fr; } }
+
+    .opt {
+      display: flex; align-items: center; gap: 12px; width: 100%;
+      padding: 13px 15px; border: 1px solid var(--border); border-radius: var(--r-md);
+      background: var(--surface); color: var(--ink); font: inherit; font-size: 13.5px;
+      line-height: 1.4; text-align: left; cursor: pointer;
+      transition: border-color var(--t-fast), background var(--t-fast), transform var(--t-fast) var(--ease-spring);
+    }
+    .opt:hover { border-color: var(--border-strong); background: var(--surface-2); }
+    .opt:active { transform: scale(0.99); }
+    .opt:focus-visible { outline: 3px solid var(--accent-ring); outline-offset: 1px; }
+    .opt .txt { flex: 1; }
+    .opt .tick {
+      display: grid; place-items: center; flex: 0 0 auto;
+      width: 20px; height: 20px; border-radius: 50%;
+      box-shadow: inset 0 0 0 1.5px var(--border-strong);
+      color: transparent; font-size: 11px;
+      transition: background var(--t-fast), color var(--t-fast), box-shadow var(--t-fast), transform var(--t-fast) var(--ease-spring);
+    }
+    .opt[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+    .opt[aria-pressed="true"] .txt { color: var(--accent-ink); font-weight: 550; }
+    .opt[aria-pressed="true"] .tick { background: var(--accent); color: #fff; box-shadow: none; transform: scale(1.05); }
+
+    .toolbar { display: flex; align-items: center; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+    .toolbar .count { margin-left: auto; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .toolbar .count b { color: var(--ink); }
+
+    #taskChips { transition: opacity var(--t-fast), transform var(--t-fast); }
+    #taskChips[data-swap] { opacity: 0; transform: translateY(-4px); }
+    #taskChips[data-enter] .opt { animation: rise 300ms var(--ease-out) both; }
+    #taskChips[data-enter] .opt:nth-child(1) { animation-delay: 0ms; }
+    #taskChips[data-enter] .opt:nth-child(2) { animation-delay: 22ms; }
+    #taskChips[data-enter] .opt:nth-child(3) { animation-delay: 44ms; }
+    #taskChips[data-enter] .opt:nth-child(4) { animation-delay: 66ms; }
+    #taskChips[data-enter] .opt:nth-child(5) { animation-delay: 88ms; }
+    #taskChips[data-enter] .opt:nth-child(6) { animation-delay: 110ms; }
+    #taskChips[data-enter] .opt:nth-child(7) { animation-delay: 132ms; }
+    #taskChips[data-enter] .opt:nth-child(8) { animation-delay: 154ms; }
+    #taskChips[data-enter] .opt:nth-child(n+9) { animation-delay: 176ms; }
+
+    /* ---------------- resume step ---------------- */
+
+    .drop {
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 38px 24px; text-align: center;
+      border: 1.5px dashed var(--border-strong); border-radius: var(--r-lg);
+      background: var(--surface);
+      transition: border-color var(--t-fast), background var(--t-fast), transform var(--t-fast);
+    }
+    .drop[data-over] { border-color: var(--accent); background: var(--accent-soft); transform: scale(1.005); }
+    .drop[data-busy] { border-style: solid; border-color: var(--accent); background: var(--accent-soft); }
+    .drop .ico {
+      display: grid; place-items: center; width: 52px; height: 52px; margin-bottom: 14px;
+      border-radius: 15px; background: var(--accent-soft); color: var(--accent-ink);
+      transition: transform var(--t-mid) var(--ease-spring);
+    }
+    .drop[data-over] .ico { transform: translateY(-3px) scale(1.05); }
+    .drop .ico svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .drop .big { margin: 0 0 4px; font-size: 15.5px; font-weight: 600; }
+    .drop .small { margin: 0; font-size: 12.5px; color: var(--muted); }
+    .drop input[type="file"] { display: none; }
+    .drop .pick { margin-top: 16px; }
+    .drop .bar { width: 100%; max-width: 260px; height: 4px; margin-top: 16px; border-radius: 3px; background: var(--surface-3); overflow: hidden; }
+    .drop .bar > i { display: block; height: 100%; width: 30%; border-radius: 3px; background: var(--accent); animation: indet 1.1s var(--ease-in-out) infinite; }
+    @keyframes indet { 0% { transform: translateX(-100%); } 100% { transform: translateX(340%); } }
+
+    .filecard {
+      display: flex; align-items: center; gap: 12px; margin-top: 12px;
+      padding: 13px 14px; border: 1px solid var(--border); border-radius: var(--r-md);
+      background: var(--surface); animation: rise 320ms var(--ease-out) both;
+    }
+    .filecard .ext {
+      display: grid; place-items: center; flex: 0 0 auto;
+      width: 38px; height: 38px; border-radius: 10px;
+      background: var(--accent-soft); color: var(--accent-ink);
+      font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+    }
+    .filecard .meta { flex: 1; min-width: 0; }
+    .filecard .nm { font-size: 13.5px; font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .filecard .sub { margin-top: 2px; font-size: 11.5px; color: var(--muted); }
+    .filecard .ok { color: var(--ok); font-weight: 600; }
+
+    .inline-err {
+      display: flex; align-items: flex-start; gap: 8px;
+      margin-top: 12px; padding: 10px 12px;
+      border-radius: var(--r-md); background: var(--bad-soft); color: var(--bad);
+      font-size: 12.5px; line-height: 1.5;
+    }
+    .inline-err svg { width: 15px; height: 15px; flex: 0 0 auto; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .skip-row { display: flex; align-items: center; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+    .skip-row span { font-size: 12.5px; color: var(--faint); }
+
+    /* ---------------- verify step ---------------- */
+
+    .banner {
+      display: flex; align-items: flex-start; gap: 9px;
+      margin-bottom: 16px; padding: 11px 13px;
+      border-radius: var(--r-md); font-size: 12.5px; line-height: 1.5;
+    }
+    .banner.ok { background: var(--ok-soft); color: var(--ok); }
+    .banner.warn { background: var(--warn-soft); color: var(--warn); }
+    .banner svg { width: 15px; height: 15px; flex: 0 0 auto; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .facts { display: grid; gap: 8px; }
+    .fact {
+      padding: 11px 13px; border: 1px solid var(--border); border-radius: var(--r-md);
+      background: var(--surface); animation: rise 300ms var(--ease-out) both;
+      transition: border-color var(--t-fast), background var(--t-fast);
+    }
+    .fact:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+    .fact.missing { background: var(--warn-soft); border-color: #f0d79a; }
+    .fact.invalid { border-color: var(--bad); background: var(--bad-soft); }
+    .fact .k { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; font-size: 11px; font-weight: 600; color: var(--muted); }
+    .fact .k .src {
+      padding: 1px 5px; border-radius: 4px; font-size: 9.5px; font-weight: 650;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      background: var(--surface-3); color: var(--faint);
+    }
+    .fact .k .src.found { background: var(--ok-soft); color: var(--ok); }
+    .fact .k .src.missing { background: var(--warn-soft); color: var(--warn); }
+    .fact input {
+      width: 100%; padding: 2px 0; border: 0; background: transparent;
+      color: var(--ink); font: inherit; font-size: 14.5px;
+    }
+    .fact input:focus { outline: none; }
+    .fact input::placeholder { color: var(--faint); }
+    .fact .ev {
+      margin-top: 7px; padding-top: 7px; border-top: 1px solid var(--line);
+      font-size: 11.5px; line-height: 1.45; color: var(--muted);
+    }
+    .fact .ev b { font-weight: 600; color: var(--ink-2); }
+    .fact .ev .q { font-style: italic; }
+
+    .empty-state {
+      padding: 26px 22px; border: 1px dashed var(--border-strong);
+      border-radius: var(--r-lg); background: var(--surface-2); text-align: center;
+    }
+    .empty-state b { display: block; margin-bottom: 5px; font-size: 14px; color: var(--ink); }
+    .empty-state p { margin: 0 0 12px; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+
+    /* ---------------- preferences ---------------- */
+
+    .pref-group { margin-top: 22px; }
+    .pref-group:first-of-type { margin-top: 0; }
+    .pref-group h3 {
+      margin: 0 0 9px; font-size: 11px; font-weight: 650;
+      letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+    }
+    .pref-group .row { display: flex; gap: 7px; flex-wrap: wrap; }
+
+    /* ---------------- paths ---------------- */
+
+    .paths { display: flex; flex-direction: column; gap: 8px; }
+    .path {
+      display: grid; grid-template-columns: 1fr auto; gap: 4px 14px;
+      padding: 13px 15px; border: 1px solid var(--border); border-radius: var(--r-md);
+      background: var(--surface); animation: rise 320ms var(--ease-out) both;
+    }
+    .path .role { font-size: 14px; font-weight: 600; }
+    .path .meta { grid-column: 1; font-size: 11.5px; color: var(--muted); }
+    .path .score { grid-row: 1 / span 2; grid-column: 2; align-self: center; text-align: right; }
+    .path .score b { font-size: 17px; font-weight: 650; font-variant-numeric: tabular-nums; }
+    .path .score span { font-size: 11px; color: var(--faint); }
+    .path .miss { grid-column: 1 / -1; margin-top: 6px; padding-top: 7px; border-top: 1px solid var(--line); font-size: 11.5px; color: var(--muted); }
+    .path .miss b { color: var(--ink-2); font-weight: 600; }
+
+    .pill {
+      display: inline-block; padding: 2px 7px; border-radius: var(--r-pill);
+      font-size: 10px; font-weight: 650; letter-spacing: 0.03em;
+      background: var(--surface-3); color: var(--muted);
+    }
+    .pill.direct { background: var(--ok-soft); color: var(--ok); }
+    .pill.prog { background: var(--accent-soft); color: var(--accent-ink); }
+    .pill.adj { background: var(--warn-soft); color: var(--warn); }
+    .pill.spec { background: #f3e8fd; color: #6b21a8; }
+
+    /* ---------------- action bar ---------------- */
+
+    .actionbar {
+      position: sticky; bottom: 0; z-index: 15;
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 32px 15px;
+      background: rgba(245, 246, 248, 0.92);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+    }
+    .actionbar .inner { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 720px; margin: 0 auto; }
+    .actionbar .why { flex: 1; min-width: 0; font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .actionbar .why b { color: var(--ink-2); font-weight: 600; }
+    .actionbar .why.err { color: var(--bad); }
+    .actionbar .why.err b { color: var(--bad); }
+
+    .shake { animation: shake 340ms var(--ease-in-out); }
+
+    /* ---------------- responsive ---------------- */
+
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      .side { display: none; }
+      .topbar { display: flex; }
+      .progress { display: block; }
+      main { padding: 26px 18px 32px; }
+      .actionbar { padding: 11px 16px 13px; }
+      .actionbar .why { display: none; }
+      .actionbar .inner { justify-content: space-between; }
+      .actionbar .btn { flex: 1; }
+      .actionbar .btn--primary { flex: 1.4; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .step[data-active][data-enter] > *,
+      #taskChips[data-enter] .opt,
+      .fact, .path, .filecard { animation: none !important; }
+      .drop .bar > i { animation: none; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <!-- ---------------- side rail ---------------- -->
+    <aside class="side">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">CO</div>
+        <div class="wm"><b>career</b> <span>ops india</span></div>
+      </div>
+
+      <ol class="steps" id="steps">
+        <li data-step="1" data-state="now"><button type="button" data-goto="1"><span class="num">1</span><span class="lbl">Target role</span><span class="state">now</span></button></li>
+        <li data-step="2"><button type="button" data-goto="2"><span class="num">2</span><span class="lbl">Experience</span></button></li>
+        <li data-step="3"><button type="button" data-goto="3"><span class="num">3</span><span class="lbl">Resume</span></button></li>
+        <li data-step="4"><button type="button" data-goto="4"><span class="num">4</span><span class="lbl">Verify</span></button></li>
+        <li data-step="5"><button type="button" data-goto="5"><span class="num">5</span><span class="lbl">Preferences</span></button></li>
+        <li data-step="6"><button type="button" data-goto="6"><span class="num">6</span><span class="lbl">Career paths</span></button></li>
+      </ol>
+
+      <div class="side-foot">
+        <p>Everything stays on this machine. No account, no upload, no password.</p>
+        <div class="lock">
+          <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          Read in your browser
+        </div>
+      </div>
+    </aside>
+
+    <!-- ---------------- main ---------------- -->
+    <div class="main">
+      <div class="topbar">
+        <div class="mark" aria-hidden="true">CO</div>
+        <div class="wm" style="font-size:14px"><b>career</b> <span style="color:var(--muted)">ops india</span></div>
+        <span class="count" id="topCount">Step 1 of 6</span>
+      </div>
+      <div class="progress"><i id="bar"></i></div>
+
+      <main>
+        <aside class="aside" id="aside" aria-label="Your profile so far"></aside>
+        <!-- 1 — Role -->
+        <section class="step" data-active id="s1">
+          <span class="eyebrow">Step 1 · Target role</span>
+          <h1>What role are you aiming for?</h1>
+          <p class="sub">Type any job title. We match it against the occupation index, then show the adjacent roles it can lead to.</p>
+
+          <div class="field">
+            <label for="roleInput">Role title</label>
+            <div class="searchbox" id="searchbox">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+              <input id="roleInput" placeholder="Product Manager, Data Analyst, Nurse…" autocomplete="off" aria-describedby="roleHelp" />
+              <button class="clear" id="roleClear" type="button" aria-label="Clear">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </button>
+            </div>
+            <p class="hint" id="roleHelp" style="margin-top:6px">Any title works, even one we have not classified yet.</p>
+          </div>
+
+          <div id="familyTag"></div>
+          <div id="roleResults"></div>
+          <div class="opts two" id="roleChips"></div>
+          <p class="hint" id="roleHint">Adjacent titles are matched at a lower weight, never as the same role.</p>
+        </section>
+
+        <!-- 2 — Responsibilities -->
+        <section class="step" id="s2">
+          <span class="eyebrow">Step 2 · Experience</span>
+          <h1>Which of these have you actually done?</h1>
+          <p class="sub" id="respSub">Not just under the target title. People often did this work under a different one.</p>
+
+          <div class="toolbar">
+            <button class="btn btn--sm" type="button" id="regen">
+              <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+              <span class="btn-label">Re-generate</span>
+            </button>
+            <button class="btn btn--sm" type="button" id="selectAll">
+              <svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>
+              <span class="btn-label">Select all</span>
+            </button>
+            <span class="count" id="taskCount"><b>0</b> selected</span>
+          </div>
+
+          <div class="opts" id="taskChips"></div>
+          <p class="hint">Only what you select is used to match jobs. Nothing here is added to your CV.</p>
+        </section>
+
+        <!-- 3 — Resume -->
+        <section class="step" id="s3">
+          <span class="eyebrow">Step 3 · Resume</span>
+          <h1>Add your resume.</h1>
+          <p class="sub">We read it once, in this browser, then you confirm every field. Nothing is uploaded and nothing is inferred without your say-so.</p>
+
+          <div class="drop" id="drop">
+            <div class="ico">
+              <svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 18v-6"/><path d="M9.5 14.5L12 12l2.5 2.5"/></svg>
+            </div>
+            <p class="big" id="dropBig">Drop your resume here</p>
+            <p class="small" id="dropSmall">PDF or DOCX · up to 5 MB · read locally</p>
+            <input type="file" id="file" accept=".pdf,.docx" />
+            <label class="btn btn--primary pick" for="file" id="dropLabel">
+              <svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
+              <span class="btn-label">Choose a file</span>
+            </label>
+            <div class="bar" id="dropBar" hidden><i></i></div>
+          </div>
+
+          <div id="fileRow"></div>
+          <div id="fileErr"></div>
+
+          <div class="skip-row" id="skipRow">
+            <span>No file handy?</span>
+            <button class="btn btn--sm btn--ghost" type="button" id="skipResume">I'll type my details instead</button>
+          </div>
+          <p class="hint" id="fileHint">The file never leaves this machine. Extraction is deterministic — no model, no key.</p>
+        </section>
+
+        <!-- 4 — Verify -->
+        <section class="step" id="s4">
+          <span class="eyebrow">Step 4 · Verify</span>
+          <h1>Check what we read.</h1>
+          <p class="sub" id="verifySub">Every field below came from your resume. Correct anything that is wrong before it is used.</p>
+
+          <div class="banner" id="verifyBanner" hidden></div>
+          <div class="facts" id="facts"></div>
+          <div class="empty-state" id="factsEmpty" hidden>
+            <b>No resume read.</b>
+            <p>Type the details you want used, or go back and add a PDF or DOCX.</p>
+            <button class="btn btn--sm" type="button" id="backToResume">Add a resume</button>
+          </div>
+          <div class="toolbar" style="margin-top:16px">
+            <button class="btn btn--sm btn--ghost" type="button" id="changeResume">
+              <svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
+              <span class="btn-label">Change resume</span>
+            </button>
+            <span class="count" id="factCount"></span>
+          </div>
+        </section>
+
+        <!-- 5 — Preferences -->
+        <section class="step" id="s5">
+          <span class="eyebrow">Step 5 · Preferences</span>
+          <h1>Where and how do you want to work?</h1>
+          <p class="sub">Location is a hard filter. A Bengaluru office role is not a Chennai match.</p>
+
+          <div class="pref-group">
+            <h3>Cities</h3>
+            <div class="row" id="cityChips"></div>
+          </div>
+          <div class="pref-group">
+            <h3>Work mode</h3>
+            <div class="row" id="modeChips"></div>
+          </div>
+          <div class="pref-group">
+            <h3>Level</h3>
+            <div class="row" id="expChips"></div>
+          </div>
+          <p class="hint">Work mode and level are scored, not filtered. City is a hard filter.</p>
+        </section>
+
+        <!-- 6 — Career paths -->
+        <section class="step" id="s6">
+          <span class="eyebrow">Step 6 · Career paths</span>
+          <h1>Where this role can take you.</h1>
+          <p class="sub" id="pathsSub">Based on what you selected, not on the title alone.</p>
+
+          <div class="paths" id="pathsList"></div>
+          <div class="empty-state" id="pathsEmpty" hidden>
+            <b>No taxonomy for this role yet.</b>
+            <p>We will build the map from your actual experience instead of guessing.</p>
+          </div>
+          <p class="hint">Match is a 100-point score against your confirmed profile. Missing items are what would raise it. Salary appears only when a source states it.</p>
+        </section>
+      </main>
+
+      <footer class="actionbar">
+        <div class="inner">
+          <button class="btn" id="back" type="button">
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+            <span class="btn-label">Back</span>
+          </button>
+          <div class="why" id="why"></div>
+          <button class="btn btn--primary" id="next" type="button">
+            <span class="btn-label">Continue</span>
+            <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="design.js"></script>
+  <script>
+    /* role families, occupation index and sample postings live in data.js */
+    const { FAMILIES, POPULAR, OCCUPATIONS, MATCH_LABEL, MATCH_CLASS,
+            searchOccupations, resolveFamily, escapeHtml, GENERIC } = window.CO;
+    const UI = window.CO.ui;
+
+    /* ---------- resume extraction ----------
+       Deterministic, in the browser, no model and no key. Every value
+       carries the line it came from; a field with no line stays empty
+       and is marked "not found" rather than filled with a guess.      */
+
+    const SECTION_WORDS = /^(experience|work experience|employment|professional experience|education|academic|skills|technical skills|core skills|projects|certifications?|achievements?|awards?|summary|profile|objective|contact|personal details|declaration|references?|languages|interests|hobbies|publications|volunteer)\b/i;
+
+    /* Degree abbreviations need a period or a distinctive spelling: a bare
+       "be" or "ca" is an ordinary word and used to match half the page. */
+    const DEGREE = /\b(b\.?\s?tech|b\.?\s?e\.|b\.?\s?sc|b\.?\s?com|b\.?\s?a\.|m\.?\s?tech|m\.?\s?e\.|m\.?\s?sc|m\.?\s?com|m\.?\s?b\.?\s?a|m\.?\s?a\.|m\.?\s?s\.|ph\.?\s?d|bachelor|master|diploma|bca|mca|bba|mba|pgdm|b\.?\s?arch|llb|b\.?\s?ed|m\.?\s?ed|\bma\b)\b/i;
+
+    const TITLE_TEST = /\b(manager|engineer|developer|analyst|designer|consultant|specialist|lead|architect|director|head|officer|executive|associate|intern|scientist|administrator|coordinator|strategist|founder|owner|president|assistant|supervisor|technician|accountant|recruiter|marketer|writer|editor|teacher|professor|nurse|doctor|lawyer|auditor|banker|operator|planner|buyer|clerk|chair|advisor|adviser|partner|principal|fellow|trainee|apprentice)\b/i;
+    const TITLE_ALL = new RegExp(TITLE_TEST.source, "gi");
+
+    const CITIES = ["Chennai","Bengaluru","Bangalore","Hyderabad","Mumbai","Pune","New Delhi","Delhi","Noida","Gurugram","Gurgaon","Kolkata","Ahmedabad","Coimbatore","Madurai","Tiruchirappalli","Trichy","Kochi","Cochin","Thiruvananthapuram","Jaipur","Chandigarh","Indore","Bhopal","Nagpur","Surat","Vadodara","Visakhapatnam","Mysuru","Mysore","Salem","Erode","Tirunelveli","Vellore","Warangal","Guntur","Nashik","Ludhiana","Agra","Dehradun","Bhubaneswar","Guwahati","Patna","Ranchi","Raipur","Jodhpur","Udaipur"];
+
+    const STATES = ["Tamil Nadu","Karnataka","Telangana","Maharashtra","Delhi","Uttar Pradesh","West Bengal","Gujarat","Kerala","Rajasthan","Punjab","Haryana","Madhya Pradesh","Andhra Pradesh","Odisha","Bihar","Assam","Jharkhand","Chhattisgarh","Goa","Uttarakhand","Himachal Pradesh"];
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+    function lineOf(lines, needle) {
+      const n = String(needle).toLowerCase();
+      return lines.find((l) => l.toLowerCase().includes(n)) || "";
+    }
+
+    /* ---------- layout helpers ----------
+       A designed resume puts the name, a tagline, a stat grid and a contact
+       row inside the first few lines. Flattened to text they interleave, so
+       reading order alone cannot find the name: "MANAGED GAIN USERS" is a
+       stat label, not a person. Font size and the horizontal gap between runs
+       separate them.                                                    */
+
+    function segmentsOf(line) {
+      const items = line.items.slice().sort((a, b) => a.x - b.x);
+      const out = [];
+      let cur = null;
+      for (const it of items) {
+        const h = Math.round(it.h || 0);
+        if (!cur) { cur = { h, items: [it] }; continue; }
+        const prev = cur.items[cur.items.length - 1];
+        const gap = it.x - (prev.x + (prev.w || 0));
+        if (Math.abs(h - cur.h) <= 1 && gap < 14) cur.items.push(it);
+        else { out.push(cur); cur = { h, items: [it] }; }
+      }
+      if (cur) out.push(cur);
+      return out
+        .map((s) => ({
+          h: s.h,
+          x: s.items[0].x,
+          text: s.items.map((i) => i.s).join(" ").replace(/\s+/g, " ").trim(),
+        }))
+        .filter((s) => s.text);
+    }
+
+    const NAME_STOP = /^(curriculum vitae|resume|biodata|cv|profile|contact|personal details|references?)$/i;
+
+    function nameWords(text) {
+      /* "ARJUN MENON, PMP" — a credential after a comma is not part of the name */
+      const cleaned = String(text).trim()
+        .replace(/,\s*[A-Z][A-Za-z.&]{1,10}(?:\s+[A-Z][A-Za-z.&]{1,10}){0,2}\s*$/, "");
+      const words = cleaned.trim().split(/\s+/);
+      if (words.length < 2 || words.length > 5) return null;
+      if (!words.every((w) => /^[A-Za-z][A-Za-z.'\u2019-]*$/.test(w))) return null;
+      if (words.some((w) => w.length > 20)) return null;
+      return words.join(" ");
+    }
+
+    /* the longest 2-4 word prefix of a line that is all letters:
+       "Ananya Iyer 0 → 1 Builder & Operator" → "Ananya Iyer" */
+    function namePrefix(text) {
+      const words = String(text).trim().split(/\s+/);
+      for (let n = Math.min(4, words.length); n >= 2; n--) {
+        const cand = nameWords(words.slice(0, n).join(" "));
+        if (cand) return cand;
+      }
+      return null;
+    }
+
+    function findName(lines, layout) {
+      /* 1. the largest type on page one is almost always the name */
+      const page = layout && layout[0];
+      if (page && page.lines.length) {
+        const top = page.lines.slice(0, 12);
+        let maxH = 0;
+        for (const line of top) for (const s of segmentsOf(line)) maxH = Math.max(maxH, s.h);
+        const floor = Math.max(10, maxH * 0.6);
+        let best = null;
+        for (const line of top) {
+          for (const s of segmentsOf(line)) {
+            if (s.h < floor) continue;
+            const cand = nameWords(s.text) || namePrefix(s.text);
+            if (!cand || NAME_STOP.test(cand)) continue;
+            if (!best || s.h > best.h) best = { v: cand, ev: s.text, h: s.h };
+          }
+        }
+        if (best) return { v: best.v, ev: best.ev };
+      }
+
+      /* 2. no geometry (DOCX, or a PDF set in one type size): first lines */
+      for (const line of lines.slice(0, 3)) {
+        const t = line.trim();
+        if (!t || t.length > 90) continue;
+        if (SECTION_WORDS.test(t)) continue;
+        const cand = namePrefix(t);
+        if (cand && !NAME_STOP.test(cand)) return { v: cand, ev: t };
+      }
+      return null;
+    }
+
+    function findEmail(text, lines) {
+      const m = text.match(/[\w.+-]+@[\w-]+\.[\w.]{2,}/);
+      return m ? { v: m[0], ev: lineOf(lines, m[0]) } : null;
+    }
+
+    function findPhone(text, lines) {
+      const m = text.match(/(?:\+?91[\s.-]?)?[6-9]\d{4}[\s.-]?\d{5}\b/);
+      if (!m) return null;
+      return { v: m[0].trim(), ev: lineOf(lines, m[0].trim()) };
+    }
+
+    function findLocation(lines) {
+      for (const line of lines) {
+        for (const city of CITIES) {
+          if (!new RegExp("\\b" + city + "\\b", "i").test(line)) continue;
+          const state = STATES.find((s) => new RegExp("\\b" + s + "\\b", "i").test(line));
+          return { v: state ? `${city}, ${state}` : city, ev: line.trim() };
+        }
+      }
+      return null;
+    }
+
+    /* Words that follow "in/" in ordinary prose and are not profile slugs. */
+    const LINKEDIN_STOP = new Set([
+      "out", "around", "between", "general", "particular", "order", "addition",
+      "terms", "case", "place", "line", "house", "store", "progress", "practice",
+      "fact", "short", "total", "full", "part", "response", "return", "turn",
+      "time", "front", "back", "depth", "detail", "brief", "summary", "writing",
+      "person", "team", "teams", "hand", "hands", "stock", "demand", "charge",
+      "common", "contrast", "essence", "favor", "favour", "light", "love",
+      "memory", "mind", "need", "public", "reality", "respect", "search",
+      "service", "sight", "spite", "touch", "trouble", "truth", "vain", "view",
+      "work", "works",
+    ]);
+
+    function findLinkedIn(text, lines) {
+      const full = text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/(?:in|pub)\/[\w-]+/i);
+      if (full) {
+        return { v: full[0].replace(/^https?:\/\/(www\.)?/i, ""), ev: lineOf(lines, full[0]) };
+      }
+      /* a designed resume often prints only the path, with the wordmark as an
+         icon: "example.dev in/ananya-iyer" */
+      const path = text.match(/(?:^|[\s|·•])in\/([a-z0-9][a-z0-9-]{3,})\b/i);
+      if (path) {
+        const slug = path[1].toLowerCase();
+        if (!LINKEDIN_STOP.has(slug)) {
+          return { v: `linkedin.com/in/${slug}`, ev: lineOf(lines, path[0].trim()) };
+        }
+      }
+      return null;
+    }
+
+    const FREE_MAIL = /^(gmail|googlemail|yahoo|outlook|hotmail|live|icloud|proton|protonmail|aol|zoho|rediffmail|ymail)\./i;
+
+    function findWebsite(text, lines) {
+      const mailHosts = new Set(
+        (text.match(/[\w.+-]+@[\w-]+\.[\w.]{2,}/g) || []).map((e) => e.split("@")[1].toLowerCase())
+      );
+      const re = /\b((?:https?:\/\/)?(?:www\.)?[a-z0-9][a-z0-9-]{1,}\.(?:com|in|io|dev|me|co|net|org|ai|app|xyz|tech|site|online|page|link|bio|so|sh|studio|design|works|run)(?:\/[^\s|,;)]*)?)\b/gi;
+      for (const m of text.matchAll(re)) {
+        const raw = m[1];
+        const host = raw.replace(/^https?:\/\/(www\.)?/i, "").split("/")[0].toLowerCase();
+        if (mailHosts.has(host)) continue;
+        if (FREE_MAIL.test(host)) continue;
+        if (/linkedin\.com$/i.test(host)) continue;
+        return { v: raw.replace(/^https?:\/\/(www\.)?/i, ""), ev: lineOf(lines, raw) };
+      }
+      return null;
+    }
+
+    /* A date range, e.g. "Nov 2024 - Present", "Sep 2023 – Oct 2024",
+       "2022 to now", "~ 2022 – June 2024". */
+    const MONTH = "(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?";
+    const DATE = `(?:${MONTH}\\s*'?\\d{2,4}|\\d{1,2}\\/\\d{4}|\\d{4})`;
+    const DATE_APPROX = `(?:~\\s*|approx\\.?\\s*)?${DATE}`;
+    const DATE_RANGE = new RegExp(
+      `(?:${DATE_APPROX})\\s*(?:[-–—]|to|until)\\s*(?:${DATE_APPROX}|present|current|till\\s*date|ongoing|now)`, "i"
+    );
+
+    /* A role line carries a date range and a title word:
+       "Head of Platform Northwind Labs FLAGSHIP VENTURE Mar 2021 – Present | Chennai, India"
+       Everything before the range is title + company + an optional all-caps tag. */
+
+    function parseRoleLine(line) {
+      const m = DATE_RANGE.exec(line);
+      if (!m) return null;
+
+      let head = line.slice(0, m.index).replace(/[\s|,·–—-]+$/, "").trim();
+      if (!head || head.length > 110) return null;
+      if (!TITLE_TEST.test(head)) return null;
+
+      /* a designed resume prints a small all-caps tag after the company:
+         "… Northwind Labs FLAGSHIP VENTURE". Two or more caps words is a tag;
+         a single one ("IAISR") is the company. */
+      let words = head.split(/\s+/);
+      let n = 0;
+      for (let i = words.length - 1; i >= 0; i--) {
+        if (/^[A-Z][A-Z&/'\u2019-]*$/.test(words[i]) && words[i].length >= 2) n++;
+        else break;
+      }
+      if (n >= 2 && n < words.length) words = words.slice(0, words.length - n);
+      head = words.join(" ");
+
+      /* the title ends at the last title word; the company is what follows */
+      let last = -1;
+      let lastWord = "";
+      TITLE_ALL.lastIndex = 0;
+      let mm;
+      while ((mm = TITLE_ALL.exec(head))) { last = mm.index + mm[0].length; lastWord = mm[0]; }
+      if (last < 0) return null;
+
+      /* "Head of Platform", "Director of Engineering": the title word is
+         followed by "of <function>", which is part of the title, not the
+         company. A second word is taken only when it names a function. */
+      if (/^(head|director|vp|vice\s+president|chief)$/i.test(lastWord)) {
+        const rest = head.slice(last).match(
+          /^\s+of\s+([A-Za-z][A-Za-z&/-]*)(?:\s+(management|engineering|design|marketing|sales|operations|product|platform|data|finance|people|growth|security|technology|analytics|research|content|revenue|customer|success|quality|legal|hr|risk|compliance|strategy)\b)?/i
+        );
+        if (rest) last += rest[0].length;
+      }
+
+      const title = head.slice(0, last).replace(/[\s|,·–—-]+$/, "").trim();
+      const company = head.slice(last).replace(/^[\s|,·–—@-]+/, "").trim();
+      if (!title) return null;
+      return { title, company, range: m[0], line };
+    }
+
+    /* "Business Analyst - Technoarete Pvt. Ltd." and "Data Analyst at Freshworks"
+       put the title and company on one line. */
+    function splitTitleCompany(text) {
+      const dash = text.match(/^(.{3,60}?)\s+[-–—|]\s+(.{2,60})$/);
+      if (dash && TITLE_TEST.test(dash[1])) return { title: dash[1].trim(), company: dash[2].trim() };
+      const at = text.match(/^(.{3,60}?)\s+(?:at|@)\s+(.{2,60})$/i);
+      if (at && TITLE_TEST.test(at[1])) return { title: at[1].trim(), company: at[2].trim() };
+      return null;
+    }
+
+    function findExperience(lines) {
+      const roles = [];
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        /* form A: title, company and dates on one line */
+        const inline = parseRoleLine(line);
+        if (inline) { roles.push(inline); continue; }
+
+        /* form B: title / company / dates on separate lines */
+        const m = DATE_RANGE.exec(line);
+        if (!m) continue;
+        const rest = line.replace(DATE_RANGE, "").replace(/[\s|,·–—()]/g, "");
+        if (rest.length > 24) continue;
+
+        for (let j = i - 1; j >= Math.max(0, i - 4); j--) {
+          const t = lines[j].trim();
+          if (!t || t.length > 90) continue;
+          if (DATE_RANGE.test(t)) continue;
+          if (/^[•*\-–—·▪]/.test(t)) continue;
+          if (!TITLE_TEST.test(t)) continue;
+
+          const split = splitTitleCompany(t);
+          const title = split ? split.title : t;
+          let company = split ? split.company : "";
+
+          if (!split) {
+            for (let k = j + 1; k < i; k++) {
+              const c = lines[k].trim();
+              if (!c || /^[•*\-–—·▪]/.test(c)) continue;
+              if (DATE_RANGE.test(c)) continue;
+              if (c.length > 70) continue;
+              company = c;
+              break;
+            }
+          }
+
+          roles.push({ title, company, companyLine: company || t, range: m[0], line: t });
+          break;
+        }
+      }
+
+      if (!roles.length) return { title: null, company: null };
+
+      /* the current role is the one still open, else the first listed */
+      const current = roles.find((r) => /present|current|till\s*date|ongoing|now/i.test(r.range)) || roles[0];
+      return {
+        title: { v: current.title, ev: current.line },
+        company: current.company ? { v: current.company, ev: current.companyLine || current.line } : null,
+      };
+    }
+
+    /* the header often states the current role directly:
+       "Head of Platform · Northwind Labs" */
+    function findHeaderRole(lines) {
+      for (const line of lines.slice(0, 6)) {
+        const t = line.trim();
+        if (!t || t.length > 90) continue;
+        const m = t.match(/^(.{3,60}?)\s*[·|]\s*(.{2,60})$/);
+        if (!m) continue;
+        const left = m[1].trim();
+        const right = m[2].trim();
+        if (!TITLE_TEST.test(left)) continue;
+        if (/\d{4}/.test(right)) continue;
+        return { title: left, company: right };
+      }
+      return null;
+    }
+
+    function findYears(text, lines) {
+      /* "3 Years 5 Months", "3+ years of experience", "Experience: 3 Years" */
+      const explicit = text.match(/(\d{1,2})\+?\s*(?:years?|yrs?)(?:\s*\d{1,2}\s*(?:months?|mos?))?/i);
+      if (explicit) return { v: explicit[1], ev: lineOf(lines, explicit[0]) };
+
+      /* otherwise measure the employment date ranges, not every year in the file */
+      const ranges = [...text.matchAll(new RegExp(DATE_RANGE.source, "gi"))];
+      if (ranges.length) {
+        const starts = [];
+        const ends = [];
+        for (const r of ranges) {
+          const ys = [...r[0].matchAll(/\b(19|20)\d{2}\b/g)].map((m) => Number(m[0]));
+          if (ys.length) starts.push(ys[0]);
+          if (/present|current|till\s*date|ongoing|now/i.test(r[0])) {
+            ends.push(new Date().getFullYear());
+          } else if (ys.length > 1) {
+            ends.push(ys[ys.length - 1]);
+          }
+        }
+        if (starts.length && ends.length) {
+          const span = Math.max(...ends) - Math.min(...starts);
+          if (span > 0 && span <= 45) {
+            return { v: String(span), ev: `Employment spans ${Math.min(...starts)}–${Math.max(...ends)}` };
+          }
+        }
+      }
+
+      const years = [...text.matchAll(/\b(19|20)(\d{2})\b/g)].map((m) => Number(m[1] + m[2]));
+      if (!years.length) return null;
+      const min = Math.min(...years);
+      const open = /present|current|till\s*date|ongoing/i.test(text);
+      const max = open ? new Date().getFullYear() : Math.max(...years);
+      const span = max - min;
+      if (span <= 0 || span > 45) return null;
+      return { v: String(span), ev: `Earliest year ${min}, latest ${max}${open ? " (present)" : ""}` };
+    }
+
+    function findEducation(lines, layout) {
+      /* a two-column education row prints the degree and a certificate on one
+         line; the degree is the first column */
+      if (layout) {
+        for (const page of layout) {
+          for (const line of page.lines) {
+            for (const s of segmentsOf(line)) {
+              if (!DEGREE.test(s.text)) continue;
+              if (/^(skills?|certifications?)\b/i.test(s.text)) continue;
+              if (s.text.length > 130) continue;
+              return { v: s.text, ev: line.text };
+            }
+          }
+        }
+      }
+      for (const line of lines) {
+        const t = line.trim();
+        if (!t || t.length > 130) continue;
+        if (!DEGREE.test(t)) continue;
+        if (/^(skills?|certifications?)\b/i.test(t)) continue;
+        return { v: t, ev: t };
+      }
+      return null;
+    }
+
+    function extractProfile(text, layout) {
+      const lines = text
+        .split(/\r?\n/)
+        .map((l) => l.replace(/\s+/g, " ").trim())
+        .filter(Boolean);
+
+      const exp = findExperience(lines);
+      const header = exp.title ? null : findHeaderRole(lines);
+
+      const specs = [
+        { k: "Full name", src: "header", hit: findName(lines, layout) },
+        { k: "Email", src: "header", hit: findEmail(text, lines) },
+        { k: "Phone", src: "header", hit: findPhone(text, lines) },
+        { k: "Location", src: "header", hit: findLocation(lines) },
+        { k: "LinkedIn", src: "header", hit: findLinkedIn(text, lines) },
+        { k: "Website", src: "header", hit: findWebsite(text, lines) },
+        { k: "Current title", src: "experience", hit: exp.title || (header ? { v: header.title, ev: header.title } : null) },
+        { k: "Current company", src: "experience", hit: exp.company || (header ? { v: header.company, ev: header.company } : null) },
+        { k: "Years of experience", src: "derived", hit: findYears(text, lines) },
+        { k: "Highest education", src: "education", hit: findEducation(lines, layout) }
+      ];
+
+      return specs.map((s) => ({
+        k: s.k,
+        src: s.hit ? s.src : "not found",
+        v: s.hit ? s.hit.v : "",
+        ev: s.hit ? s.hit.ev : ""
+      }));
+    }
+
+    const FACT_KEYS = ["Full name", "Email", "Phone", "Location", "LinkedIn", "Website",
+                       "Current title", "Current company", "Years of experience", "Highest education"];
+
+    function blankFacts() {
+      return FACT_KEYS.map((k) => ({ k, src: "not found", v: "", ev: "" }));
+    }
+
+    /* ---------- file readers ---------- */
+
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = "vendor/pdf.worker.min.js";
+    }
+
+    async function readPdf(file) {
+      const data = await file.arrayBuffer();
+      const pdf = await window.pdfjsLib.getDocument({ data }).promise;
+      const pages = [];
+      const layout = [];
+
+      for (let p = 1; p <= pdf.numPages; p++) {
+        const page = await pdf.getPage(p);
+        const content = await page.getTextContent();
+
+        /* group text items into visual lines by their y position, keeping each
+           run's size and x so a designed page can be read as columns */
+        const rows = new Map();
+        for (const item of content.items) {
+          if (!item.str || !item.str.trim()) continue;
+          const y = Math.round(item.transform[5]);
+          if (!rows.has(y)) rows.set(y, []);
+          rows.get(y).push({
+            x: item.transform[4],
+            w: item.width || 0,
+            h: item.height || 0,
+            s: item.str
+          });
+        }
+
+        const ys = [...rows.keys()].sort((a, b) => b - a);
+        const lines = [];
+        for (const y of ys) {
+          const items = rows.get(y).sort((a, b) => a.x - b.x);
+          const text = items.map((o) => o.s).join(" ").replace(/\s+/g, " ").trim();
+          if (!text) continue;
+          lines.push({ y, x: items[0].x, items, text });
+        }
+
+        layout.push({ lines });
+        pages.push(lines.map((l) => l.text).join("\n"));
+      }
+
+      return { text: pages.join("\n"), pages: pdf.numPages, layout };
+    }
+
+    async function readDocx(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const result = await window.mammoth.extractRawText({ arrayBuffer });
+      return { text: result.value || "", pages: null };
+    }
+
+    /* ---------- state ---------- */
+
+    const state = {
+      step: 1,
+      query: "",
+      role: "",
+      family: null,
+      tasks: new Set(),
+      visible: [],
+      file: null,
+      reading: false,
+      hasResume: false,
+      skipResume: false,
+      rawText: "",
+      pages: null,
+      layout: null,
+      facts: blankFacts(),
+      cities: new Set(),
+      modes: new Set(),
+      exp: new Set()
+    };
+
+    const TOTAL = 6;
+    const STEP_NAMES = ["Target role", "Experience", "Resume", "Verify", "Preferences", "Career paths"];
+    const $ = (s) => document.querySelector(s);
+    const steps = [null, $("#s1"), $("#s2"), $("#s3"), $("#s4"), $("#s5"), $("#s6")];
+
+    function familyData() {
+      return state.family ? FAMILIES[state.family] : GENERIC;
+    }
+
+    function factVal(k) {
+      const f = state.facts.find((x) => x.k === k);
+      return f ? String(f.v || "").trim() : "";
+    }
+
+    /* ---------- gates ----------
+       Each step states what it needs. The button stays clickable so it can
+       explain the requirement instead of sitting there dead. */
+
+    function gate(n) {
+      if (n === 1 && !state.role) {
+        return { ok: false, msg: "Choose a role, or type your own title.", focus: "#roleInput" };
+      }
+      if (n === 2 && !state.tasks.size) {
+        return { ok: false, msg: "Select at least one responsibility — it is what makes the match yours.", focus: "#taskChips" };
+      }
+      if (n === 3 && !state.hasResume && !state.skipResume) {
+        return { ok: false, msg: "Add a resume to continue, or choose “I'll type my details”.", focus: "#drop" };
+      }
+      if (n === 4) {
+        if (!factVal("Full name")) {
+          return { ok: false, msg: "Add your full name so the resume and forms are correct.", focus: '[data-fact="Full name"]' };
+        }
+        if (!factVal("Email")) {
+          return { ok: false, msg: "Add an email address — every application form needs one.", focus: '[data-fact="Email"]' };
+        }
+      }
+      if (n === 5 && !state.cities.size) {
+        return { ok: false, msg: "Pick at least one city. Location is a hard filter.", focus: "#cityChips" };
+      }
+      return { ok: true };
+    }
+
+    function refreshGate() {
+      const g = gate(state.step);
+      const why = $("#why");
+      const next = $("#next");
+      if (g.ok) {
+        why.className = "why";
+        why.innerHTML = state.step === 6
+          ? "Ready. Your profile is saved on this machine."
+          : `<b>${STEP_NAMES[state.step - 1]}</b> is complete.`;
+        next.querySelector(".btn-label").textContent = state.step === 6 ? "Finish & open workspace" : "Continue";
+      } else {
+        why.className = "why";
+        why.textContent = g.msg;
+        next.querySelector(".btn-label").textContent = state.step === 6 ? "Finish" : "Continue";
+      }
+    }
+
+    function block(g) {
+      const why = $("#why");
+      why.className = "why err";
+      why.innerHTML = `<b>Not yet.</b> ${g.msg}`;
+      const target = g.focus ? $(g.focus) : null;
+      if (target) {
+        target.classList.remove("shake");
+        void target.offsetWidth;
+        target.classList.add("shake");
+        setTimeout(() => target.classList.remove("shake"), 400);
+        if (target.focus) target.focus();
+        if (target.scrollIntoView) target.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+      UI.toast(g.msg, { kind: "warn", title: "One thing missing" });
+    }
+
+    /* ---------- render ---------- */
+
+    /* the right column: a live summary, so the centre is the only thing that
+       scrolls and the user can always see what they have built */
+    function renderAside() {
+      const box = $("#aside");
+      if (!box) return;
+      const fact = (k) => (state.facts.find((f) => f.k === k) || {}).v || "";
+      const row = (k, v) =>
+        `<div class="aside-row"><span class="k">${k}</span><span class="v ${v ? "" : "empty"}">${esc(v || "not set")}</span></div>`;
+
+      box.innerHTML = `
+        <div class="aside-card">
+          <h3>Your profile so far</h3>
+          <div class="aside-prog"><i style="width:${((state.step - 1) / (TOTAL - 1)) * 100}%"></i></div>
+          ${row("Role", state.role)}
+          ${row("Work done", state.tasks.size ? `${state.tasks.size} selected` : "")}
+          ${row("Resume", state.hasResume ? (state.file?.name || "added") : state.skipResume ? "typing instead" : "")}
+          ${row("Name", fact("Full name"))}
+          ${row("City", [...state.cities].join(", "))}
+          ${row("Mode", [...state.modes].join(", "))}
+          <p class="aside-note">Everything stays on this machine. No account, no upload, no password.</p>
+        </div>`;
+    }
+
+    function render() {
+      steps.forEach((el, i) => {
+        if (!el) return;
+        const on = i === state.step;
+        el.toggleAttribute("data-active", on);
+        el.removeAttribute("data-enter");
+      });
+
+      const active = steps[state.step];
+      if (active) {
+        void active.offsetWidth;
+        active.setAttribute("data-enter", "");
+        clearTimeout(render._t);
+        render._t = setTimeout(() => active.removeAttribute("data-enter"), 900);
+      }
+
+      /* rail */
+      document.querySelectorAll("#steps li").forEach((li) => {
+        const n = Number(li.dataset.step);
+        const btn = li.querySelector("button");
+        const stateEl = li.querySelector(".state");
+        li.dataset.state = n === state.step ? "now" : n < state.step ? "done" : "";
+        btn.disabled = n > state.step;
+        if (stateEl) stateEl.textContent = n === state.step ? "now" : "";
+        if (n < state.step) btn.querySelector(".num").textContent = "✓";
+        else btn.querySelector(".num").textContent = String(n);
+      });
+
+      $("#topCount").textContent = `Step ${state.step} of ${TOTAL}`;
+      $("#bar").style.width = `${((state.step - 1) / (TOTAL - 1)) * 100}%`;
+
+      $("#back").disabled = state.step === 1;
+
+      if (state.step === 2) renderTasks();
+      if (state.step === 4) renderFacts();
+      if (state.step === 6) renderPaths();
+
+      renderAside();
+      refreshGate();
+      window.scrollTo({ top: 0, behavior: UI.reduce ? "auto" : "smooth" });
+    }
+
+    function opt(label, pressed, onClick) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "opt";
+      b.setAttribute("aria-pressed", pressed ? "true" : "false");
+      const t = document.createElement("span");
+      t.className = "txt";
+      t.textContent = label;
+      const k = document.createElement("span");
+      k.className = "tick";
+      k.textContent = "✓";
+      k.setAttribute("aria-hidden", "true");
+      b.append(t, k);
+      if (onClick) b.addEventListener("click", onClick);
+      return b;
+    }
+
+    function pill(label, pressed, onClick) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.setAttribute("aria-pressed", pressed ? "true" : "false");
+      b.textContent = label;
+      if (onClick) b.addEventListener("click", onClick);
+      return b;
+    }
+
+    function pickRole(title) {
+      const on = state.role === title;
+      state.role = on ? "" : title;
+      state.family = on ? null : resolveFamily(title);
+      state.query = on ? "" : title;
+      $("#roleInput").value = state.query;
+      $("#searchbox").classList.toggle("has-value", Boolean(state.query));
+      renderRoles();
+      renderFamilyTag();
+      refreshGate();
+    }
+
+    function renderRoles() {
+      const box = $("#roleChips");
+      const results = $("#roleResults");
+      const hint = $("#roleHint");
+      const q = state.query.trim();
+
+      box.innerHTML = "";
+      results.innerHTML = "";
+
+      /* State A — nothing typed: popular directions, not the catalogue */
+      if (!q) {
+        box.hidden = false;
+        hint.hidden = false;
+        hint.textContent = "Adjacent titles are matched at a lower weight, never as the same role.";
+        results.innerHTML = `<div class="results-head">Popular career directions</div>`;
+        POPULAR.forEach((r) => {
+          box.appendChild(opt(r, state.role === r, () => pickRole(r)));
+        });
+        return;
+      }
+
+      /* State B and C — typing: contextual results replace the popular list */
+      box.hidden = true;
+      hint.hidden = true;
+
+      const matches = searchOccupations(q);
+
+      if (matches.length) {
+        results.innerHTML = `<div class="results-head">Roles matching “${escapeHtml(q)}”</div>`;
+        const list = document.createElement("div");
+        list.className = "results";
+
+        matches.forEach((m) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "result";
+          b.setAttribute("aria-pressed", state.role === m.title ? "true" : "false");
+          b.innerHTML = `<span class="nm">${escapeHtml(m.title)}</span>
+            <span class="mt ${MATCH_CLASS[m.match]}">${MATCH_LABEL[m.match]}</span>`;
+          b.addEventListener("click", () => pickRole(m.title));
+          list.appendChild(b);
+        });
+
+        results.appendChild(list);
+      } else {
+        results.innerHTML = `
+          <div class="results-head">No classification yet</div>
+          <div class="fallback">
+            <p class="q">We have not classified “${escapeHtml(q)}” yet. You can still continue with it.</p>
+            <button class="btn btn--sm btn--primary" type="button" id="useTitle">Use “${escapeHtml(q)}”</button>
+            <p class="why">Career-Ops will analyse your experience and identify relevant career paths after reviewing your resume.</p>
+          </div>`;
+        document.getElementById("useTitle").addEventListener("click", () => pickRole(q));
+      }
+
+      /* always offer the typed text when it is not already a result */
+      const alreadyListed = matches.some((m) => m.title.toLowerCase() === q.toLowerCase());
+      if (matches.length && !alreadyListed) {
+        const fb = document.createElement("div");
+        fb.className = "fallback";
+        fb.innerHTML = `<p class="q">Can't find your exact title?</p>
+          <button class="btn btn--sm" type="button" id="useTitle">Use “${escapeHtml(q)}”</button>`;
+        results.appendChild(fb);
+        document.getElementById("useTitle").addEventListener("click", () => pickRole(q));
+      }
+    }
+
+    function renderFamilyTag() {
+      const tag = $("#familyTag");
+      if (!state.role) { tag.innerHTML = ""; return; }
+      const fam = state.family ? FAMILIES[state.family] : null;
+      tag.innerHTML = fam
+        ? `<span class="family-tag">${fam.label} family · ${fam.roles.length} related titles</span>`
+        : `<span class="family-tag custom">Custom role · classification pending</span>`;
+    }
+
+    function renderTasks() {
+      const box = $("#taskChips");
+      box.innerHTML = "";
+      const pool = familyData().responsibilities;
+
+      if (!state.visible.length) {
+        state.visible = pool.slice(0, 10);
+      }
+
+      state.visible.forEach((r) => {
+        box.appendChild(opt(r, state.tasks.has(r), () => {
+          if (state.tasks.has(r)) state.tasks.delete(r); else state.tasks.add(r);
+          renderTasks();
+          refreshGate();
+        }));
+      });
+      $("#taskCount").innerHTML = `<b>${state.tasks.size}</b> selected`;
+      $("#respSub").textContent = state.role
+        ? `Not just under the ${state.role} title. People often did this work under a different one.`
+        : "Not just under the target title. People often did this work under a different one.";
+    }
+
+    function renderFacts() {
+      const box = $("#facts");
+      const empty = $("#factsEmpty");
+      const banner = $("#verifyBanner");
+      const sub = $("#verifySub");
+
+      box.innerHTML = "";
+
+      /* no resume and no typed details: offer the blank form, do not invent */
+      if (!state.hasResume && !state.skipResume) {
+        box.hidden = true;
+        empty.hidden = false;
+        banner.hidden = true;
+        sub.textContent = "Nothing to check yet.";
+        $("#factCount").textContent = "";
+        return;
+      }
+
+      box.hidden = false;
+      empty.hidden = true;
+
+      const found = state.facts.filter((f) => f.v).length;
+      const total = state.facts.length;
+      const missing = total - found;
+
+      banner.hidden = false;
+      if (state.hasResume) {
+        banner.className = "banner " + (missing ? "warn" : "ok");
+        banner.innerHTML = missing
+          ? `<svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 9v4M12 16.5v.5"/></svg><span>${found} of ${total} fields found. The ${missing} marked “not found” are empty on purpose — type them in if you want them used.</span>`
+          : `<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg><span>All ${total} fields were read from your resume. Correct anything that is wrong.</span>`;
+        sub.textContent = `Read in this browser from ${state.file ? state.file.name : "your resume"}. Every value keeps the line it came from.`;
+      } else {
+        banner.className = "banner warn";
+        banner.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg><span>No resume read. Type the details you want used — name and email are required to continue.</span>`;
+        sub.textContent = "Nothing was extracted, so nothing is assumed. Fill in what you want the matcher to use.";
+      }
+
+      $("#factCount").textContent = `${found} of ${total} filled`;
+
+      state.facts.forEach((f, i) => {
+        const wrap = document.createElement("div");
+        wrap.className = "fact" + (f.v ? "" : " missing");
+        wrap.dataset.fact = f.k;
+        wrap.style.animationDelay = `${Math.min(i, 8) * 35}ms`;
+
+        const k = document.createElement("div");
+        k.className = "k";
+        const srcCls = f.v ? "found" : "missing";
+        k.innerHTML = `${escapeHtml(f.k)} <span class="src ${srcCls}">${escapeHtml(f.v ? f.src : "not found")}</span>`;
+
+        const input = document.createElement("input");
+        input.value = f.v;
+        input.placeholder = f.v ? "" : "Not in your resume — add it here";
+        input.setAttribute("aria-label", f.k);
+        input.addEventListener("input", (e) => {
+          state.facts[i].v = e.target.value;
+          const filled = Boolean(e.target.value.trim());
+          wrap.classList.toggle("missing", !filled);
+          wrap.classList.remove("invalid");
+          k.querySelector(".src").className = "src " + (filled ? "found" : "missing");
+          k.querySelector(".src").textContent = filled ? (f.src === "not found" ? "typed" : f.src) : "not found";
+          $("#factCount").textContent = `${state.facts.filter((x) => x.v).length} of ${state.facts.length} filled`;
+          refreshGate();
+        });
+
+        wrap.append(k, input);
+
+        if (f.ev) {
+          const ev = document.createElement("div");
+          ev.className = "ev";
+          ev.innerHTML = `<b>From your resume:</b> <span class="q">“${escapeHtml(f.ev)}”</span>`;
+          wrap.appendChild(ev);
+        }
+
+        box.appendChild(wrap);
+      });
+    }
+
+    function renderPaths() {
+      const paths = familyData().paths;
+      const list = $("#pathsList");
+      const empty = $("#pathsEmpty");
+
+      $("#pathsSub").textContent = state.role
+        ? `Based on ${state.tasks.size || "the"} responsibilities you selected for ${state.role}, not on the title alone.`
+        : `Based on ${state.tasks.size || "the"} responsibilities you selected, not on the title alone.`;
+
+      if (!paths.length) {
+        list.innerHTML = "";
+        empty.hidden = false;
+        return;
+      }
+      empty.hidden = true;
+      list.innerHTML = "";
+      paths.forEach((p, i) => {
+        const d = document.createElement("div");
+        d.className = "path";
+        d.style.animationDelay = `${Math.min(i, 8) * 40}ms`;
+        d.innerHTML = `
+          <div class="role">${p.role}</div>
+          <div class="score"><b>${p.score}</b><span>/100</span></div>
+          <div class="meta"><span class="pill ${p.cls}">${p.rel}</span> · ${p.exp} · salary not sourced</div>
+          <div class="miss"><b>Missing:</b> ${p.miss}</div>`;
+        list.appendChild(d);
+      });
+    }
+
+    /* ---------- step 1 ---------- */
+
+    $("#roleInput").addEventListener("input", (e) => {
+      state.query = e.target.value;
+      $("#searchbox").classList.toggle("has-value", Boolean(state.query.trim()));
+
+      /* an exact title commits itself, so typing then Continue works */
+      const typed = state.query.trim();
+      const exact = OCCUPATIONS.find((o) => o.title.toLowerCase() === typed.toLowerCase());
+      if (exact) {
+        state.role = exact.title;
+        state.family = exact.family;
+      } else if (state.role !== typed) {
+        state.role = "";
+        state.family = null;
+      }
+
+      state.visible = [];
+      renderRoles();
+      renderFamilyTag();
+      refreshGate();
+    });
+
+    $("#roleClear").addEventListener("click", () => {
+      state.query = "";
+      state.role = "";
+      state.family = null;
+      $("#roleInput").value = "";
+      $("#searchbox").classList.remove("has-value");
+      renderRoles();
+      renderFamilyTag();
+      refreshGate();
+      $("#roleInput").focus();
+    });
+
+    /* ---------- step 2 ---------- */
+
+    $("#selectAll").addEventListener("click", () => {
+      const pool = familyData().responsibilities;
+      const all = state.tasks.size === pool.length;
+      state.tasks = all ? new Set() : new Set(pool);
+      state.visible = all ? [] : [...pool];
+      renderTasks();
+      refreshGate();
+    });
+
+    $("#regen").addEventListener("click", () => {
+      const box = $("#taskChips");
+      const pool = familyData().responsibilities;
+      const selected = pool.filter((r) => state.tasks.has(r));
+      const rest = pool.filter((r) => !state.tasks.has(r));
+      const slots = Math.max(0, 10 - selected.length);
+
+      /* nothing left to rotate through */
+      if (rest.length <= slots) {
+        box.classList.remove("shake");
+        void box.offsetWidth;
+        box.classList.add("shake");
+        setTimeout(() => box.classList.remove("shake"), 400);
+        UI.toast("You have seen every responsibility for this role.", { kind: "info" });
+        return;
+      }
+
+      /* rotate by a third of the pool so the change is obvious,
+         not one chip sliding by a single position */
+      const by = Math.max(1, Math.ceil(rest.length / 3));
+      const rotated = [...rest.slice(by), ...rest.slice(0, by)];
+
+      box.setAttribute("data-swap", "");
+      setTimeout(() => {
+        state.visible = [...selected, ...rotated.slice(0, slots)];
+        renderTasks();
+        box.removeAttribute("data-swap");
+        box.setAttribute("data-enter", "");
+        setTimeout(() => box.removeAttribute("data-enter"), 400);
+      }, 160);
+    });
+
+    /* ---------- step 3 ---------- */
+
+    const drop = $("#drop");
+    const fileInput = $("#file");
+    const MAX_BYTES = 5 * 1024 * 1024;
+
+    function fileError(msg) {
+      $("#fileErr").innerHTML = msg
+        ? `<div class="inline-err"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg><span>${escapeHtml(msg)}</span></div>`
+        : "";
+    }
+
+    function setReading(on) {
+      state.reading = on;
+      drop.toggleAttribute("data-busy", on);
+      $("#dropBar").hidden = !on;
+      $("#dropBig").textContent = on ? "Reading your resume…" : "Drop your resume here";
+      $("#dropSmall").textContent = on ? "This stays in your browser" : "PDF or DOCX · up to 5 MB · read locally";
+      $("#dropLabel").hidden = on;
+      $("#next").disabled = on;
+    }
+
+    function renderFileCard(f, status, meta) {
+      const row = $("#fileRow");
+
+      if (!f) { row.innerHTML = ""; return; }
+
+      const ext = f.name.toLowerCase().endsWith(".pdf") ? "PDF" : "DOCX";
+      const kb = Math.max(1, Math.round(f.size / 1024));
+      const found = state.facts.filter((x) => x.v).length;
+      const detail =
+        status === "reading" ? "Reading…" :
+        status === "error" ? "Could not read this file" :
+        `${kb} KB${meta && meta.pages ? ` · ${meta.pages} page${meta.pages > 1 ? "s" : ""}` : ""} · <span class="ok">${found} fields read</span>`;
+
+      row.innerHTML = `
+        <div class="filecard">
+          <div class="ext">${ext}</div>
+          <div class="meta">
+            <div class="nm">${escapeHtml(f.name)}</div>
+            <div class="sub">${detail}</div>
+          </div>
+          <button class="btn btn--sm btn--danger" type="button" id="removeFile"${status === "reading" ? " disabled" : ""}>Remove</button>
+        </div>`;
+
+      const rm = $("#removeFile");
+      if (rm) rm.addEventListener("click", removeFile);
+    }
+
+    function removeFile() {
+      state.file = null;
+      state.rawText = "";
+      state.pages = null;
+      state.layout = null;
+      state.hasResume = false;
+      state.facts = blankFacts();
+      state.reading = false;
+      fileInput.value = "";
+      $("#fileRow").innerHTML = "";
+      fileError("");
+      drop.hidden = false;
+      setReading(false);
+      $("#next").disabled = false;
+      $("#fileHint").textContent = "The file never leaves this machine. Extraction is deterministic — no model, no key.";
+      $("#skipRow").hidden = false;
+      refreshGate();
+    }
+
+    async function takeFile(f) {
+      if (!f || state.reading) return;
+
+      const name = f.name.toLowerCase();
+      fileError("");
+
+      if (name.endsWith(".doc") && !name.endsWith(".docx")) {
+        fileError("Old .doc files cannot be read in the browser. Save it as .docx or PDF and try again.");
+        return;
+      }
+      if (!/\.(pdf|docx)$/.test(name)) {
+        fileError("That is not a PDF or DOCX. Export your resume as one of those and try again.");
+        return;
+      }
+      if (f.size > MAX_BYTES) {
+        fileError(`That file is ${Math.round(f.size / 1024 / 1024)} MB. The limit is 5 MB.`);
+        return;
+      }
+
+      state.file = f;
+      state.facts = blankFacts();
+      state.hasResume = false;
+      state.skipResume = false;
+      drop.hidden = true;
+      setReading(true);
+      renderFileCard(f, "reading");
+
+      try {
+        const result = name.endsWith(".pdf") ? await readPdf(f) : await readDocx(f);
+
+        if (!result.text || result.text.replace(/\s/g, "").length < 40) {
+          throw new Error("no-text");
+        }
+
+        state.rawText = result.text;
+        state.pages = result.pages;
+        state.layout = result.layout || null;
+        state.facts = extractProfile(result.text, state.layout);
+        state.hasResume = true;
+
+        setReading(false);
+        renderFileCard(f, "ready", result);
+
+        const found = state.facts.filter((x) => x.v).length;
+        $("#fileHint").textContent = found
+          ? `${found} of ${state.facts.length} fields found. You confirm them on the next step.`
+          : "We read the file but recognised no fields. You can type your details on the next step.";
+        $("#skipRow").hidden = true;
+
+        if (!found) {
+          fileError("This looks like a scanned or image-only PDF. Text extraction found nothing — type your details on the next step, or upload a text-based PDF.");
+        }
+        refreshGate();
+      } catch (err) {
+        state.file = null;
+        state.rawText = "";
+        state.pages = null;
+        state.layout = null;
+        state.hasResume = false;
+        state.facts = blankFacts();
+        setReading(false);
+        renderFileCard(null);
+        drop.hidden = false;
+        fileInput.value = "";
+        fileError(
+          err && err.message === "no-text"
+            ? "No selectable text in that file. If it is a scan, upload a text-based PDF or type your details on the next step."
+            : "We could not read that file. Try re-exporting it as PDF, or use a different copy."
+        );
+        refreshGate();
+      }
+    }
+
+    fileInput.addEventListener("change", (e) => takeFile(e.target.files[0]));
+    ["dragenter", "dragover"].forEach((ev) =>
+      drop.addEventListener(ev, (e) => { e.preventDefault(); drop.setAttribute("data-over", ""); }));
+    ["dragleave", "drop"].forEach((ev) =>
+      drop.addEventListener(ev, (e) => { e.preventDefault(); drop.removeAttribute("data-over"); }));
+    drop.addEventListener("drop", (e) => takeFile(e.dataTransfer.files[0]));
+
+    $("#skipResume").addEventListener("click", () => {
+      state.skipResume = true;
+      state.hasResume = false;
+      state.facts = blankFacts();
+      drop.hidden = true;
+      $("#skipRow").hidden = true;
+      $("#fileHint").textContent = "No file. You will type the fields on the next step.";
+      fileError("");
+      UI.toast("You will type your details on the next step.", { kind: "info", title: "Skipping the resume" });
+      refreshGate();
+    });
+
+    $("#backToResume").addEventListener("click", () => goTo(3));
+    $("#changeResume").addEventListener("click", () => goTo(3));
+
+    /* ---------- step 5 ---------- */
+
+    function renderPrefs() {
+      const groups = [
+        ["#cityChips", ["Chennai", "Bengaluru", "Hyderabad", "Mumbai", "Pune", "Remote"], "cities"],
+        ["#modeChips", ["Hybrid", "Office", "Remote"], "modes"],
+        ["#expChips", ["Entry", "Mid-level", "Senior", "Leadership"], "exp"]
+      ];
+      groups.forEach(([sel, values, key]) => {
+        const box = $(sel);
+        box.innerHTML = "";
+        values.forEach((v) => {
+          box.appendChild(pill(v, state[key].has(v), () => {
+            if (key === "exp") {
+              state.exp.clear(); state.exp.add(v);
+            } else if (state[key].has(v)) {
+              state[key].delete(v);
+            } else {
+              state[key].add(v);
+            }
+            renderPrefs();
+            refreshGate();
+          }));
+        });
+      });
+    }
+
+    /* ---------- navigation ---------- */
+
+    function goTo(n) {
+      state.step = Math.max(1, Math.min(TOTAL, n));
+      render();
+    }
+
+    function saveAndGo() {
+      sessionStorage.setItem("co.onboarding", JSON.stringify({
+        role: state.role,
+        family: state.family,
+        tasks: [...state.tasks],
+        cities: [...state.cities],
+        modes: [...state.modes],
+        exp: [...state.exp],
+        facts: state.facts.map((f) => ({ k: f.k, v: f.v })),
+        rawText: state.rawText.slice(0, 20000),
+        file: state.file ? state.file.name : null,
+        hasResume: state.hasResume
+      }));
+      UI.toast("Profile saved. Opening your workspace.", { kind: "ok", title: "Ready" });
+      setTimeout(() => { location.href = "map.html"; }, 420);
+    }
+
+    $("#next").addEventListener("click", () => {
+      if (state.reading) return;
+      const g = gate(state.step);
+      if (!g.ok) { block(g); return; }
+
+      if (state.step === 1) {
+        /* never block on an unclassified title: accept what they typed */
+        if (!state.role && state.query.trim()) {
+          state.role = state.query.trim();
+          state.family = resolveFamily(state.role);
+          renderFamilyTag();
+        }
+      }
+      if (state.step === 6) { saveAndGo(); return; }
+      goTo(state.step + 1);
+    });
+
+    $("#back").addEventListener("click", () => goTo(state.step - 1));
+
+    document.querySelectorAll("#steps button").forEach((b) => {
+      b.addEventListener("click", () => {
+        const n = Number(b.dataset.goto);
+        if (n <= state.step) goTo(n);
+      });
+    });
+
+    /* Enter advances, except inside a textarea */
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      const t = e.target;
+      if (t && (t.tagName === "TEXTAREA" || t.tagName === "BUTTON" || t.tagName === "A")) return;
+      e.preventDefault();
+      $("#next").click();
+    });
+
+    /* ---------- boot ---------- */
+
+    renderRoles();
+    renderPrefs();
+
+    /* "Change resume" on the prepare page lands here on step 3. */
+    const reopenResume = sessionStorage.getItem("co.reopenResume");
+    if (reopenResume) {
+      sessionStorage.removeItem("co.reopenResume");
+      const saved = (() => {
+        try { return JSON.parse(sessionStorage.getItem("co.onboarding") || "null"); }
+        catch { return null; }
+      })();
+      if (saved) {
+        state.role = saved.role || "";
+        state.family = saved.family || null;
+        state.query = state.role;
+        $("#roleInput").value = state.query;
+        $("#searchbox").classList.toggle("has-value", Boolean(state.query));
+        (saved.tasks || []).forEach((t) => state.tasks.add(t));
+        (saved.cities || []).forEach((c) => state.cities.add(c));
+        (saved.modes || []).forEach((m) => state.modes.add(m));
+        (saved.exp || []).forEach((e) => state.exp.add(e));
+        if (Array.isArray(saved.facts) && saved.facts.length) {
+          state.facts = FACT_KEYS.map((k) => {
+            const hit = saved.facts.find((f) => f.k === k);
+            return { k, src: hit && hit.v ? "resume" : "not found", v: hit ? hit.v : "", ev: "" };
+          });
+          state.hasResume = Boolean(saved.hasResume);
+        }
+        renderRoles();
+        renderFamilyTag();
+        renderPrefs();
+      }
+      goTo(3);
+    } else {
+      render();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+#!/bin/sh
+# Refuse a commit that carries a secret or a real person's contact detail.
+# Enable once per clone:  git config core.hooksPath .githooks
+node scripts/check-secrets.mjs || {
+  echo ""
+  echo "Commit blocked. Fix the finding above, or stage with --no-verify only if you are certain."
+  exit 1
+}

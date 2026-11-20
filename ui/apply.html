@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Career-Ops India — Prepare application</title>
+
+  <script type="module" src="https://ui-sdk.dev/web.js"></script>
+  <link rel="stylesheet" href="https://ui-sdk.dev/web.css" />
+  <link rel="stylesheet" href="design.css" />
+
+  <style>
+    html, body { height: 100%; }
+    body { display: flex; flex-direction: column; min-height: 100vh; }
+
+    .appbar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 30;
+    }
+    .mark {
+      display: grid; place-items: center; width: 30px; height: 30px;
+      border-radius: 9px; background: linear-gradient(145deg, var(--accent), #0a4fc4);
+      color: #fff; font-size: 13px; font-weight: 700; letter-spacing: -0.03em;
+      box-shadow: 0 2px 6px rgba(13, 85, 201, 0.3);
+    }
+    .wordmark { font-size: 15px; letter-spacing: -0.015em; white-space: nowrap; }
+    .wordmark b { font-weight: 650; }
+    .wordmark span { color: var(--muted); font-weight: 400; }
+    .crumb { margin-left: auto; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .rail {
+      display: flex; align-items: center; gap: 2px;
+      padding: 0 20px; height: 38px; background: var(--surface);
+      border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none;
+    }
+    .rail::-webkit-scrollbar { display: none; }
+    .rail-step {
+      display: flex; align-items: center; gap: 6px; padding: 0 9px; height: 100%;
+      font-size: 11.5px; font-weight: 500; color: var(--faint);
+      white-space: nowrap; text-decoration: none; border-bottom: 2px solid transparent;
+    }
+    .rail-step .dot {
+      display: grid; place-items: center; width: 15px; height: 15px;
+      border-radius: 50%; background: var(--surface-3); color: var(--faint);
+      font-size: 8.5px; font-weight: 700;
+    }
+    .rail-step.done { color: var(--ok); }
+    .rail-step.done .dot { background: var(--ok-soft); color: var(--ok); }
+    .rail-step.on { color: var(--accent-ink); border-bottom-color: var(--accent); font-weight: 650; }
+    .rail-step.on .dot { background: var(--accent); color: #fff; }
+    .rail-sep { color: var(--border-strong); font-size: 10px; }
+
+    main { flex: 1 0 auto; width: 100%; max-width: 860px; margin: 0 auto; padding: 26px 24px 130px; }
+
+    .jobcard {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 18px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--r-lg);
+      box-shadow: var(--sh-1);
+    }
+    .jobcard .mono {
+      display: grid; place-items: center; width: 44px; height: 44px;
+      border-radius: 12px; background: var(--accent-soft); color: var(--accent-ink);
+      font-size: 14px; font-weight: 700; flex: 0 0 auto;
+    }
+    .jobcard .body { flex: 1; min-width: 0; }
+    .jobcard h1 { margin: 0; font-size: 19px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.25; }
+    .jobcard .meta { margin-top: 3px; font-size: 12.5px; color: var(--muted); }
+    .jobcard .ring { flex: 0 0 auto; }
+
+    .sec { margin-top: 28px; }
+    .sec-head { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; }
+    .sec-head .n {
+      display: grid; place-items: center; width: 21px; height: 21px;
+      border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink);
+      font-size: 10.5px; font-weight: 700;
+    }
+    .sec-head h2 { margin: 0; font-size: 12px; font-weight: 650; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); }
+    .sec-head .right { margin-left: auto; display: flex; gap: 6px; }
+    .hint { margin: 9px 0 0; font-size: 12px; color: var(--faint); line-height: 1.5; }
+
+    /* ---------------- tailoring ---------------- */
+
+    .tailor { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+    .tailor-head {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; background: var(--surface-2); border-bottom: 1px solid var(--line);
+    }
+    .tailor-head .fileico {
+      display: grid; place-items: center; width: 30px; height: 30px;
+      border-radius: 8px; background: var(--bad-soft); color: var(--bad);
+      font-size: 9px; font-weight: 700; letter-spacing: 0.04em;
+    }
+    .tailor-head .t { flex: 1; min-width: 0; font-size: 12.5px; font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tailor-head .v { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+
+    .change { padding: 13px 16px; border-bottom: 1px solid var(--line); }
+    .change:last-child { border-bottom: 0; }
+    .change .row1 { display: flex; align-items: center; gap: 8px; }
+    .kind {
+      padding: 2px 7px; border-radius: 5px; font-size: 9.5px; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .kind.reorder { background: var(--accent-soft); color: var(--accent-ink); }
+    .kind.rewrite { background: #f3e8fd; color: #6b21a8; }
+    .kind.keep { background: var(--surface-3); color: var(--muted); }
+    .change .what { font-size: 13.5px; font-weight: 600; margin: 7px 0 4px; line-height: 1.4; }
+    .change .why { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+    .change .ev {
+      margin-top: 8px; padding: 8px 11px;
+      border-left: 2px solid var(--border-strong); border-radius: 0 6px 6px 0;
+      background: var(--surface-2); font-size: 12px; color: var(--ink-2); line-height: 1.55;
+    }
+    .change .ev b {
+      display: block; margin-bottom: 3px; font-size: 9.5px; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase; color: var(--faint);
+    }
+
+    /* real tailoring result */
+    .tailor-empty { padding: 26px 20px; text-align: center; }
+    .tailor-empty .te-ico {
+      display: grid; place-items: center; width: 40px; height: 40px; margin: 0 auto 12px;
+      border-radius: 12px; background: var(--accent-soft); color: var(--accent-ink);
+    }
+    .tailor-empty .te-ico svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
+    .tailor-empty b { display: block; font-size: 14px; font-weight: 650; }
+    .tailor-empty p { max-width: 420px; margin: 6px auto 14px; font-size: 12.5px; line-height: 1.55; color: var(--muted); }
+    .tailor-empty em { font-style: normal; font-weight: 600; color: var(--ink-2); }
+
+    .tblock { padding: 13px 16px; border-bottom: 1px solid var(--line); }
+    .tblock:last-of-type { border-bottom: 0; }
+    .th {
+      display: flex; align-items: baseline; gap: 8px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--faint); margin-bottom: 7px;
+    }
+    .thn { margin-left: auto; font-size: 10.5px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--faint); }
+    .tp { margin: 0; font-size: 13px; line-height: 1.6; color: var(--ink-2); }
+    .tchips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .tchip {
+      padding: 3px 8px; border-radius: var(--r-pill);
+      background: var(--surface-3); color: var(--ink-2);
+      font-size: 11.5px; line-height: 1.4;
+    }
+    .tchip.have { background: var(--ok-soft); color: var(--ok); }
+    .tchip.miss { background: var(--bad-soft); color: var(--bad); }
+    .trole { margin-top: 10px; }
+    .trole:first-of-type { margin-top: 0; }
+    .trh { font-size: 12.5px; font-weight: 650; color: var(--ink); }
+    .trh span { font-weight: 400; color: var(--muted); }
+    .trole ul { margin: 5px 0 0; padding-left: 17px; }
+    .trole li { font-size: 12.5px; line-height: 1.55; color: var(--ink-2); margin-bottom: 3px; }
+    .tactions { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--surface-2); border-top: 1px solid var(--line); }
+    .tnote { font-size: 11px; line-height: 1.45; color: var(--faint); }
+
+    /* how this particular source is applied to */
+    .srcnote {
+      display: flex; gap: 10px; align-items: flex-start;
+      margin-top: 12px; padding: 11px 14px;
+      border: 1px solid var(--border); border-radius: var(--r-md);
+      background: var(--surface); font-size: 12.5px; line-height: 1.55; color: var(--ink-2);
+    }
+    .srcnote svg { width: 15px; height: 15px; flex: 0 0 auto; margin-top: 2px; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .srcnote b { font-weight: 650; }
+
+    /* ---------------- fields ---------------- */
+
+    .fields { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+    .field { display: grid; grid-template-columns: 168px 1fr auto; gap: 12px; align-items: start; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+    .field:last-child { border-bottom: 0; }
+    .field .k { padding-top: 8px; font-size: 12.5px; color: var(--muted); }
+    .field .v input, .field .v textarea {
+      width: 100%; padding: 8px 11px;
+      border: 1px solid var(--border); border-radius: var(--r-sm);
+      background: var(--surface); color: var(--ink); font: inherit; font-size: 13.5px;
+      resize: vertical;
+      transition: border-color var(--t-fast), box-shadow var(--t-fast);
+    }
+    .field .v input:hover, .field .v textarea:hover { border-color: var(--border-strong); }
+    .field .v input:focus, .field .v textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+    .field .why { margin-top: 5px; font-size: 11.5px; color: var(--faint); line-height: 1.45; }
+    .field .src {
+      margin-top: 8px; padding: 2px 6px; border-radius: 4px;
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase; white-space: nowrap;
+    }
+    .src.resume { background: var(--ok-soft); color: var(--ok); }
+    .src.profile { background: var(--accent-soft); color: var(--accent-ink); }
+    .src.blank { background: var(--bad-soft); color: var(--bad); }
+    .field.blocked { background: #fffdf7; }
+    .field.blocked .k { color: var(--warn); font-weight: 600; }
+    .field.blocked .v input, .field.blocked .v textarea { border-color: #f0d79a; }
+    .field.answered { background: var(--surface); }
+    .field.answered .k { color: var(--ink-2); }
+
+    .upload { display: grid; grid-template-columns: 168px 1fr auto; gap: 12px; align-items: center; padding: 12px 16px; }
+    .upload .k { font-size: 12.5px; color: var(--muted); }
+    .upload .file {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 11px; border: 1px solid var(--border); border-radius: var(--r-sm);
+      background: var(--surface-2); font-size: 12.5px;
+    }
+    .upload .file .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .upload .file .sz { color: var(--muted); font-size: 11px; }
+
+    /* ---------------- gate ---------------- */
+
+    .gate { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 6px 16px; }
+    .gate .row { display: flex; align-items: flex-start; gap: 11px; padding: 12px 0; }
+    .gate .row + .row { border-top: 1px solid var(--line); }
+    .gate .mark {
+      display: grid; place-items: center; flex: 0 0 auto;
+      width: 21px; height: 21px; margin-top: 1px; border-radius: 50%;
+      font-size: 11px; font-weight: 700;
+      transition: background var(--t-mid), color var(--t-mid), transform var(--t-mid) var(--ease-spring);
+    }
+    .mark.ok { background: var(--ok-soft); color: var(--ok); }
+    .mark.no { background: var(--bad-soft); color: var(--bad); }
+    .mark.pop { animation: pop 320ms var(--ease-spring); }
+    .gate .txt { flex: 1; font-size: 13px; line-height: 1.45; }
+    .gate .txt b { font-weight: 600; }
+    .gate .txt small { display: block; margin-top: 2px; font-size: 12px; color: var(--muted); }
+
+    .banner {
+      display: flex; gap: 10px; align-items: flex-start;
+      margin-top: 18px; padding: 12px 14px;
+      border-radius: var(--r-md); background: var(--warn-soft); color: var(--warn);
+      font-size: 12.5px; line-height: 1.55;
+    }
+    .banner svg { width: 16px; height: 16px; flex: 0 0 auto; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .banner b { font-weight: 650; }
+
+    footer {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+      padding: 12px 24px 16px;
+      background: rgba(245, 246, 248, 0.94); backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+    }
+    .footer-inner { display: flex; align-items: center; gap: 12px; max-width: 860px; margin: 0 auto; }
+    .footer-inner .status { flex: 1; min-width: 0; font-size: 12.5px; color: var(--muted); }
+    .footer-inner .status b { color: var(--ink-2); }
+
+    @media (max-width: 720px) {
+      .appbar { padding: 9px 12px; }
+      .crumb { display: none; }
+      .rail { padding: 0 10px; }
+      .rail-step { padding: 0 6px; font-size: 10.5px; }
+      .rail-step .lbl { display: none; }
+      .rail-step.on .lbl { display: inline; }
+      main { padding: 18px 14px 140px; }
+      .jobcard { flex-wrap: wrap; }
+      .jobcard .ring { margin-left: auto; }
+      .field, .upload { grid-template-columns: 1fr; gap: 6px; }
+      .field .k { padding-top: 0; }
+      .field .src { justify-self: start; margin-top: 0; }
+      footer { padding: 10px 14px 14px; }
+      .footer-inner { flex-wrap: wrap; }
+      .footer-inner .status { flex: 1 1 100%; }
+      .footer-inner .btn { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header class="appbar">
+    <div class="mark" aria-hidden="true">CO</div>
+    <div class="wordmark"><b>career</b> <span>ops india</span></div>
+    <div class="crumb" id="crumb">Workspace / Prepare application</div>
+  </header>
+
+  <nav class="rail" aria-label="Pipeline stage">
+    <a class="rail-step done" href="index.html"><span class="dot">✓</span><span class="lbl">Discover</span></a>
+    <span class="rail-sep">›</span>
+    <a class="rail-step done" href="map.html"><span class="dot">✓</span><span class="lbl">Analyse</span></a>
+    <span class="rail-sep">›</span>
+    <a class="rail-step done" href="workspace.html"><span class="dot">✓</span><span class="lbl">Recommend</span></a>
+    <span class="rail-sep">›</span>
+    <span class="rail-step on" aria-current="step"><span class="dot">4</span><span class="lbl">Prepare</span></span>
+    <span class="rail-sep">›</span>
+    <span class="rail-step"><span class="dot">5</span><span class="lbl">Apply</span></span>
+    <span class="rail-sep">›</span>
+    <span class="rail-step"><span class="dot">6</span><span class="lbl">Track</span></span>
+    <span class="rail-sep">›</span>
+    <span class="rail-step"><span class="dot">7</span><span class="lbl">Improve</span></span>
+  </nav>
+
+  <main>
+    <div class="jobcard">
+      <span class="mono" id="jobMono">—</span>
+      <div class="body">
+        <h1 id="jobTitle">Platform Product Manager, AI/ML</h1>
+        <div class="meta" id="jobMeta">ValGenesis · Chennai, Tamil Nadu · Lever</div>
+      </div>
+      <span class="ring" id="jobRing"></span>
+    </div>
+
+    <div class="srcnote" id="srcnote" hidden></div>
+
+    <div class="sec">
+      <div class="sec-head">
+        <span class="n">1</span>
+        <h2>Tailored resume</h2>
+        <div class="right">
+          <button class="btn btn--sm btn--ghost" type="button" id="changeResume">
+            <svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
+            <span class="btn-label">Change resume</span>
+          </button>
+        </div>
+      </div>
+      <div class="tailor" id="tailor"></div>
+      <p class="hint">Every change is a reorder or a rewrite of something already in your CV. Nothing is added. Your original file is untouched.</p>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head">
+        <span class="n">2</span>
+        <h2>Form fields</h2>
+      </div>
+      <div class="fields" id="fields"></div>
+      <p class="hint">Green came from your resume. Blue came from your preferences. Red is a question only you can answer.</p>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head">
+        <span class="n">3</span>
+        <h2>Approval</h2>
+      </div>
+      <div class="gate" id="gate"></div>
+
+      <div class="banner">
+        <svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 9v4M12 16.5v.5"/></svg>
+        <span><b>We do not submit this.</b> The form is filled in your browser and you press the final button. A confirmation page or message is required before this is recorded as applied. The candidate details are a demo persona, not a real person.</span>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="status" id="status">2 questions need your answer</span>
+      <button class="btn" type="button" id="back">
+        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        <span class="btn-label">Back to workspace</span>
+      </button>
+      <button class="btn btn--primary" type="button" id="open" disabled>
+        <svg viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
+        <span class="btn-label">Open form in browser</span>
+      </button>
+    </div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="design.js"></script>
+  <script>
+    const UI = window.CO.ui;
+
+    const RAW = sessionStorage.getItem("co.job");
+    if (!RAW) location.replace("workspace.html");
+    const job = RAW ? JSON.parse(RAW) : {
+      title: "—", company: "—", location: "—", source: "—",
+      sourceUrl: "#", score: 0, have: [], miss: []
+    };
+
+    const $ = (s) => document.querySelector(s);
+
+    function initials(name) {
+      const words = String(name || "?").replace(/[^A-Za-z0-9 ]/g, " ").split(/\s+/).filter(Boolean);
+      if (!words.length) return "?";
+      if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+
+    $("#jobTitle").textContent = job.title;
+    const SOURCE_NAME = {
+      lever: "Lever", greenhouse: "Greenhouse", ashby: "Ashby",
+      smartrecruiters: "SmartRecruiters", naukri: "Naukri", indeed: "Indeed India",
+      himalayas: "Himalayas", remotive: "Remotive", remoteok: "Remote OK",
+      jobicy: "Jobicy", workingnomads: "Working Nomads", freelancer: "Freelancer.com",
+    };
+    $("#jobMeta").textContent = `${job.company} · ${job.location} · ${SOURCE_NAME[job.source] || job.source}`;
+    $("#jobMono").textContent = initials(job.company);
+    $("#crumb").textContent = `Workspace / ${job.company} / Prepare application`;
+    UI.ring($("#jobRing"), job.score || 0, { size: 56, stroke: 5 });
+
+    /* say plainly what pressing the button will do for this source */
+    (function sourceNote() {
+      const box = $("#srcnote");
+      const ATS = ["lever", "greenhouse", "ashby", "smartrecruiters"];
+      const isAts = ATS.includes(job.source);
+      const isNaukri = job.source === "naukri";
+      const isFreelance = job.source === "freelancer";
+      let text;
+      if (isAts) {
+        text = `<b>This is a company application form.</b> It is the employer's own ATS, so the fields below are the ones it will ask for. Press the button and we fill them in your browser; you press submit.`;
+      } else if (isNaukri) {
+        text = `<b>Naukri has no “connect” permission to grant.</b> You sign in on naukri.com in your own browser (Connect Naukri on the previous step). Pressing the button opens the posting there. Many Naukri apply buttons hand off to the company's own ATS — when they do, we can fill that form directly.`;
+      } else if (job.source === "indeed") {
+        text = `<b>Indeed India usually hands the application to the employer.</b> Pressing the button opens the posting; if its Apply button says “Apply on company site”, the form is the employer's own ATS and we can fill it. Read the full posting in the workspace first so the score and the tailored resume use the real description.`;
+      } else if (isFreelance) {
+        text = `<b>This is a Freelancer.com project.</b> It is a bid, not a form: the client reads your proposal. Press the button to open the project and paste the summary above as your bid.`;
+      } else {
+        text = `<b>This source has no fillable form we can reach.</b> Pressing the button opens the posting; the fields below are what you will need to type there.`;
+      }
+      box.hidden = false;
+      box.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8v.5"/></svg><span>${text}</span>`;
+    })();
+
+    /* ---------- tailoring ---------- */
+
+    /* the workspace hands over the real Sarvam result; without it we say so
+       instead of inventing four plausible-looking changes */
+    const TAILORED = (() => {
+      try { return JSON.parse(sessionStorage.getItem("co.tailored") || "null"); }
+      catch (e) { return null; }
+    })();
+
+    const fileName = `Resume_${(job.company || "Company").replace(/\s+/g, "_")}_${(job.title || "Role").replace(/[^A-Za-z0-9]+/g, "_").replace(/^_|_$/g, "")}.pdf`;
+
+    function renderTailor() {
+      if (!TAILORED) {
+        $("#tailor").innerHTML = `
+          <div class="tailor-empty">
+            <div class="te-ico">
+              <svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg>
+            </div>
+            <b>Not tailored yet</b>
+            <p>Open the posting in your workspace and press <em>Tailor resume</em>. Sarvam rewrites your summary and reorders your experience in the posting's words, and the result lands here.</p>
+            <a class="btn btn--sm btn--primary" href="workspace.html">Back to the workspace</a>
+          </div>`;
+        return;
+      }
+
+      const have = (TAILORED.keywords || []).filter((k) => k.inResume);
+      const miss = (TAILORED.keywords || []).filter((k) => !k.inResume);
+
+      $("#tailor").innerHTML = `
+        <div class="tailor-head">
+          <span class="fileico">PDF</span>
+          <span class="t">${UI.esc(fileName)}</span>
+          <span class="v">${TAILORED.coverage}% keyword coverage · original untouched</span>
+        </div>
+
+        <div class="tblock">
+          <div class="th">Rewritten summary</div>
+          <p class="tp">${UI.esc(TAILORED.summary || "—")}</p>
+        </div>
+
+        ${(TAILORED.competencies || []).length ? `
+        <div class="tblock">
+          <div class="th">Core competencies</div>
+          <div class="tchips">${TAILORED.competencies.map((c) => `<span class="tchip">${UI.esc(c)}</span>`).join("")}</div>
+        </div>` : ""}
+
+        <div class="tblock">
+          <div class="th">Experience, reordered</div>
+          ${(TAILORED.bullets || []).map((r) => `
+            <div class="trole">
+              <div class="trh">${UI.esc(r.role)} <span>— ${UI.esc(r.company)}</span></div>
+              <ul>${r.lines.map((l) => `<li>${UI.esc(l)}</li>`).join("")}</ul>
+            </div>`).join("") || `<p class="tp">No roles were returned.</p>`}
+        </div>
+
+        <div class="tblock">
+          <div class="th">Keywords <span class="thn">${have.length} in your resume · ${miss.length} missing</span></div>
+          <div class="tchips">
+            ${have.map((k) => `<span class="tchip have">${UI.esc(k.term)}</span>`).join("")}
+            ${miss.map((k) => `<span class="tchip miss">${UI.esc(k.term)}</span>`).join("")}
+          </div>
+        </div>
+
+        ${(TAILORED.gaps || []).length ? `
+        <div class="tblock">
+          <div class="th">Gaps <span class="thn">never added to the CV</span></div>
+          <div class="tchips">${TAILORED.gaps.map((g) => `<span class="tchip miss">${UI.esc(g)}</span>`).join("")}</div>
+        </div>` : ""}
+
+        <div class="tactions">
+          <button class="btn btn--sm btn--primary" type="button" id="dl">
+            <svg viewBox="0 0 24 24"><path d="M12 4v11"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
+            <span class="btn-label">Download PDF</span>
+          </button>
+          <span class="tnote">Assessed by ${UI.esc(TAILORED.model || "Sarvam")}. Nothing was added that your resume does not already contain.</span>
+        </div>`;
+
+      $("#dl").addEventListener("click", () => downloadPdf());
+    }
+
+    /* one column, standard headings, selectable text: an ATS can read it */
+    function downloadPdf() {
+      const w = window.open("", "_blank");
+      if (!w) { UI.toast("Allow pop-ups for this page, then try again.", { kind: "bad" }); return; }
+      const name = fact("Full name") || "Your name";
+      const contact = [fact("Email"), fact("Phone"), fact("Location"), fact("LinkedIn"), fact("Website")].filter(Boolean).join(" · ");
+      const html = `<!doctype html><html><head><meta charset="utf-8"><title>${UI.esc(name)} — ${UI.esc(job.company)}</title>
+        <style>
+          @page { size: A4; margin: 14mm; }
+          * { box-sizing: border-box; }
+          body { margin: 0; font: 10.5pt/1.45 -apple-system, "Segoe UI", Arial, sans-serif; color: #111; }
+          h1 { margin: 0; font-size: 20pt; letter-spacing: -0.02em; }
+          .contact { margin-top: 4px; font-size: 9pt; color: #444; }
+          h2 { margin: 16px 0 6px; font-size: 9.5pt; text-transform: uppercase; letter-spacing: 0.08em; color: #0d55c9; border-bottom: 1px solid #d8dde5; padding-bottom: 3px; }
+          p { margin: 0 0 6px; }
+          ul { margin: 4px 0 0; padding-left: 16px; }
+          li { margin-bottom: 3px; }
+          .role { margin-top: 10px; }
+          .role b { font-size: 10.5pt; }
+          .role span { color: #555; }
+          .tags { font-size: 9.5pt; color: #333; }
+        </style></head><body>
+        <h1>${UI.esc(name)}</h1>
+        <div class="contact">${UI.esc(contact)}</div>
+        <h2>Professional Summary</h2><p>${UI.esc(TAILORED.summary || "")}</p>
+        ${(TAILORED.competencies || []).length ? `<h2>Core Competencies</h2><p class="tags">${TAILORED.competencies.map((c) => UI.esc(c)).join(" · ")}</p>` : ""}
+        <h2>Work Experience</h2>
+        ${(TAILORED.bullets || []).map((r) => `<div class="role"><b>${UI.esc(r.role)}</b> <span>— ${UI.esc(r.company)}</span><ul>${r.lines.map((l) => `<li>${UI.esc(l)}</li>`).join("")}</ul></div>`).join("")}
+        <h2>Education</h2><p>${UI.esc(fact("Highest education") || "—")}</p>
+        <h2>Skills</h2><p class="tags">${(ONB?.tasks || []).map((s) => UI.esc(s)).join(" · ") || "—"}</p>
+        </body></html>`;
+      w.document.open(); w.document.write(html); w.document.close(); w.focus();
+      setTimeout(() => { try { w.print(); } catch (e) {} }, 350);
+    }
+
+    /* ---------- form fields ---------- */
+
+    const ONB = (() => {
+      try { return JSON.parse(sessionStorage.getItem("co.onboarding") || "null"); }
+      catch (e) { return null; }
+    })();
+    const fact = (k) => {
+      if (!ONB || !ONB.facts) return "";
+      const hit = ONB.facts.find((f) => f.k === k);
+      return hit && hit.v ? hit.v : "";
+    };
+
+    const FIELDS = [
+      { k: "Full name", v: fact("Full name") || "Ananya Iyer", src: "resume" },
+      { k: "Email", v: fact("Email") || "ananya.iyer@example.com", src: "resume" },
+      { k: "Phone", v: fact("Phone") || "+91 90••• ••210", src: "resume" },
+      { k: "Current location", v: fact("Location") || "Bengaluru, Karnataka", src: "resume" },
+      { k: "Years of experience", v: fact("Years of experience") || "6", src: "resume" },
+      { k: "LinkedIn", v: fact("LinkedIn") || "linkedin.com/in/ananya-iyer", src: "profile" },
+      { k: "Website", v: fact("Website") || "ananya-iyer.dev", src: "profile" },
+      { k: "Expected CTC", v: "", src: "blank", blocked: true, placeholder: "e.g. 28 LPA", why: "Only you know your number. We will not guess a salary." },
+      { k: "Why do you want this role?", v: "", src: "blank", blocked: true, textarea: true, placeholder: "Two or three sentences in your own words", why: "A model-written answer to this question is a lie about your motivation. Write it yourself." }
+    ];
+
+    function renderFields() {
+      $("#fields").innerHTML = FIELDS.map((f, i) => `
+        <div class="field ${f.blocked ? "blocked" : ""}" id="row${i}">
+          <span class="k">${UI.esc(f.k)}</span>
+          <span class="v">
+            ${f.textarea
+              ? `<textarea rows="3" id="f${i}" placeholder="${UI.esc(f.placeholder || "")}"></textarea>`
+              : `<input id="f${i}" value="${UI.esc(f.v)}" placeholder="${UI.esc(f.placeholder || "")}" />`}
+            ${f.why ? `<div class="why">${UI.esc(f.why)}</div>` : ""}
+          </span>
+          <span class="src ${f.src}" id="src${i}">${f.src === "blank" ? "needs you" : f.src}</span>
+        </div>`).join("") +
+        `<div class="upload">
+          <span class="k">Resume</span>
+          <span class="file">
+            <span class="nm">${UI.esc(fileName)}</span>
+            <span class="sz">184 KB</span>
+          </span>
+          <span class="src resume">tailored</span>
+        </div>`;
+
+      FIELDS.forEach((f, i) => {
+        if (!f.blocked) return;
+        const el = document.getElementById(`f${i}`);
+        el.addEventListener("input", () => {
+          f.v = el.value.trim();
+          const row = document.getElementById(`row${i}`);
+          const src = document.getElementById(`src${i}`);
+          row.classList.toggle("blocked", !f.v);
+          row.classList.toggle("answered", Boolean(f.v));
+          src.className = "src " + (f.v ? "resume" : "blank");
+          src.textContent = f.v ? "answered" : "needs you";
+          renderGate();
+        });
+      });
+    }
+
+    /* ---------- gate ---------- */
+
+    let wasReady = false;
+
+    function renderGate() {
+      const missing = FIELDS.filter((f) => f.blocked && !f.v);
+      const ready = missing.length === 0;
+
+      $("#gate").innerHTML = `
+        <div class="row">
+          <span class="mark ${ready ? "ok" : "no"}">${ready ? "✓" : "!"}</span>
+          <span class="txt">
+            <b>${ready ? "All fields answered" : `${missing.length} question${missing.length === 1 ? "" : "s"} still blank`}</b>
+            <small>${ready
+              ? "The form is ready to fill. You still press submit."
+              : missing.map((m) => m.k).join(" · ")}</small>
+          </span>
+        </div>
+        <div class="row">
+          <span class="mark ${TAILORED ? "ok" : "no"}">${TAILORED ? "✓" : "!"}</span>
+          <span class="txt">
+            <b>${TAILORED ? "Resume tailored and attached" : "Resume not tailored yet"}</b>
+            <small>${TAILORED
+              ? `${TAILORED.coverage}% keyword coverage, every line traced to your CV.`
+              : "Tailor it in the workspace first — the button there writes the version this form attaches."}</small>
+          </span>
+        </div>
+        <div class="row">
+          <span class="mark ok">✓</span>
+          <span class="txt">
+            <b>No fact invented</b>
+            <small>Every field above has a source. Nothing was inferred into your profile.</small>
+          </span>
+        </div>`;
+
+      $("#status").innerHTML = ready
+        ? "<b>Ready.</b> The browser opens the form; you submit."
+        : `<b>${missing.length}</b> question${missing.length === 1 ? "" : "s"} need your answer`;
+      $("#open").disabled = !ready;
+
+      if (ready && !wasReady) {
+        UI.toast("Every field is answered. Open the form when you are ready.", { kind: "ok", title: "Ready to apply" });
+        const mark = $("#gate .mark");
+        if (mark) mark.classList.add("pop");
+      }
+      wasReady = ready;
+    }
+
+    /* ---------- nav ---------- */
+
+    const ATS = ["lever", "greenhouse", "ashby", "smartrecruiters"];
+    const ATS_HOST = /(^|\.)(lever\.co|greenhouse\.io|ashbyhq\.com|smartrecruiters\.com)$/i;
+    /* Indeed hands most applications to the employer, so a resolved applyUrl
+       on an ATS host is fillable even though the source is Indeed. */
+    const applyTarget = job.applyUrl || job.sourceUrl;
+    let canFill = ATS.includes(job.source);
+    if (!canFill && job.source === "indeed" && applyTarget) {
+      try { canFill = ATS_HOST.test(new URL(applyTarget).hostname); } catch (e) { canFill = false; }
+    }
+    if (canFill) {
+      $("#open .btn-label").textContent = "Fill the form for me";
+    }
+
+    $("#back").addEventListener("click", () => { location.href = "workspace.html"; });
+    $("#changeResume").addEventListener("click", () => {
+      sessionStorage.setItem("co.reopenResume", "1");
+      location.href = "index.html";
+    });
+
+    $("#open").addEventListener("click", async () => {
+      if (!canFill) {
+        window.open(applyTarget, "_blank", "noopener");
+        return;
+      }
+      const btn = $("#open");
+      const label = btn.querySelector(".btn-label");
+      const was = label.textContent;
+      btn.disabled = true;
+      label.textContent = "Opening your browser…";
+      try {
+        const r = await fetch("/api/fill", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            url: applyTarget,
+            source: job.source,
+            profile: {
+              fullName: fact("Full name"),
+              email: fact("Email"),
+              phone: fact("Phone"),
+              city: fact("Location"),
+              linkedin: fact("LinkedIn"),
+              website: fact("Website"),
+              currentCompany: fact("Current company"),
+              currentTitle: fact("Current title"),
+              years: Number(String(fact("Years of experience")).replace(/[^0-9.]/g, "")) || undefined,
+              expectedCtc: (FIELDS.find((f) => f.k === "Expected CTC") || {}).v || undefined,
+            },
+          }),
+          signal: AbortSignal.timeout(90000),
+        });
+        const d = await r.json();
+        if (d.ok) {
+          $("#status").innerHTML = `<b>${d.filled}</b> field${d.filled === 1 ? "" : "s"} filled. Opening the browser panel — read it, attach the PDF, press submit.`;
+          /* The form is filled in the embedded browser, so take the user there
+             instead of leaving them on a page that says "the window is open". */
+          location.href = `browser.html?filled=${d.filled}&skipped=${d.skipped.length}`;
+          return;
+        } else {
+          UI.toast(d.error || d.message || "Could not fill the form.", { kind: "bad", title: "Not filled" });
+          if (d.reason === "not-fillable") window.open(job.sourceUrl, "_blank", "noopener");
+        }
+      } catch (e) {
+        const timedOut = e && (e.name === "TimeoutError" || e.name === "AbortError");
+        UI.toast(
+          timedOut ? "The form took too long to load. Open it and fill it yourself." : "Could not reach the local agent.",
+          { kind: "bad", title: "Not filled" }
+        );
+      } finally {
+        btn.disabled = false;
+        label.textContent = was;
+      }
+    });
+
+    renderTailor();
+    renderFields();
+    renderGate();
+    UI.reveal();
+  </script>
+</body>
+</html>

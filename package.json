@@ -1,0 +1,32 @@
+{
+  "name": "career-ops-india",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AI job discovery, matching and application operations for the Indian market",
+  "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "ui": "tsx server/index.ts",
+    "mcp": "tsx server/mcp.ts",
+    "demo": "tsx scripts/demo.ts",
+    "test:extract": "node scripts/test-extraction.mjs",
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "shot:verify": "node scripts/shot-verify.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@career-ops/application-agent": "workspace:*",
+    "@career-ops/career-profile": "workspace:*",
+    "@career-ops/career-scoring": "workspace:*",
+    "@career-ops/career-taxonomy": "workspace:*",
+    "@career-ops/contracts": "workspace:*",
+    "@career-ops/job-discovery": "workspace:*",
+    "@types/node": "^26.6.6",
+    "playwright-core": "^1.65.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "license": "AGPL-3.0-or-later"
+}

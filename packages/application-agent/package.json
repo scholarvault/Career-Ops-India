@@ -1,0 +1,12 @@
+{
+  "name": "@career-ops/application-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@career-ops/contracts": "workspace:*"
+  }
+}
