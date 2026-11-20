@@ -41,17 +41,20 @@ function serveUi() {
   return new Promise((r) => server.listen(0, "127.0.0.1", () => r(server)));
 }
 
-const exe = [
+const exe = process.env.CHROME_PATH || [
   "C:/Program Files/Google/Chrome/Application/chrome.exe",
   "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
   "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+  "/usr/bin/google-chrome",
+  "/usr/bin/chromium",
+  "/usr/bin/chromium-browser",
 ].find((p) => existsSync(p));
 
 if (!exe) { console.error("No Chrome or Edge found."); process.exit(2); }
 
 const server = await serveUi();
 const base = `http://127.0.0.1:${server.address().port}`;
-const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || exe, headless: true });
+const browser = await chromium.launch({ executablePath: exe, headless: true });
 
 try {
   const gen = await browser.newPage();
