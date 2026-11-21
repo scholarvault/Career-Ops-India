@@ -3,6 +3,16 @@
 Find the roles you actually fit, tailor a resume for each one, and apply with
 you in the loop — on Indian job boards, company career pages and ATS forms.
 
+**Live site:** https://career-ops-india.pages.dev
+
+## Who it is for
+
+- Job seekers in India who are tired of applying into a void.
+- People switching roles, not just titles — the app shows the adjacent roles
+  your experience already covers.
+- Anyone who wants to see and approve every application, not hand a bot their
+  inbox and hope.
+
 ## What it does
 
 - **Discovers** postings from Indian boards, company career pages, ATS feeds and
@@ -15,6 +25,16 @@ you in the loop — on Indian job boards, company career pages and ATS forms.
 - **Applies** with you in the loop: it fills the form, asks only when it must,
   and records the confirmation the site showed.
 - **Learns** each site, so the next form on that site needs fewer answers.
+
+```mermaid
+flowchart LR
+  A[Discover] --> B[Score]
+  B --> C[Market]
+  C --> D[Pick]
+  D --> E[Tailor]
+  E --> F[Apply]
+  F --> G[Learn]
+```
 
 ## Quick start
 
@@ -93,7 +113,8 @@ The same flow is available without the page:
 
 ## Your data
 
-Everything stays on your machine. Nothing is uploaded.
+Your files stay on your machine. The app does not upload them anywhere except
+the AI provider you configure, and only when you tailor or explain a posting.
 
 | What | Where |
 |---|---|
