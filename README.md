@@ -15,6 +15,62 @@
 
 </div>
 
+## Start with your agent
+
+You already have Claude, Codex, Cursor, Kimi, Gemini, Copilot, Hermes or n8n.
+Copy the prompt below, paste it as your first message, and the agent checks your
+machine, clones the repo, starts the app and walks you through your first search.
+
+```text
+You are setting up Career Ops India on my computer. It is a free, open-source, local-first job-search workspace (AGPL-3.0). It runs on my machine; nothing is hosted.
+
+GOAL
+Get it running at http://localhost:4173 and walk me through my first job search.
+
+RULES
+- Ask before installing anything system-wide. Use what is already installed when you can.
+- Never ask for my passwords, and never type them.
+- Never submit a job application without my explicit yes for that specific job.
+- If a step fails, show me the exact error, try one alternative, then stop and ask.
+
+STEP 1 - CHECK MY MACHINE
+Run these and report the versions:
+  node --version
+  pnpm --version
+  git --version
+I need Node 22 or newer. If pnpm is missing: npm install -g pnpm
+If Node is older than 22, tell me how to update it for my OS and wait for me.
+
+STEP 2 - GET THE CODE
+  git clone https://github.com/scholarvault/Career-Ops-India.git
+  cd Career-Ops-India
+
+STEP 3 - INSTALL AND START
+  pnpm install
+  pnpm start
+The app serves http://localhost:4173. Confirm it responds before you continue. If the port is busy: pnpm stop
+
+STEP 4 - OPEN IT
+Open http://localhost:4173/console.html in my browser.
+
+STEP 5 - MY FIRST RUN, ONE STEP AT A TIME
+Wait for me at each step.
+1. Ask me to upload my resume (PDF or DOCX) and confirm the role I am targeting.
+2. Show the market counts for my role and my city.
+3. Recommend 10 jobs and explain the top 3 scores in one line each.
+4. Tailor a resume for the job I pick. This needs an AI key; if I do not have one, tell me where to paste it in Settings.
+5. Fill one application form. Stop before submit and show me exactly what it filled.
+
+OPTIONAL
+The repo ships an MCP server (pnpm mcp) with tools for search, scoring, shortlisting, tailoring and applying. If you support MCP, offer to connect it.
+
+WHEN DONE
+Tell me the local URL, what is running, and the single next thing I should do. Keep it short.
+```
+
+If your agent cannot run commands, it prints them for you to run. Same result,
+one copy-paste at a time.
+
 ![The seven-step setup](docs/screenshots/onboarding.png)
 
 <p align="center"><em>Seven steps, about five minutes. Every answer stays editable.</em></p>
@@ -69,13 +125,6 @@ Every posting, scored. The radar shows where the score came from, and the
 weakest dimension is named in plain words.
 
 ![The workspace](docs/screenshots/workspace.png)
-
-### The apply console
-
-Seven steps, one screen each. Asks arrive in the console — an email, a one-time
-code, a choice, an unknown field — and the run continues.
-
-![The apply console](docs/screenshots/console.png)
 
 ### Connections
 
