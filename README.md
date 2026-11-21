@@ -1,19 +1,54 @@
+<div align="center">
+
 # Career-Ops India
 
-Find the roles you actually fit, tailor a resume for each one, and apply with
-you in the loop — on Indian job boards, company career pages and ATS forms.
+### Find the roles you actually fit. Tailor a resume for each. Apply with you in the loop.
 
-**Live site:** https://career-ops-india.pages.dev
+**Free to use. Open source. FOSS. Runs on your own machine.**
+
+[![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0--or--later-1f6f5c?style=flat-square)](LICENSE)
+[![Node 22+](https://img.shields.io/badge/node-22%2B-1f6f5c?style=flat-square)](https://nodejs.org)
+[![No account](https://img.shields.io/badge/account-not%20required-1f6f5c?style=flat-square)](#quick-start)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-1f6f5c?style=flat-square)](CONTRIBUTING.md)
+
+[**Live site**](https://career-ops-india.pages.dev) · [**Quick start**](#quick-start) · [**How it works**](#how-it-works) · [**Docs**](#docs)
+
+</div>
+
+![The seven-step setup](docs/screenshots/onboarding.png)
+
+<p align="center"><em>Seven steps, about five minutes. Every answer stays editable.</em></p>
+
+---
+
+## What it is
+
+A job-search workspace for the Indian market. It finds postings, scores them
+against your resume, shows you the market around a role, tailors one resume per
+job, and fills the application form — asking you only when it has to.
+
+No account. No subscription. No telemetry. Your resume, your applications and
+your browser sessions stay in `data/` on your machine.
 
 ## Who it is for
 
 - Job seekers in India who are tired of applying into a void.
-- People switching roles, not just titles — the app shows the adjacent roles
-  your experience already covers.
+- People switching roles, not just titles — it shows the adjacent roles your
+  experience already covers.
 - Anyone who wants to see and approve every application, not hand a bot their
   inbox and hope.
 
-## What it does
+## How it works
+
+```mermaid
+flowchart LR
+  A[Discover] --> B[Score]
+  B --> C[Market]
+  C --> D[Pick]
+  D --> E[Tailor]
+  E --> F[Apply]
+  F --> G[Learn]
+```
 
 - **Discovers** postings from Indian boards, company career pages, ATS feeds and
   remote job boards.
@@ -26,15 +61,27 @@ you in the loop — on Indian job boards, company career pages and ATS forms.
   and records the confirmation the site showed.
 - **Learns** each site, so the next form on that site needs fewer answers.
 
-```mermaid
-flowchart LR
-  A[Discover] --> B[Score]
-  B --> C[Market]
-  C --> D[Pick]
-  D --> E[Tailor]
-  E --> F[Apply]
-  F --> G[Learn]
-```
+## Screenshots
+
+### The workspace
+
+Every posting, scored. The radar shows where the score came from, and the
+weakest dimension is named in plain words.
+
+![The workspace](docs/screenshots/workspace.png)
+
+### The apply console
+
+Seven steps, one screen each. Asks arrive in the console — an email, a one-time
+code, a choice, an unknown field — and the run continues.
+
+![The apply console](docs/screenshots/console.png)
+
+### Connections
+
+What the app can reach, and the key it uses. Public feeds need no login.
+
+![Connections](docs/screenshots/connections.png)
 
 ## Quick start
 
@@ -46,7 +93,8 @@ pnpm start        # app + API on http://localhost:4173
 pnpm stop         # stop it
 ```
 
-Open **http://localhost:4173/console.html** for the apply console.
+Open **http://localhost:4173/console.html** for the apply console, or
+**http://localhost:4173/** for the seven-step setup.
 
 ```bash
 pnpm demo         # discover, score and plan one real posting, no submit
@@ -138,6 +186,15 @@ Nothing is bundled. Without a key the app still discovers, scores and plans;
 tailoring and explanations ask for one. Set it in the app's settings, or set
 `SARVAM_API_KEY` in `.env` for a deploy.
 
+## Free and open source
+
+Career-Ops India is free software under the **AGPL-3.0-or-later**. Use it, fork
+it, change it, run it for your friends. If you run a modified version as a
+network service, publish your changes.
+
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports
+and feature requests go in [Issues](https://github.com/scholarvault/Career-Ops-India/issues).
+
 ## Docs
 
 - [Plan](docs/PLAN.md) — decisions, milestones, risks.
@@ -148,5 +205,4 @@ tailoring and explanations ask for one. Set it in the app's settings, or set
 
 ## Licence
 
-AGPL-3.0-or-later. If you run a modified version as a network service, you must
-publish your changes. See `LICENSE`.
+AGPL-3.0-or-later. See [LICENSE](LICENSE).
