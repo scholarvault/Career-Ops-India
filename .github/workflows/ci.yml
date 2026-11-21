@@ -10,11 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
+      - run: npm install -g pnpm@12.11.2
       - run: pnpm install --frozen-lockfile
       - name: No secret or real contact detail in a tracked file
         run: pnpm check:secrets
@@ -25,11 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
+      - run: npm install -g pnpm@12.11.2
       - run: pnpm install --frozen-lockfile
       - uses: browser-actions/setup-chrome@v1
         id: chrome
