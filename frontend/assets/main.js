@@ -117,6 +117,7 @@
       [".foss-art", 90],
       [".steps li", 55],
       [".requirements", 90],
+      [".agents-grid", 0],
       [".closing-art", 0],
       [".closing-copy", 90],
     ];
@@ -499,7 +500,7 @@
   /* ------------------------------------------------------------------ */
 
   function initActiveSection() {
-    var ids = ["why", "how", "compare", "open-source"];
+    var ids = ["why", "how", "compare", "open-source", "agents"];
     var sections = ids
       .map(function (id) {
         return document.getElementById(id);
@@ -631,6 +632,40 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Copy the setup prompt                                              */
+  /* ------------------------------------------------------------------ */
+
+  function initPromptCopy() {
+    var btn = document.getElementById("copyPrompt");
+    var body = document.getElementById("promptText");
+    if (!btn || !body) return;
+
+    var label = btn.querySelector(".copy-label");
+    var timer = 0;
+
+    function reset() {
+      btn.classList.remove("copied");
+      if (label) label.textContent = "Copy prompt";
+    }
+
+    btn.addEventListener("click", function () {
+      var text = body.textContent.trim();
+      copyText(text)
+        .then(function () {
+          btn.classList.add("copied");
+          if (label) label.textContent = "Copied";
+          clearTimeout(timer);
+          timer = setTimeout(reset, 2200);
+        })
+        .catch(function () {
+          if (label) label.textContent = "Select the text";
+          clearTimeout(timer);
+          timer = setTimeout(reset, 2600);
+        });
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Boot                                                               */
   /* ------------------------------------------------------------------ */
 
@@ -645,6 +680,7 @@
     initActiveSection();
     initMagnetic();
     initCopy();
+    initPromptCopy();
   }
 
   if (document.readyState === "loading") {

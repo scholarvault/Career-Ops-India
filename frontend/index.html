@@ -25,6 +25,7 @@
       <a href="#how">How it works</a>
       <a href="#compare">Compare</a>
       <a href="#open-source">Open source</a>
+      <a href="#agents">Use your agent</a>
     </nav>
     <div class="nav-actions">
       <a class="nav-gh" href="https://github.com/scholarvault/Career-Ops-India" target="_blank" rel="noopener">
@@ -42,6 +43,7 @@
     <a href="#how">How it works</a>
     <a href="#compare">Compare</a>
     <a href="#open-source">Open source</a>
+    <a href="#agents">Use your agent</a>
     <a href="https://github.com/scholarvault/Career-Ops-India" target="_blank" rel="noopener">GitHub</a>
     <a class="btn btn-primary" href="#start">Get started</a>
   </div>
@@ -437,6 +439,105 @@ pnpm start</code></pre>
     </div>
   </section>
 
+  <!-- ============ AGENTS ============ -->
+  <section class="agents" id="agents">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Bring your own agent</p>
+        <h2>You already have Claude. Paste one prompt and it builds this for you.</h2>
+        <p class="section-lede">No terminal knowledge needed. Copy the prompt, paste it as your first message in Claude Code, Codex, Kimi, Cursor, Gemini, Copilot, Hermes, n8n — any agent that can run commands. It checks your machine, clones the repo, starts the app, and walks you through your first search.</p>
+      </div>
+
+      <div class="agents-grid">
+        <div class="prompt-card">
+          <div class="prompt-head">
+            <span class="prompt-tag">setup prompt</span>
+            <button class="btn btn-primary btn-sm" type="button" id="copyPrompt" aria-describedby="copyPromptNote">
+              <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" d="M5.5 5.5V3.2c0-.4.3-.7.7-.7h6.6c.4 0 .7.3.7.7v6.6c0 .4-.3.7-.7.7h-2.3M3.2 5.5h6.6c.4 0 .7.3.7.7v6.6c0 .4-.3.7-.7.7H3.2a.7.7 0 0 1-.7-.7V6.2c0-.4.3-.7.7-.7Z"/></svg>
+              <span class="copy-label">Copy prompt</span>
+            </button>
+          </div>
+          <div class="prompt-body" id="promptText" tabindex="0" role="region" aria-label="Setup prompt to paste into your agent">You are setting up Career Ops India on my computer. It is a free, open-source, local-first job-search workspace (AGPL-3.0). It runs on my machine; nothing is hosted.
+
+GOAL
+Get it running at http://localhost:4173 and walk me through my first job search.
+
+RULES
+- Ask before installing anything system-wide. Use what is already installed when you can.
+- Never ask for my passwords, and never type them.
+- Never submit a job application without my explicit yes for that specific job.
+- If a step fails, show me the exact error, try one alternative, then stop and ask.
+
+STEP 1 - CHECK MY MACHINE
+Run these and report the versions:
+  node --version
+  pnpm --version
+  git --version
+I need Node 22 or newer. If pnpm is missing: npm install -g pnpm
+If Node is older than 22, tell me how to update it for my OS and wait for me.
+
+STEP 2 - GET THE CODE
+  git clone https://github.com/scholarvault/Career-Ops-India.git
+  cd Career-Ops-India
+
+STEP 3 - INSTALL AND START
+  pnpm install
+  pnpm start
+The app serves http://localhost:4173. Confirm it responds before you continue. If the port is busy: pnpm stop
+
+STEP 4 - OPEN IT
+Open http://localhost:4173/console.html in my browser.
+
+STEP 5 - MY FIRST RUN, ONE STEP AT A TIME
+Wait for me at each step.
+1. Ask me to upload my resume (PDF or DOCX) and confirm the role I am targeting.
+2. Show the market counts for my role and my city.
+3. Recommend 10 jobs and explain the top 3 scores in one line each.
+4. Tailor a resume for the job I pick. This needs an AI key; if I do not have one, tell me where to paste it in Settings.
+5. Fill one application form. Stop before submit and show me exactly what it filled.
+
+OPTIONAL
+The repo ships an MCP server (pnpm mcp) with tools for search, scoring, shortlisting, tailoring and applying. If you support MCP, offer to connect it.
+
+WHEN DONE
+Tell me the local URL, what is running, and the single next thing I should do. Keep it short.</div>
+          <p class="prompt-note" id="copyPromptNote">Paste it as your first message. The agent asks before it installs anything, and never submits an application without your yes.</p>
+        </div>
+
+        <aside class="agents-side">
+          <div class="agents-block">
+            <h3>Works with</h3>
+            <ul class="agent-row">
+              <li><img src="https://cdn.simpleicons.org/claude/111412" alt="" width="14" height="14" loading="lazy"><span>Claude</span></li>
+              <li><span class="agent-glyph" aria-hidden="true">&gt;_</span><span>Codex</span></li>
+              <li><img src="https://cdn.simpleicons.org/googlegemini/111412" alt="" width="14" height="14" loading="lazy"><span>Gemini</span></li>
+              <li><img src="https://cdn.simpleicons.org/moonshotai/111412" alt="" width="14" height="14" loading="lazy"><span>Kimi</span></li>
+              <li><img src="https://cdn.simpleicons.org/cursor/111412" alt="" width="14" height="14" loading="lazy"><span>Cursor</span></li>
+              <li><img src="https://cdn.simpleicons.org/githubcopilot/111412" alt="" width="14" height="14" loading="lazy"><span>Copilot</span></li>
+              <li><span class="agent-glyph" aria-hidden="true">H</span><span>Hermes</span></li>
+              <li><img src="https://cdn.simpleicons.org/n8n/111412" alt="" width="14" height="14" loading="lazy"><span>n8n</span></li>
+              <li><img src="https://cdn.simpleicons.org/deepseek/111412" alt="" width="14" height="14" loading="lazy"><span>DeepSeek</span></li>
+              <li><img src="https://cdn.simpleicons.org/qwen/111412" alt="" width="14" height="14" loading="lazy"><span>Qwen</span></li>
+              <li><img src="https://cdn.simpleicons.org/mistralai/111412" alt="" width="14" height="14" loading="lazy"><span>Mistral</span></li>
+              <li><img src="https://cdn.simpleicons.org/ollama/111412" alt="" width="14" height="14" loading="lazy"><span>Ollama</span></li>
+            </ul>
+          </div>
+
+          <div class="agents-block">
+            <h3>What it does for you</h3>
+            <ol class="agent-steps">
+              <li><b>Checks</b> Node, pnpm and git, and tells you what is missing.</li>
+              <li><b>Clones and starts</b> the app at localhost:4173.</li>
+              <li><b>Walks you through</b> your resume, the market, ten jobs, one tailored resume and one form.</li>
+            </ol>
+          </div>
+
+          <p class="agent-fine">If your agent cannot run commands, it prints them for you to run. Same result, one copy-paste at a time.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ CLOSING ============ -->
   <section class="closing" id="closing">
     <div class="wrap">
@@ -476,6 +577,7 @@ pnpm start</code></pre>
           <h3>Product</h3>
           <a href="#start">Workspace</a>
           <a href="#how">How it works</a>
+          <a href="#agents">Use your agent</a>
           <a href="#compare">Comparison</a>
         </div>
         <div>
