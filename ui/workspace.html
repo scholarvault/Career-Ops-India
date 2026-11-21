@@ -12,9 +12,73 @@
   <style>
     /* page-specific only: everything shared lives in design.css */
     html, body { height: 100%; }
-    body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    body { height: 100vh; overflow: hidden; }
+    .shell { display: flex; height: 100vh; }
+    .maincol { flex: 1 1 auto; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 
-    /* ---------------- app bar ---------------- */
+    /* ---------------- side navigation ---------------- */
+
+    .sidenav {
+      width: 216px; flex: 0 0 auto;
+      background: var(--rail);
+      display: flex; flex-direction: column;
+      padding: 18px 12px 12px;
+      transition: width 190ms var(--ease-out);
+      overflow: hidden;
+    }
+    .sidenav.collapsed { width: 64px; }
+    .snav-brand {
+      padding: 2px 8px 22px; font-size: 13.5px; line-height: 1.2;
+      color: #f2f5f6; white-space: nowrap;
+    }
+    .snav-brand b { font-weight: 650; }
+    .snav-brand span { color: #7e9a9a; font-weight: 400; }
+    .snav-mark {
+      display: none; place-items: center;
+      width: 30px; height: 30px; margin: 0 auto 20px;
+      border-radius: 8px; background: var(--rail-active);
+      color: #f2f5f6; font-size: 14px; font-weight: 700;
+    }
+    .snav-list { display: flex; flex-direction: column; gap: 2px; }
+    .snav-item {
+      display: flex; align-items: center; gap: 11px; width: 100%;
+      padding: 9px 10px; border: 0; border-radius: var(--r-md);
+      background: none; color: #8fa8a8; font: inherit; font-size: 13px;
+      text-align: left; cursor: pointer; white-space: nowrap;
+      text-decoration: none;
+      transition: background var(--t-fast), color var(--t-fast);
+    }
+    .snav-item:hover { background: var(--rail-active); color: #dbeceb; }
+    .snav-item:focus-visible { outline: 3px solid rgba(143, 189, 189, 0.45); outline-offset: 1px; }
+    .snav-item.on { background: var(--rail-active); color: #ffffff; font-weight: 600; }
+    .snav-num {
+      display: grid; place-items: center; flex: 0 0 auto;
+      width: 21px; height: 21px; border-radius: 50%;
+      background: #14484a; color: #5f7f80;
+      font-size: 10px; font-weight: 700;
+    }
+    .snav-item.on .snav-num { background: #f2f5f6; color: var(--rail); }
+    .snav-item.done { color: #a8c2c2; }
+    .snav-item.done .snav-num { background: transparent; color: #5fa98a; }
+    .snav-label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+    .snav-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid #1d4a4c; }
+    .snav-toggle {
+      display: flex; align-items: center; gap: 9px; width: 100%;
+      padding: 8px 10px; border: 0; border-radius: var(--r-md);
+      background: none; color: #7e9a9a; font: inherit; font-size: 11.5px;
+      cursor: pointer; white-space: nowrap;
+    }
+    .snav-toggle:hover { background: var(--rail-active); color: #dbeceb; }
+    .snav-toggle svg { width: 15px; height: 15px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 190ms var(--ease-out); }
+    .sidenav.collapsed .snav-toggle svg { transform: rotate(180deg); }
+    .sidenav.collapsed .snav-label,
+    .sidenav.collapsed .snav-brand,
+    .sidenav.collapsed .snav-toggle span { display: none; }
+    .sidenav.collapsed .snav-mark { display: grid; }
+    .sidenav.collapsed .snav-item { justify-content: center; padding-left: 0; padding-right: 0; }
+    .sidenav.collapsed .snav-toggle { justify-content: center; padding-left: 0; padding-right: 0; }
+
+    /* ---------------- app-bar ---------------- */
 
     .appbar {
       flex: 0 0 auto;
@@ -24,21 +88,13 @@
       border-bottom: 1px solid var(--border);
       z-index: 30;
     }
-    .mark {
-      display: grid; place-items: center;
-      width: 30px; height: 30px; border-radius: 9px;
-      background: linear-gradient(145deg, var(--accent), #0a4fc4);
-      color: #fff; font-size: 13px; font-weight: 700; letter-spacing: -0.03em;
-      box-shadow: 0 2px 6px rgba(13, 85, 201, 0.3);
-      flex: 0 0 auto;
-    }
     .wordmark { font-size: 15px; letter-spacing: -0.015em; white-space: nowrap; }
     .wordmark b { font-weight: 650; }
     .wordmark span { color: var(--muted); font-weight: 400; }
 
-    .search { flex: 1; max-width: 460px; position: relative; }
+    .search { flex: 1; max-width: 460px; min-width: 0; position: relative; }
     .search input {
-      width: 100%; height: 38px; padding: 0 12px 0 36px;
+      width: 100%; min-width: 0; height: 38px; padding: 0 48px 0 36px;
       border: 1px solid var(--border); border-radius: var(--r-pill);
       background: var(--surface-2); color: var(--ink);
       font: inherit; font-size: 13.5px;
@@ -66,8 +122,8 @@
     }
     .profile-chip:hover { background: var(--surface-2); border-color: var(--border-strong); }
     .profile-chip .who { display: flex; flex-direction: column; line-height: 1.15; text-align: left; }
-    .profile-chip .who b { font-size: 12.5px; font-weight: 600; }
-    .profile-chip .who small { font-size: 10.5px; color: var(--muted); }
+    .profile-chip .who b { font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+    .profile-chip .who small { font-size: 10.5px; color: var(--muted); white-space: nowrap; }
     .avatar {
       display: grid; place-items: center; width: 26px; height: 26px;
       border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink);
@@ -111,22 +167,34 @@
 
     /* ---------------- list pane ---------------- */
 
-    .listpane { display: flex; flex-direction: column; min-height: 0; background: var(--surface); border-right: 1px solid var(--border); }
+    .listpane { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--surface); border-right: 1px solid var(--border); }
 
     .listhead {
-      flex: 0 0 auto;
+      flex: 0 0 auto; min-width: 0;
       display: flex; align-items: center; gap: 10px;
       padding: 11px 16px;
       border-bottom: 1px solid var(--line);
     }
-    .listhead .count { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+    .listhead .count { font-size: 12.5px; color: var(--muted); white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
     .listhead .count b { color: var(--ink); font-weight: 650; font-variant-numeric: tabular-nums; }
     .listhead .spacer { flex: 1; }
+    .listhead .sortsel { flex: 0 0 auto; max-width: 138px; }
+    .listhead .btn[hidden] { display: none; }
+    .savedbar {
+      display: flex; align-items: center; gap: 10px;
+      margin: 10px 12px 4px; padding: 7px 8px 7px 12px;
+      background: var(--accent-soft); border: 1px solid var(--border);
+      border-radius: var(--r-sm); font-size: 12px; color: var(--accent-ink);
+    }
+    .savedbar > span { flex: 1; min-width: 0; }
+    .savedbar b { font-variant-numeric: tabular-nums; }
+    .savedbar.scorebar { background: var(--surface-2); color: var(--ink-2); }
     .sortsel {
       appearance: none; height: 30px; padding: 0 26px 0 10px;
       border: 1px solid var(--border); border-radius: var(--r-sm);
       background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23626b7a' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;
       font: inherit; font-size: 12px; color: var(--ink-2); cursor: pointer;
+      text-overflow: ellipsis;
     }
     .sortsel:focus-visible { outline: 3px solid var(--accent-ring); outline-offset: 1px; }
 
@@ -176,7 +244,7 @@
       font-size: 13.5px; font-weight: 600; line-height: 1.35; letter-spacing: -0.005em;
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
-    .jobcard .sub { margin-top: 3px; font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .jobcard .sub { display: block; margin-top: 3px; font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .jobcard .flags { display: flex; gap: 5px; margin-top: 7px; flex-wrap: wrap; }
     .jobcard .right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 
@@ -210,7 +278,7 @@
     .hero { display: flex; align-items: flex-start; gap: 16px; position: sticky; top: 0; z-index: 3; background: var(--bg); padding: 12px 0 10px; }
     .hero .mono { width: 46px; height: 46px; border-radius: 12px; font-size: 15px; }
     .hero .h-main { flex: 1; min-width: 0; }
-    .hero h1 { margin: 0; font-size: 21px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.25; }
+    .hero h1 { margin: 0; font-family: "Source Serif 4", Georgia, serif; font-size: 32px; font-weight: 600; font-variation-settings: "opsz" 40; letter-spacing: -0.015em; line-height: 1.1; }
     .hero .co { margin-top: 4px; font-size: 13.5px; color: var(--muted); }
     .hero .co b { color: var(--ink-2); font-weight: 550; }
     .hero .ring { margin-top: 2px; }
@@ -258,7 +326,7 @@
     .bd-row .track { height: 7px; background: var(--surface-3); border-radius: 4px; overflow: hidden; }
     .bd-row .track > i {
       display: block; height: 100%; width: 0; border-radius: 4px;
-      background: linear-gradient(90deg, var(--accent), #4f92ff);
+      background: linear-gradient(90deg, var(--accent), #4e8c8a);
       transition: width 720ms var(--ease-out);
     }
     .bd-row .val { font-size: 12.5px; font-variant-numeric: tabular-nums; text-align: right; color: var(--muted); }
@@ -288,6 +356,49 @@
     .skill svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
     .skill.have { background: var(--ok-soft); color: var(--ok); }
     .skill.miss { background: var(--bad-soft); color: var(--bad); }
+
+    /* one-line reason under the score ring */
+    .score-why {
+      display: flex; align-items: flex-start; gap: 7px;
+      margin: 2px 0 4px; padding: 9px 12px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      font-size: 12.5px; line-height: 1.5; color: var(--muted);
+    }
+    .score-why svg {
+      width: 13px; height: 13px; flex: 0 0 auto; margin-top: 2px;
+      fill: none; stroke: var(--accent); stroke-width: 1.9; stroke-linejoin: round;
+    }
+
+    /* ATS keyword gap */
+    .ats-gap { display: flex; flex-direction: column; gap: 12px; }
+    .ats-gap .hint { margin: 0; }
+    .ats-gap .linkbtn { align-self: flex-start; }
+    .ats-score { display: flex; align-items: center; gap: 14px; }
+    .ats-num {
+      font-size: 34px; font-weight: 650; letter-spacing: -0.03em;
+      color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1;
+    }
+    .ats-num small { font-size: 15px; font-weight: 500; margin-left: 1px; }
+    .ats-cap { font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+    .ats-cap b { color: var(--ink-2); font-weight: 650; }
+    .ats-block { display: flex; flex-direction: column; gap: 7px; }
+    .ats-h { font-size: 11px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; color: var(--faint); }
+    .ats-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .ats-tag {
+      font-size: 11.5px; padding: 3px 9px; border-radius: var(--r-pill);
+      background: var(--surface-3); color: var(--muted);
+    }
+    .ats-tag.have { background: var(--ok-soft); color: var(--ok); }
+    .ats-tag.miss { background: var(--bad-soft); color: var(--bad); }
+    .ats-other summary {
+      font-size: 12px; color: var(--muted); cursor: pointer;
+      padding: 4px 0; list-style: none;
+    }
+    .ats-other summary::-webkit-details-marker { display: none; }
+    .ats-other summary::before { content: "▸ "; color: var(--faint); }
+    .ats-other[open] summary::before { content: "▾ "; }
+    .ats-other .ats-tags { margin-top: 7px; }
 
     .jd {
       position: relative;
@@ -392,6 +503,34 @@
     .stage-row[data-state="done"] { color: var(--ink-2); }
     .stage-row[data-state="done"] .dot { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
 
+    /* ---------- auto apply ---------- */
+    .aa { display: flex; flex-direction: column; gap: 12px; }
+    .aa-lead { font-size: 13px; line-height: 1.55; color: var(--ink-2); margin: 0; }
+    .aa-progress { font-size: 12.5px; color: var(--muted); }
+    .aa-progress b { color: var(--ink); font-variant-numeric: tabular-nums; }
+    .aa-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
+    .aa-list > li { display: flex; align-items: flex-start; gap: 10px; padding: 9px 11px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-sm); }
+    .aa-list b { font-size: 12.5px; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .aa-list small { font-size: 11.5px; color: var(--muted); }
+    .aa-list em { font-style: normal; font-size: 11.5px; color: var(--muted); line-height: 1.4; }
+    .aa-list em.ok { color: var(--ok); }
+    .aa-score { font-size: 12px; font-weight: 650; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+    .aa-row .aa-dot { flex: 0 0 auto; width: 8px; height: 8px; margin-top: 5px; border-radius: 50%; background: var(--border-strong); }
+    .aa-row.filling .aa-dot { background: var(--accent); animation: pulse 1s var(--ease-in-out) infinite; }
+    .aa-row.submitted .aa-dot, .aa-row.filled .aa-dot { background: var(--ok); }
+    .aa-row.needs .aa-dot { background: var(--warn); }
+    .aa-row.failed .aa-dot { background: var(--bad); }
+    .aa-row.skipped .aa-dot { background: var(--faint); }
+    .aa-what { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .aa-state { flex: 0 0 auto; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .aa-row.submitted .aa-state, .aa-row.filled .aa-state { color: var(--ok); }
+    .aa-row.needs .aa-state { color: var(--warn); }
+    .aa-row.failed .aa-state { color: var(--bad); }
+    .aa-mode { display: flex; flex-direction: column; gap: 8px; }
+    .aa-mode label, .aa-check { display: flex; align-items: flex-start; gap: 9px; font-size: 12.5px; color: var(--ink-2); cursor: pointer; }
+    .aa-mode input, .aa-check input { margin-top: 2px; accent-color: var(--accent); }
+    .aa-note { font-size: 11.5px; color: var(--faint); line-height: 1.5; margin: 0; }
+
     .cov { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
     .cov .num { font-size: 30px; font-weight: 650; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
     .cov .num small { font-size: 13px; font-weight: 500; color: var(--muted); }
@@ -409,7 +548,566 @@
     .draft-role ul { margin: 7px 0 0; padding-left: 17px; }
     .draft-role li { font-size: 12.5px; line-height: 1.55; color: var(--ink-2); margin-bottom: 4px; }
 
+    /* ---------------- tailor: live A4 preview ---------------- */
+
+    .kw { margin: 12px 0 0; }
+    .kw summary {
+      cursor: pointer; font-size: 12px; color: var(--muted);
+      padding: 6px 0; list-style: none;
+    }
+    .kw summary::-webkit-details-marker { display: none; }
+    .kw summary::before { content: "▸ "; color: var(--faint); }
+    .kw[open] summary::before { content: "▾ "; }
+    .kw .skills { margin-top: 8px; }
+
+    /* tailor: pre-flight gap gate */
+    .gate { display: flex; flex-direction: column; gap: 14px; }
+    .gate h3 { margin: 0; font-size: 15px; font-weight: 650; letter-spacing: -0.01em; }
+    .gate p { margin: 0; font-size: 13px; line-height: 1.55; color: var(--ink-2); }
+    .gate .gate-label { font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--faint); }
+    .gate .gate-miss {
+      display: flex; flex-direction: column; gap: 8px;
+      padding: 12px 13px; border: 1px solid var(--border);
+      border-radius: var(--r-md); background: var(--surface-2);
+    }
+    .gate .gate-note { font-size: 12.5px; color: var(--muted); }
+    .gate-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+
+    /* tailor: what changed */
+    .chg {
+      margin: 14px 0 0; border: 1px solid var(--border);
+      border-radius: var(--r-md); background: var(--surface-2); overflow: hidden;
+    }
+    .chg > summary {
+      cursor: pointer; list-style: none; padding: 11px 13px;
+      font-size: 12.5px; font-weight: 600; color: var(--ink);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .chg > summary::-webkit-details-marker { display: none; }
+    .chg > summary::before { content: "▸"; color: var(--faint); }
+    .chg[open] > summary::before { content: "▾"; }
+    .chg > summary .chg-sub { margin-left: auto; font-weight: 400; color: var(--muted); font-size: 11.5px; text-align: right; }
+    .chg-body { padding: 0 13px 13px; display: flex; flex-direction: column; gap: 12px; }
+    .chg-row { border-top: 1px solid var(--border); padding-top: 11px; }
+    .chg-row:first-child { border-top: 0; padding-top: 0; }
+    .chg-h { display: flex; align-items: baseline; gap: 8px; font-size: 12px; font-weight: 650; color: var(--ink); }
+    .chg-h .chg-meta { margin-left: auto; font-weight: 400; color: var(--muted); font-size: 11.5px; text-align: right; }
+    .chg-diff { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+    .chg-side { min-width: 0; border-left: 2px solid var(--border-strong); padding-left: 11px; }
+    .chg-side.after { border-left-color: var(--accent); }
+    .chg-side p { margin: 0; font-size: 12.5px; line-height: 1.6; color: var(--ink-2); }
+    .chg-side.before p { color: var(--muted); font-size: 12px; }
+    .chg-badge {
+      margin-left: auto; font-size: 9.5px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--muted);
+      background: var(--surface-3); border: 1px solid var(--border);
+      border-radius: 999px; padding: 2px 8px; white-space: nowrap;
+    }
+    .chg-badge.on { color: var(--accent-ink); background: var(--accent-soft); border-color: transparent; }
+    .chg-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+    .chg-chip {
+      font-size: 11px; line-height: 1.3; padding: 3px 7px; border-radius: 999px;
+      background: var(--surface-3); border: 1px solid var(--border); color: var(--ink-2);
+    }
+    .chg-chip.on { background: var(--accent-soft); border-color: transparent; color: var(--accent-ink); }
+    .chg-group { margin-top: 9px; }
+    .chg-group:first-of-type { margin-top: 4px; }
+    .chg-group b { display: block; font-size: 11px; color: var(--ink); margin-bottom: 1px; }
+    .chg-more { margin-top: 8px; }
+    .chg-more > summary { cursor: pointer; font-size: 11.5px; color: var(--muted); list-style: none; padding: 4px 0; }
+    .chg-more > summary::-webkit-details-marker { display: none; }
+    .chg-more > summary::before { content: "▸ "; color: var(--faint); }
+    .chg-more[open] > summary::before { content: "▾ "; }
+    .chg-tag { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--faint); margin-bottom: 4px; }
+    .chg-tag.after { color: var(--accent); }
+    .chg-list { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .chg-list li { font-size: 12px; color: var(--ink-2); display: flex; gap: 7px; align-items: baseline; }
+    .chg-list li .when { margin-left: auto; color: var(--faint); font-size: 11px; white-space: nowrap; }
+    .chg-ok { color: var(--ok); }
+    .chg-bad { color: var(--bad); }
+    .chg-note { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 6px 0 0; }
+
+    .rpreview {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      overflow: hidden;
+      background: var(--surface-3);
+    }
+    .rpreview-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 11px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+      font-size: 11.5px; color: var(--muted);
+    }
+    .rpreview-bar b { color: var(--ink); font-weight: 600; }
+    .rpreview-bar .spacer { margin-left: auto; }
+    .rpreview-open {
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--ink-2); font: inherit; font-size: 11px;
+      padding: 3px 8px; border-radius: 6px; cursor: pointer;
+    }
+    .rpreview-open:hover { border-color: var(--border-strong); }
+    .rpreview-stage { position: relative; overflow: hidden; background: #e9edf0; }
+    .rpreview-stage iframe {
+      display: block; border: 0; background: #fff;
+      transform-origin: top left;
+    }
+
     .saved-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; margin-left: 5px; }
+
+    /* ---------------- track board ---------------- */
+
+    .view { flex: 1 1 auto; min-height: 0; overflow: auto; background: var(--bg); }
+    .split[hidden], .view[hidden] { display: none; }
+    .view-head {
+      display: flex; align-items: flex-end; gap: 16px;
+      padding: 26px 28px 18px; border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .view-head .t { flex: 1; min-width: 0; }
+    .view-head h1 { margin: 0 0 4px; font-size: 32px; }
+    .view-head p { margin: 0; font-size: 13px; color: var(--muted); }
+
+    .board {
+      display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 14px; padding: 20px 28px 40px; align-items: start;
+    }
+    .board[hidden] { display: none; }
+    @media (max-width: 1180px) {
+      .board { grid-auto-flow: column; grid-auto-columns: 220px; grid-template-columns: none; overflow-x: auto; }
+    }
+    .col-h {
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 2px 10px; border-bottom: 1px solid var(--border);
+    }
+    .col-h b { font-size: 11px; font-weight: 650; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .col-h .n {
+      display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px;
+      border-radius: var(--r-pill); background: var(--surface-3); color: var(--faint);
+      font-size: 10.5px; font-weight: 650;
+    }
+    .col-h .n.amber { background: var(--warn-soft); color: var(--warn); }
+    .col-body { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; }
+
+    .tcard {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md);
+      padding: 12px 13px; box-shadow: var(--sh-1); cursor: pointer;
+      transition: border-color var(--t-fast), box-shadow var(--t-mid), transform var(--t-fast) var(--ease-spring);
+    }
+    .tcard:hover { border-color: var(--border-strong); box-shadow: var(--sh-2); transform: translateY(-1px); }
+    .tcard:focus-visible { outline: 3px solid var(--accent-ring); outline-offset: 1px; }
+    .tcard b { display: block; font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--ink); }
+    .tcard .co { display: block; margin-top: 2px; font-size: 11.5px; color: var(--muted); }
+    .tcard .meta { display: flex; align-items: center; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
+    .tcard .due { font-size: 10.5px; font-weight: 600; color: var(--warn); }
+    .tcard .due.calm { color: var(--faint); font-weight: 500; }
+
+    .col-empty {
+      padding: 18px 12px; border: 1px dashed var(--border-strong); border-radius: var(--r-md);
+      font-size: 11.5px; line-height: 1.5; color: var(--faint); text-align: center;
+    }
+
+    /* ---------------- track: board / table switch ---------------- */
+
+    .seg {
+      display: inline-flex; align-items: center; gap: 2px; padding: 3px;
+      background: var(--surface-3); border-radius: var(--r-md);
+    }
+    .seg button {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 11px; border: 0; border-radius: 6px;
+      background: none; color: var(--muted); font: inherit; font-size: 12px;
+      cursor: pointer; white-space: nowrap;
+    }
+    .seg button svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--sh-1); font-weight: 600; }
+
+    /* ---------------- track: table ---------------- */
+
+    .tbl-wrap { padding: 20px 28px 40px; }
+    .tbl {
+      width: 100%; border-collapse: separate; border-spacing: 0;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--sh-1);
+    }
+    .tbl thead th {
+      position: sticky; top: 0; z-index: 1;
+      padding: 10px 14px; background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+      font-size: 10.5px; font-weight: 650; letter-spacing: 0.09em;
+      text-transform: uppercase; color: var(--muted); text-align: left;
+      white-space: nowrap;
+    }
+    .tbl thead th.sortable { cursor: pointer; user-select: none; }
+    .tbl thead th.sortable:hover { color: var(--ink); }
+    .tbl thead th .arrow { display: inline-block; margin-left: 4px; font-size: 9px; opacity: 0.45; }
+    .tbl thead th[aria-sort] .arrow { opacity: 1; color: var(--accent); }
+    .tbl tbody td { padding: 11px 14px; border-bottom: 1px solid var(--line); font-size: 12.5px; color: var(--ink); vertical-align: middle; }
+    .tbl tbody tr:last-child td { border-bottom: 0; }
+    .tbl tbody tr { cursor: pointer; transition: background var(--t-fast); }
+    .tbl tbody tr:hover { background: var(--accent-soft); }
+    .tbl tbody tr:focus-visible { outline: 2px solid var(--accent-ring); outline-offset: -2px; }
+    .tbl .cell-title b { display: block; font-weight: 600; }
+    .tbl .cell-title small { display: block; font-size: 11px; color: var(--faint); margin-top: 1px; }
+    .tbl .num { font-variant-numeric: tabular-nums; }
+    .tbl .stage-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2px 8px; border-radius: var(--r-pill);
+      background: var(--surface-3); color: var(--muted);
+      font-size: 10.5px; font-weight: 600; white-space: nowrap;
+    }
+    .tbl .stage-pill i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .tbl .stage-pill[data-s="applied"] { background: var(--accent-soft); color: var(--accent-ink); }
+    .tbl .stage-pill[data-s="interview"] { background: var(--ok-soft); color: var(--ok); }
+    .tbl .stage-pill[data-s="ready"] { background: var(--warn-soft); color: var(--warn); }
+    .tbl .stage-pill[data-s="closed"] { background: var(--surface-3); color: var(--faint); }
+    .tbl-empty { padding: 44px 20px; text-align: center; font-size: 12.5px; color: var(--faint); }
+
+    /* ---------------- detail: timeline ---------------- */
+
+    .tl { margin: 0; padding: 4px 0 0; list-style: none; }
+    .tl li { position: relative; padding: 0 0 16px 22px; }
+    .tl li:last-child { padding-bottom: 0; }
+    .tl li::before {
+      content: ""; position: absolute; left: 4px; top: 4px;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--surface); border: 2px solid var(--border-strong);
+    }
+    .tl li::after {
+      content: ""; position: absolute; left: 7px; top: 13px; bottom: 0;
+      width: 1px; background: var(--border);
+    }
+    .tl li:last-child::after { display: none; }
+    .tl li.done::before { background: var(--ok); border-color: var(--ok); }
+    .tl li.now::before { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .tl b { display: block; font-size: 12px; font-weight: 600; color: var(--ink); }
+    .tl span { display: block; margin-top: 1px; font-size: 11px; color: var(--faint); }
+
+    /* ---------------- improve ---------------- */
+
+    .gaps { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 22px; padding: 22px 28px 40px; align-items: start; }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--sh-1); }
+    .panel-h { padding: 15px 18px 12px; border-bottom: 1px solid var(--line); }
+    .panel-h h2 { margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .panel-h p { margin: 4px 0 0; font-size: 12px; color: var(--faint); }
+
+    .gap-row { display: grid; grid-template-columns: 22px 1fr 92px 54px; align-items: center; gap: 12px; padding: 12px 18px; border-bottom: 1px solid var(--line); }
+    .gap-row:last-child { border-bottom: 0; }
+    .gap-row .rank { font-size: 11px; font-weight: 650; color: var(--faint2, var(--faint)); font-variant-numeric: tabular-nums; }
+    .gap-row .name { font-size: 13px; font-weight: 550; color: var(--ink); }
+    .gap-row .name small { display: block; font-size: 11px; font-weight: 400; color: var(--faint); margin-top: 1px; }
+    .gap-row .meter { height: 6px; border-radius: 3px; background: var(--surface-3); overflow: hidden; }
+    .gap-row .meter > i { display: block; height: 100%; border-radius: 3px; background: var(--amber); }
+    .gap-row .pts { font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; color: var(--muted); }
+    .gap-row .pts b { color: var(--ink); font-weight: 650; }
+
+    .task { display: flex; gap: 11px; padding: 13px 18px; border-bottom: 1px solid var(--line); }
+    .task:last-child { border-bottom: 0; }
+    .task .box { width: 15px; height: 15px; flex: 0 0 auto; margin-top: 2px; border: 1.5px solid var(--border-strong); border-radius: 4px; }
+    .task b { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink); }
+    .task span { display: block; margin-top: 2px; font-size: 11.5px; line-height: 1.5; color: var(--muted); }
+
+    .evidence { margin: 0 18px 18px; padding: 14px 15px; border-radius: var(--r-md); background: var(--rail); }
+    .evidence b { display: block; font-size: 11px; font-weight: 650; letter-spacing: 0.1em; text-transform: uppercase; color: #8fbdbd; margin-bottom: 8px; }
+    .evidence p { margin: 0; font-size: 12px; line-height: 1.6; color: #a8c2c2; }
+    .evidence p + p { margin-top: 8px; }
+    .evidence em { font-style: normal; color: #f2f5f6; }
+
+    /* ---------------- resizable split ---------------- */
+
+    .split { grid-template-columns: var(--listw, 41%) 7px minmax(0, 1fr); }
+    .splitter {
+      position: relative; cursor: col-resize; background: var(--surface);
+      border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+      touch-action: none;
+    }
+    .splitter::after {
+      content: ""; position: absolute; inset: 0 2px; border-radius: 2px;
+      background: transparent; transition: background var(--t-fast);
+    }
+    .splitter:hover::after,
+    .splitter:focus-visible::after,
+    .splitter.dragging::after { background: var(--accent-soft); }
+    .splitter:focus-visible { outline: 3px solid var(--accent-ring); outline-offset: -3px; }
+    body.resizing { cursor: col-resize; user-select: none; }
+    @media (max-width: 900px) { .splitter { display: none; } }
+
+    /* ---------------- activity heatmap + sparkline ---------------- */
+
+    /* daily cap: what was actually sent today */
+    .capstrip {
+      display: flex; align-items: center; gap: 10px;
+      margin: 16px 28px 0; padding: 10px 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      font-size: 12.5px; color: var(--muted);
+    }
+    .capstrip > svg {
+      width: 15px; height: 15px; flex: 0 0 auto;
+      fill: none; stroke: var(--accent); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .capstrip[data-full="1"] { border-color: var(--bad); background: var(--bad-soft); }
+    .capstrip[data-full="1"] > svg { stroke: var(--bad); }
+    .capstrip-txt b { color: var(--ink); font-weight: 650; font-variant-numeric: tabular-nums; }
+    .capstrip-bar {
+      flex: 1 1 auto; min-width: 60px; max-width: 220px; height: 6px;
+      background: var(--surface-3); border-radius: 4px; overflow: hidden;
+    }
+    .capstrip-bar > i {
+      display: block; height: 100%; background: var(--accent); border-radius: 4px;
+      transition: width 320ms var(--ease-out);
+    }
+    .capstrip-bar > i[data-full="1"] { background: var(--bad); }
+    .capstrip-left { flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+    .capstrip-link {
+      flex: 0 0 auto; margin-left: auto;
+      color: var(--accent); font-weight: 600; text-decoration: none;
+      border-bottom: 1px solid transparent;
+    }
+    .capstrip-link:hover { border-bottom-color: currentColor; }
+
+    .heat-wrap { padding: 18px 28px 0; }
+    .heat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-lg); box-shadow: var(--sh-1); padding: 15px 18px 13px;
+    }
+    .heat-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .heat-head h2 {
+      margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .heat-head .sub { font-size: 11.5px; color: var(--faint); }
+    .heat-head .spark { margin-left: auto; display: flex; align-items: center; gap: 9px; }
+    .heat-scroll { overflow-x: auto; padding-bottom: 4px; }
+    .heat { display: grid; grid-auto-flow: column; grid-auto-columns: 13px; gap: 3px; width: max-content; margin: 0 auto; }
+    .heat-col { display: grid; grid-template-rows: repeat(7, 13px); gap: 3px; }
+    .heat-cell { width: 13px; height: 13px; border-radius: 3px; background: var(--surface-3); }
+    .heat-cell[data-l="1"] { background: #cfe3e2; }
+    .heat-cell[data-l="2"] { background: #9cc6c4; }
+    .heat-cell[data-l="3"] { background: #5f9e9b; }
+    .heat-cell[data-l="4"] { background: var(--accent); }
+    .heat-legend { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 10px; font-size: 10.5px; color: var(--faint); }
+    .heat-legend .heat-cell { width: 10px; height: 10px; }
+
+    .sparkline { display: block; overflow: visible; }
+    .sparkline .line { fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .sparkline .area { fill: var(--accent-soft); stroke: none; }
+    .sparkline .pt { fill: var(--accent); }
+    .spark-val { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    /* ---------------- notification panel ---------------- */
+
+    .bell { position: relative; }
+    .bell .dot-badge {
+      position: absolute; top: 3px; right: 3px; min-width: 15px; height: 15px; padding: 0 4px;
+      display: grid; place-items: center; border-radius: var(--r-pill);
+      background: var(--amber); color: #fff; font-size: 9.5px; font-weight: 700;
+      border: 2px solid var(--surface); line-height: 1;
+    }
+    .bell .dot-badge[hidden] { display: none; }
+    .notif {
+      position: absolute; top: calc(100% + 8px); right: 0; width: 344px; max-height: 430px;
+      overflow: auto; background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-lg); box-shadow: var(--sh-3); z-index: 60;
+      animation: notif-in var(--t-mid) var(--ease-out);
+    }
+    @keyframes notif-in { from { opacity: 0; transform: translateY(-6px) scale(0.98); } }
+    .notif-h {
+      display: flex; align-items: center; gap: 8px; padding: 11px 14px;
+      border-bottom: 1px solid var(--line); position: sticky; top: 0;
+      background: var(--surface); z-index: 1;
+    }
+    .notif-h b { font-size: 12px; }
+    .notif-h .linkbtn { margin-left: auto; font-size: 11px; }
+    .notif-day {
+      padding: 9px 14px 4px; font-size: 10px; font-weight: 650;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint);
+    }
+    .notif-item {
+      display: flex; gap: 10px; width: 100%; padding: 10px 14px;
+      border: 0; border-bottom: 1px solid var(--line); background: none;
+      font: inherit; text-align: left; cursor: pointer;
+    }
+    .notif-item:hover { background: var(--surface-2); }
+    .notif-item .ic {
+      width: 26px; height: 26px; border-radius: 50%; flex: 0 0 auto;
+      display: grid; place-items: center; background: var(--warn-soft); color: var(--warn);
+    }
+    .notif-item .ic.ok { background: var(--ok-soft); color: var(--ok); }
+    .notif-item .ic svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .notif-item .tx b { display: block; font-size: 12px; font-weight: 600; color: var(--ink); }
+    .notif-item .tx small { display: block; margin-top: 1px; font-size: 11px; color: var(--muted); }
+    .notif-empty { padding: 30px 16px; text-align: center; font-size: 12px; color: var(--faint); }
+
+    /* ---------------- source filter menu ---------------- */
+
+    /* fixed, not absolute: the filter row scrolls sideways on a phone and
+       would clip an absolutely positioned panel */
+    .srcmenu {
+      position: fixed; z-index: 90;
+      min-width: 216px; max-height: min(520px, calc(100vh - 96px)); overflow: auto;
+      padding: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-lg); box-shadow: var(--sh-3);
+      transform-origin: top right;
+      animation: menu-in 160ms var(--ease-out);
+    }
+    .srcmenu[hidden] { display: none; }
+    .srcmenu .menu-item { justify-content: flex-start; }
+    .srcmenu .menu-item .tick {
+      width: 15px; height: 15px; flex: 0 0 auto;
+      fill: none; stroke: var(--accent); stroke-width: 2.4;
+      stroke-linecap: round; stroke-linejoin: round;
+      opacity: 0;
+    }
+    .srcmenu .menu-item[aria-selected="true"] { font-weight: 600; }
+    .srcmenu .menu-item[aria-selected="true"] .tick { opacity: 1; }
+    .srcmenu .menu-item[aria-selected="true"] svg.tick { stroke: var(--accent); }
+
+    /* ---------------- tooltip ---------------- */
+
+    /* The filter chips are shorthand ("70+", "Live · 801"). Nothing on screen
+       says what they do, so every one of them carries a one-line explanation. */
+    .tip {
+      position: fixed; z-index: 95; max-width: 264px;
+      padding: 7px 10px;
+      background: var(--ink); color: #fff;
+      font-size: 11.5px; line-height: 1.45; font-weight: 500;
+      border-radius: var(--r-sm);
+      box-shadow: var(--sh-3);
+      pointer-events: none;
+      opacity: 0; transform: translateY(-3px);
+      transition: opacity 120ms var(--ease-out), transform 120ms var(--ease-out);
+    }
+    .tip[data-show="true"] { opacity: 1; transform: none; }
+    .tip::after {
+      content: ""; position: absolute; left: var(--arrow-x, 50%);
+      bottom: -3px; width: 7px; height: 7px;
+      background: var(--ink); border-radius: 1px;
+      transform: translateX(-50%) rotate(45deg);
+    }
+    .tip[data-side="top"]::after { bottom: auto; top: -3px; }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+    }
+
+    /* ---------------- copy button ---------------- */
+
+    .copybtn {
+      display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 8px;
+      border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--surface);
+      color: var(--muted); font: inherit; font-size: 10.5px; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+      transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+    }
+    .copybtn:hover { color: var(--ink); border-color: var(--border-strong); background: var(--surface-2); }
+    .copybtn:focus-visible { outline: 3px solid var(--accent-ring); outline-offset: 1px; }
+    .copybtn svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .copybtn .tick { display: none; }
+    .copybtn.done { color: var(--ok); border-color: var(--ok); }
+    .copybtn.done .tick { display: inline; }
+    .copybtn.done .copy-ic { display: none; }
+
+    /* ---------------- radar ---------------- */
+
+    .radar-wrap { display: grid; place-items: center; padding: 4px 0 2px; }
+    .radar { width: 100%; max-width: 330px; height: auto; overflow: visible; }
+    .radar .grid-line { fill: none; stroke: var(--border); stroke-width: 1; }
+    .radar .axis { stroke: var(--border); stroke-width: 1; }
+    .radar .shape { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.8; stroke-linejoin: round; }
+    .radar .pt { fill: var(--accent); }
+    .radar text { font-size: 9px; fill: var(--muted); }
+    .radar text.val { fill: var(--ink); font-weight: 650; }
+    .bd[hidden], .radar-wrap[hidden] { display: none; }
+
+    /* ---------------- product tour ---------------- */
+
+    .tour { position: fixed; inset: 0; z-index: 200; }
+    .tour[hidden] { display: none; }
+    .tour-hole {
+      position: fixed; border-radius: var(--r-md); pointer-events: none;
+      box-shadow: 0 0 0 9999px rgba(10, 27, 36, 0.55);
+      border: 2px solid var(--accent);
+      transition: top 240ms var(--ease-out), left 240ms var(--ease-out),
+                  width 240ms var(--ease-out), height 240ms var(--ease-out);
+    }
+    .tour-card {
+      position: fixed; width: 300px; background: var(--surface);
+      border-radius: var(--r-lg); box-shadow: var(--sh-4); padding: 16px 18px;
+      transition: top 240ms var(--ease-out), left 240ms var(--ease-out);
+    }
+    .tour-card .step { font-size: 10px; font-weight: 650; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+    .tour-card h3 { margin: 6px 0 4px; font-size: 15px; }
+    .tour-card p { margin: 0; font-size: 12.5px; line-height: 1.55; color: var(--muted); }
+    .tour-card .row { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+    .tour-card .row .spacer { flex: 1; }
+    .tour-dots { display: flex; gap: 4px; }
+    .tour-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--border-strong); }
+    .tour-dots i.on { background: var(--accent); }
+
+    /* ---------------- command palette ---------------- */
+
+    .cmdk-scrim {
+      position: fixed; inset: 0; z-index: 120;
+      background: rgba(11, 34, 51, 0.34);
+      backdrop-filter: blur(2px);
+      display: grid; place-items: start center;
+      padding-top: 14vh;
+      animation: fade 140ms var(--ease-out);
+    }
+    .cmdk-scrim[hidden] { display: none; }
+    .cmdk {
+      width: min(620px, calc(100vw - 32px));
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-lg); box-shadow: var(--sh-4);
+      overflow: hidden; animation: rise 180ms var(--ease-out);
+    }
+    .cmdk-input {
+      display: flex; align-items: center; gap: 11px;
+      padding: 15px 17px; border-bottom: 1px solid var(--line);
+    }
+    .cmdk-input svg { width: 17px; height: 17px; flex: 0 0 auto; fill: none; stroke: var(--faint); stroke-width: 2; stroke-linecap: round; }
+    .cmdk-input input {
+      flex: 1; min-width: 0; border: 0; outline: none; background: none;
+      font: inherit; font-size: 15px; color: var(--ink);
+    }
+    .cmdk-input input::placeholder { color: var(--faint); }
+    .cmdk-input kbd {
+      font: inherit; font-size: 10.5px; color: var(--faint);
+      border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px;
+    }
+    .cmdk-list { max-height: 52vh; overflow-y: auto; padding: 6px; }
+    .cmdk-group { padding: 8px 10px 4px; font-size: 10px; font-weight: 650; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
+    .cmdk-item {
+      display: flex; align-items: center; gap: 10px; width: 100%;
+      padding: 9px 10px; border: 0; border-radius: var(--r-sm);
+      background: none; color: var(--ink); font: inherit; font-size: 13.5px;
+      text-align: left; cursor: pointer;
+    }
+    .cmdk-item[aria-selected="true"] { background: var(--accent-soft); }
+    .cmdk-item .ico {
+      display: grid; place-items: center; width: 26px; height: 26px; flex: 0 0 auto;
+      border-radius: 7px; background: var(--surface-3); color: var(--muted);
+    }
+    .cmdk-item .ico svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+    .cmdk-item .tx { flex: 1; min-width: 0; }
+    .cmdk-item .tx b { display: block; font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cmdk-item .tx small { display: block; font-size: 11px; color: var(--faint); }
+    .cmdk-item .hint { font-size: 10.5px; color: var(--faint); }
+    .cmdk-empty { padding: 26px 16px; text-align: center; font-size: 12.5px; color: var(--faint); }
+    .cmdk-foot {
+      display: flex; align-items: center; gap: 14px;
+      padding: 9px 16px; border-top: 1px solid var(--line);
+      font-size: 10.5px; color: var(--faint);
+    }
+    .cmdk-foot kbd {
+      font: inherit; font-size: 10px; border: 1px solid var(--border);
+      border-radius: 4px; padding: 0 4px; margin-right: 3px;
+    }
 
     /* ---------------- skeleton ---------------- */
     .sk-card { display: grid; grid-template-columns: 34px 1fr; gap: 11px; padding: 13px 16px; border-bottom: 1px solid var(--line); }
@@ -418,9 +1116,111 @@
     .sk-card .sk-line.w60 { width: 60%; }
     .sk-card .sk-line.w35 { width: 35%; height: 8px; }
 
+    /* filter buttons had no pressed state at all: every chip looked identical
+       whether it was on or off, so "Last 7 days" hid four of five postings and
+       the page just looked empty. */
+    .appbar-right .btn[aria-pressed="true"] {
+      --btn-bg: var(--accent-soft);
+      --btn-border: var(--accent);
+      --btn-ink: var(--accent-ink);
+      font-weight: 600;
+    }
+
+    /* live state, readable at a glance: grey = bundled sample, green = live,
+       amber = connecting, red = the last attempt failed */
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto;
+      background: var(--border-strong);
+      transition: background 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+    }
+    #fLive[aria-pressed="true"] {
+      --btn-bg: var(--ok-soft);
+      --btn-border: var(--ok);
+      --btn-ink: var(--ok);
+    }
+    #fLive[aria-pressed="true"] .live-dot {
+      background: var(--ok);
+      box-shadow: 0 0 0 3px var(--ok-soft);
+    }
+    #fLive[data-state="loading"] .live-dot {
+      background: var(--warn);
+      animation: livedot 1.1s ease-in-out infinite;
+    }
+    #fLive[data-state="error"] .live-dot { background: var(--bad); }
+    @keyframes livedot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    /* ---------------- mobile menu ---------------- */
+    .mobbar { display: none; }
+    .mobscrim { display: none; }
+
     /* ---------------- responsive ---------------- */
 
+    /* Below ~1400px the toolbar alone is 975px wide, which squeezed the search
+       box to 39px and pushed the first filter under it. Give the search its
+       own row instead of a sliver. */
+    @media (max-width: 1400px) {
+      .appbar { flex-wrap: wrap; gap: 8px 10px; }
+      .search { order: 3; flex: 1 1 100%; max-width: none; }
+      .appbar-right {
+        margin-left: 0; width: 100%;
+        flex-wrap: nowrap; gap: 6px;
+        overflow-x: auto; scrollbar-width: none;
+        padding-bottom: 1px; contain: paint;
+      }
+      .appbar-right::-webkit-scrollbar { display: none; }
+      .appbar-right .btn { flex: 0 0 auto; }
+      .profile-chip { flex: 0 0 auto; margin-left: auto; }
+    }
+
     @media (max-width: 900px) {
+      /* The rail used to shrink to a 64px strip of bare numbers with no labels
+         and no way to open it. On a phone it is now an off-canvas drawer with
+         the full labelled menu, opened by the hamburger in the mobile bar. */
+      .sidenav {
+        position: fixed; top: 0; bottom: 0; left: 0; z-index: 95;
+        width: 264px; padding: 18px 12px 12px;
+        transform: translateX(-102%);
+        transition: transform 260ms var(--ease-out);
+        box-shadow: 24px 0 70px rgba(10, 27, 36, 0.28);
+      }
+      .sidenav[data-open] { transform: none; }
+      .sidenav .snav-toggle { display: none; }
+      /* a persisted "collapsed" state must not strip the labels inside the drawer */
+      .sidenav.collapsed { width: 264px; }
+      .sidenav.collapsed .snav-label,
+      .sidenav.collapsed .snav-brand { display: block; }
+      .sidenav.collapsed .snav-mark { display: none; }
+      .sidenav.collapsed .snav-item { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
+      .mobscrim {
+        display: block; position: fixed; inset: 0; z-index: 94;
+        background: rgba(10, 27, 36, 0.45);
+        animation: fade 160ms var(--ease-out);
+      }
+      .mobscrim[hidden] { display: none; }
+      .mobbar {
+        display: flex; flex: 0 0 auto; align-items: center; gap: 10px;
+        padding: 8px 12px; background: var(--surface);
+        border-bottom: 1px solid var(--border);
+      }
+      .mobmenu {
+        display: grid; place-items: center; flex: 0 0 auto;
+        width: 36px; height: 36px; padding: 0;
+        border: 1px solid var(--border); border-radius: 9px;
+        background: var(--surface); color: var(--ink); cursor: pointer;
+      }
+      .mobmenu:focus-visible { outline: 3px solid var(--accent-ring); outline-offset: 2px; }
+      .mobmenu svg {
+        width: 18px; height: 18px; fill: none; stroke: currentColor;
+        stroke-width: 2; stroke-linecap: round;
+      }
+      .mobtitle { font-size: 14px; white-space: nowrap; }
+      .mobtitle b { font-weight: 650; }
+      .mobtitle span { color: var(--muted); }
+      .mobstep {
+        margin-left: auto; font-size: 10.5px; font-weight: 650;
+        letter-spacing: 0.07em; text-transform: uppercase; color: var(--accent);
+        white-space: nowrap;
+      }
       .split { grid-template-columns: 1fr; }
       .detailpane { display: none; }
       .split.show-detail .listpane { display: none; }
@@ -435,6 +1235,20 @@
     }
 
     @media (max-width: 680px) {
+      .view-head { flex-wrap: wrap; align-items: flex-start; padding: 18px 16px 14px; }
+      .view-head .t { flex: 1 1 100%; }
+      .view-head h1 { font-size: 26px; }
+      .view-head .seg { order: 3; }
+      .board { padding: 14px 16px 32px; }
+      .tbl-wrap { padding: 14px 16px 32px; }
+      .gaps { grid-template-columns: 1fr; padding: 14px 16px 32px; }
+      .listhead { flex-wrap: wrap; }
+      .listhead .count { flex: 1 1 100%; }
+      .listhead .spacer { display: none; }
+      .listhead .sortsel { flex: 1 1 0; min-width: 0; max-width: none; }
+      .capstrip { margin: 14px 16px 0; flex-wrap: wrap; }
+      .capstrip-bar { max-width: none; }
+      .capstrip-link { margin-left: 0; }
       .appbar { flex-wrap: wrap; gap: 8px 10px; padding: 9px 12px; }
       .search { order: 3; flex: 1 1 100%; max-width: none; }
       .search kbd { display: none; }
@@ -444,14 +1258,17 @@
         flex-wrap: nowrap; gap: 6px;
         overflow-x: auto; scrollbar-width: none;
         padding-bottom: 1px;
+        /* Without this, Chrome counts the clipped row's full width when it
+           decides the page is too wide, and zooms the whole app out on a
+           phone. Paint containment keeps the overflow inside the scroller. */
+        contain: paint;
       }
       .appbar-right::-webkit-scrollbar { display: none; }
       .appbar-right .btn { flex: 0 0 auto; padding: 0 10px; }
       .profile-chip { flex: 0 0 auto; margin-left: auto; }
-      .rail { padding: 0 10px; }
-      .rail-step { padding: 0 7px; font-size: 10.5px; }
-      .rail-step .lbl { display: none; }
-      .rail-step.on .lbl { display: inline; }
+      .drawer-foot { flex-wrap: wrap; }
+      .drawer-foot .note { display: none; }
+      .drawer-foot .btn { flex: 1 1 auto; justify-content: center; }
       .facts-row { grid-template-columns: 1fr; }
       .bd-row { grid-template-columns: 92px 1fr 50px; gap: 8px; }
       .hero h1 { font-size: 18px; }
@@ -460,38 +1277,84 @@
   </style>
 </head>
 <body>
-  <header class="appbar">
-    <div class="mark" aria-hidden="true">CO</div>
-    <div class="wordmark"><b>career</b> <span>ops india</span></div>
+  <div class="shell">
+    <nav class="sidenav" id="sidenav" aria-label="Pipeline stage">
+      <div class="snav-brand"><b>career</b> <span>ops india</span></div>
+      <div class="snav-mark" aria-hidden="true">c</div>
+      <div class="snav-list">
+        <a class="snav-item done" href="index.html"><span class="snav-num">✓</span><span class="snav-label">Discover</span></a>
+        <a class="snav-item done" href="map.html"><span class="snav-num">✓</span><span class="snav-label">Analyse</span></a>
+        <button class="snav-item on" id="railRecommend" type="button" aria-current="step"><span class="snav-num">3</span><span class="snav-label">Recommend</span></button>
+        <button class="snav-item" id="railTailor" type="button"><span class="snav-num">4</span><span class="snav-label">Tailor</span></button>
+        <a class="snav-item" href="console.html"><span class="snav-num">5</span><span class="snav-label">Apply</span></a>
+        <button class="snav-item" id="railTrack" type="button"><span class="snav-num">6</span><span class="snav-label">Track</span></button>
+        <button class="snav-item" id="railImprove" type="button"><span class="snav-num">7</span><span class="snav-label">Improve</span></button>
+      </div>
+      <div class="snav-foot">
+        <a class="snav-item" href="naukri.html" title="Naukri API — search and apply without a browser">
+          <span class="snav-num">↗</span><span class="snav-label">Naukri API</span>
+        </a>
+        <button class="snav-toggle" id="snavToggle" type="button" aria-label="Collapse the sidebar" aria-expanded="true">
+          <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          <span>Collapse</span>
+        </button>
+      </div>
+    </nav>
 
-    <div class="search">
+    <div class="mobscrim" id="mobScrim" hidden></div>
+
+    <div class="maincol">
+      <div class="mobbar">
+        <button class="mobmenu" id="mobMenu" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="sidenav">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <div class="mobtitle"><b>career</b> <span>ops india</span></div>
+        <span class="mobstep" id="mobStep">Recommend</span>
+      </div>
+
+      <header class="appbar">
+        <div class="search">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <input id="q" placeholder="Filter by title, company or skill" autocomplete="off" aria-label="Filter postings" />
-      <kbd>/</kbd>
+      <input id="q" placeholder="Search or jump to…" autocomplete="off" aria-label="Filter postings" />
+      <kbd id="cmdkHint" title="Open the command palette" style="cursor:pointer">⌘K</kbd>
     </div>
 
     <div class="appbar-right">
-      <button class="btn btn--sm" id="fLive" type="button">
-        <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 8-8"/><path d="M4 17a13 13 0 0 1 13-13"/><circle cx="5" cy="19" r="1.6"/></svg>
+      <button class="btn btn--sm" id="fLive" type="button"
+        data-tip="Pull postings from the live job feeds. Click again to go back to the bundled list.">
+        <span class="live-dot" aria-hidden="true"></span>
         <span class="btn-label">Live feeds</span>
+        <span class="sr-only">Pull postings from the live job feeds</span>
       </button>
-      <button class="btn btn--sm" id="fFresh" type="button" aria-pressed="true">
+      <button class="btn btn--sm" id="fFresh" type="button" aria-pressed="true"
+        data-tip="Only postings from the last 7 days. Click again to include older ones.">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></svg>
         <span class="btn-label">Last 7 days</span>
+        <span class="sr-only">Only postings from the last 7 days</span>
       </button>
-      <button class="btn btn--sm" id="fScore" type="button" aria-pressed="false">
+      <button class="btn btn--sm" id="fScore" type="button" aria-pressed="false"
+        data-tip="Only postings that score 70 or higher against your profile.">
         <svg viewBox="0 0 24 24"><path d="M4 18V9M10 18V5M16 18v-6M22 18H2"/></svg>
         <span class="btn-label">70+</span>
+        <span class="sr-only">Only postings that score 70 or higher</span>
       </button>
-      <button class="btn btn--sm" id="fSource" type="button">
+      <button class="btn btn--sm" id="fSource" type="button" aria-haspopup="listbox" aria-expanded="false"
+        data-tip="Filter by the site the posting came from.">
         <svg viewBox="0 0 24 24"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
         <span class="btn-label">All sources</span>
+        <span class="sr-only">Filter by the site the posting came from</span>
       </button>
-      <button class="btn btn--sm" id="fSaved" type="button" aria-pressed="false">
+      <button class="btn btn--sm" id="fSaved" type="button" aria-pressed="false"
+        data-tip="Only the postings you saved for later.">
         <svg viewBox="0 0 24 24"><path d="M6 4h12v17l-6-4-6 4z"/></svg>
         <span class="btn-label">Saved</span>
+        <span class="sr-only">Only the postings you saved for later</span>
       </button>
-      <a class="btn btn--sm btn--ghost" href="browser.html" title="Open the Career-Ops browser">
+      <a class="btn btn--sm btn--primary" href="console.html" title="Open the apply console">
+        <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 6"/></svg>
+        <span class="btn-label">Apply console</span>
+      </a>
+      <a class="btn btn--sm btn--ghost" href="browser.html" title="Open the Career-Ops browser (handover view)">
         <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><circle cx="6.5" cy="6.5" r="0.6" fill="currentColor"/></svg>
         <span class="btn-label">Browser</span>
       </a>
@@ -499,34 +1362,53 @@
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
         <span class="btn-label">Connections</span>
       </a>
+      <div class="bell" id="bellWrap">
+        <button class="btn btn--sm btn--ghost" id="bell" type="button" aria-label="Notifications" aria-expanded="false" aria-haspopup="dialog" title="What needs you">
+          <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          <span class="dot-badge" id="bellCount" hidden>0</span>
+        </button>
+        <div class="notif" id="notif" role="dialog" aria-label="Notifications" hidden></div>
+      </div>
       <button class="profile-chip" id="profileChip" type="button" title="Edit your profile">
         <span class="who"><b id="chipRole">Product Manager</b><small id="chipMeta">Chennai</small></span>
         <span class="avatar" id="chipAvatar">PM</span>
       </button>
     </div>
-  </header>
+      </header>
 
-  <nav class="rail" aria-label="Pipeline stage">
-    <a class="rail-step done" href="index.html"><span class="dot">✓</span><span class="lbl">Discover</span></a>
-    <span class="rail-sep">›</span>
-    <a class="rail-step done" href="map.html"><span class="dot">✓</span><span class="lbl">Analyse</span></a>
-    <span class="rail-sep">›</span>
-    <span class="rail-step on" aria-current="step"><span class="dot">3</span><span class="lbl">Recommend</span></span>
-    <span class="rail-sep">›</span>
-    <button class="rail-step" id="railTailor" type="button" style="background:none;border:0;border-bottom:2px solid transparent;cursor:pointer;font:inherit"><span class="dot">4</span><span class="lbl">Tailor</span></button>
-    <span class="rail-sep">›</span>
-    <a class="rail-step" href="apply.html"><span class="dot">5</span><span class="lbl">Apply</span></a>
-    <span class="rail-sep">›</span>
-    <span class="rail-step"><span class="dot">6</span><span class="lbl">Track</span></span>
-    <span class="rail-sep">›</span>
-    <span class="rail-step"><span class="dot">7</span><span class="lbl">Improve</span></span>
-  </nav>
-
-  <div class="split" id="split">
+      <div class="split" id="split">
     <div class="listpane">
       <div class="listhead">
         <span class="count" id="count">—</span>
         <span class="spacer"></span>
+        <select class="sortsel" id="loc" aria-label="Filter by state">
+          <option value="">All India</option>
+          <option value="remote">Remote</option>
+          <option value="tamil nadu">Tamil Nadu</option>
+          <option value="karnataka">Karnataka</option>
+          <option value="telangana">Telangana</option>
+          <option value="andhra pradesh">Andhra Pradesh</option>
+          <option value="maharashtra">Maharashtra</option>
+          <option value="delhi ncr">Delhi NCR</option>
+          <option value="haryana">Haryana</option>
+          <option value="uttar pradesh">Uttar Pradesh</option>
+          <option value="west bengal">West Bengal</option>
+          <option value="gujarat">Gujarat</option>
+          <option value="kerala">Kerala</option>
+          <option value="rajasthan">Rajasthan</option>
+          <option value="madhya pradesh">Madhya Pradesh</option>
+          <option value="punjab">Punjab</option>
+          <option value="chandigarh">Chandigarh</option>
+          <option value="odisha">Odisha</option>
+          <option value="assam">Assam</option>
+          <option value="uttarakhand">Uttarakhand</option>
+          <option value="goa">Goa</option>
+          <option value="bihar">Bihar</option>
+          <option value="jharkhand">Jharkhand</option>
+          <option value="chhattisgarh">Chhattisgarh</option>
+          <option value="himachal pradesh">Himachal Pradesh</option>
+          <option value="jammu and kashmir">Jammu and Kashmir</option>
+        </select>
         <select class="sortsel" id="sort" aria-label="Sort postings">
           <option value="match">Best match</option>
           <option value="newest">Newest first</option>
@@ -535,6 +1417,8 @@
       </div>
       <div class="list" id="list" role="listbox" aria-label="Matched jobs"></div>
     </div>
+
+    <div class="splitter" id="splitter" role="separator" aria-orientation="vertical" aria-label="Resize the posting list" tabindex="0"></div>
 
     <div class="detailpane" id="detail">
       <div class="empty-detail">
@@ -547,7 +1431,94 @@
     </div>
   </div>
 
+  <section class="view" id="viewTrack" hidden aria-label="Track applications">
+    <div class="view-head">
+      <div class="t">
+        <h1>Track</h1>
+        <p>Every posting you saved or started, in the order it moves. Nothing is sent without you.</p>
+      </div>
+      <div class="seg" role="group" aria-label="Track layout">
+        <button type="button" id="segBoard" aria-pressed="true">
+          <svg viewBox="0 0 24 24"><path d="M4 4h5v16H4zM15 4h5v10h-5z"/></svg>
+          Board
+        </button>
+        <button type="button" id="segTable" aria-pressed="false">
+          <svg viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18M9 5v14"/></svg>
+          Table
+        </button>
+      </div>
+      <button class="btn btn--sm" id="trackBack" type="button">
+        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        <span class="btn-label">Back to matches</span>
+      </button>
+    </div>
+    <div class="capstrip" id="capStrip">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+      <span class="capstrip-txt"><b id="capLabel">— / —</b> applications today</span>
+      <span class="capstrip-bar"><i id="capBar" style="width:0%"></i></span>
+      <span class="capstrip-left" id="capLeft"></span>
+      <a class="capstrip-link" href="naukri.html">Open the log</a>
+    </div>
+    <div class="heat-wrap" id="heatWrap"></div>
+    <div class="board" id="board"></div>
+    <div class="tbl-wrap" id="trackTable" hidden></div>
+  </section>
+
+  <section class="view" id="viewImprove" hidden aria-label="Improve your match">
+    <div class="view-head">
+      <div class="t">
+        <h1>Improve</h1>
+        <p>The gaps that repeat across your matches, and what closing them is worth.</p>
+      </div>
+      <button class="btn btn--sm" id="improveBack" type="button">
+        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        <span class="btn-label">Back to matches</span>
+      </button>
+    </div>
+    <div class="gaps">
+      <div class="panel">
+        <div class="panel-h">
+          <h2>Repeated gaps</h2>
+          <p>Ranked by how many of your current matches ask for them.</p>
+        </div>
+        <div id="gapList"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h">
+          <h2>This week</h2>
+          <p>Three things that move more than one match at once.</p>
+        </div>
+        <div id="taskList"></div>
+        <div class="evidence">
+          <b>Not evidence</b>
+          <p><em>“Familiar with Kubernetes.”</em> A claim with nothing behind it.</p>
+          <b style="margin-top:12px">Evidence</b>
+          <p><em>“Ran the pricing experiment that lifted trial conversion 12%.”</em> A result, a number, a date.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+    </div>
+  </div>
+
   <div class="scrim" id="scrim"></div>
+
+  <div class="cmdk-scrim" id="cmdkScrim" hidden>
+    <div class="cmdk" role="dialog" aria-modal="true" aria-label="Command palette">
+      <div class="cmdk-input">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="cmdkInput" placeholder="Search postings, or type a command" autocomplete="off" aria-label="Search postings and commands" />
+        <kbd>Esc</kbd>
+      </div>
+      <div class="cmdk-list" id="cmdkList" role="listbox" aria-label="Results"></div>
+      <div class="cmdk-foot">
+        <span><kbd>↑</kbd><kbd>↓</kbd> move</span>
+        <span><kbd>↵</kbd> open</span>
+        <span style="margin-left:auto">⌘K / Ctrl K</span>
+      </div>
+    </div>
+  </div>
   <aside class="drawer" id="drawer" aria-hidden="true" aria-label="Tailor resume">
     <div class="drawer-head">
       <div class="t">
@@ -562,8 +1533,14 @@
     <div class="drawer-foot" id="dFoot" hidden></div>
   </aside>
 
+  <div class="tour" id="tour" hidden>
+    <div class="tour-hole" id="tourHole"></div>
+    <div class="tour-card" id="tourCard" role="dialog" aria-modal="true" aria-label="Quick tour"></div>
+  </div>
+
   <script src="data.js"></script>
   <script src="design.js"></script>
+  <script src="resume.js"></script>
   <script>
     const UI = window.CO.ui;
 
@@ -578,6 +1555,15 @@
       ...(saved || {})
     };
 
+    /* sessionStorage dies with the tab; the master resume is kept on disk in
+       localStorage so a fresh workspace can still re-cut it. */
+    if (!state.rawText) {
+      try { state.rawText = localStorage.getItem("co.masterResume") || ""; } catch {}
+    }
+    if (!state.file) {
+      try { state.file = localStorage.getItem("co.masterFile") || null; } catch {}
+    }
+
     const family = state.family || window.CO.resolveFamily(state.role);
     let JOBS = window.CO.jobsFor(family, state.role);
     let live = false;
@@ -588,16 +1574,98 @@
 
     /* saved postings survive a reload; they are the user's own list */
     const SAVED_KEY = "co.saved";
+    const SAVED_AT_KEY = "co.savedAt";
     const savedIds = new Set(
       (() => {
         try { return JSON.parse(localStorage.getItem(SAVED_KEY) || "[]"); } catch { return []; }
       })()
     );
+    const savedAt = (() => {
+      try { return JSON.parse(localStorage.getItem(SAVED_AT_KEY) || "{}") || {}; } catch { return {}; }
+    })();
     const persistSaved = () => {
       try { localStorage.setItem(SAVED_KEY, JSON.stringify([...savedIds])); } catch {}
+      try { localStorage.setItem(SAVED_AT_KEY, JSON.stringify(savedAt)); } catch {}
     };
 
-    const filters = { q: "", fresh: true, minScore: 0, source: "", sort: "match", savedOnly: false };
+    /* Which jobs have a tailored PDF on the server. The server is the source of
+       truth; this set only decides whether the button says "Tailor first". */
+    const TAILORED_KEY = "co.tailoredIds";
+    const tailoredIds = new Set(
+      (() => {
+        try { return JSON.parse(localStorage.getItem(TAILORED_KEY) || "[]"); } catch { return []; }
+      })()
+    );
+    const persistTailoredIds = () => {
+      try { localStorage.setItem(TAILORED_KEY, JSON.stringify([...tailoredIds])); } catch {}
+    };
+
+    /* Another tab (Apply, Track) can change the same keys. Re-read them so the
+       History is never a stale copy of what this tab loaded. */
+    function reloadSaved() {
+      try {
+        const ids = JSON.parse(localStorage.getItem(SAVED_KEY) || "[]");
+        savedIds.clear();
+        for (const id of ids) savedIds.add(id);
+      } catch {}
+      try {
+        const at = JSON.parse(localStorage.getItem(SAVED_AT_KEY) || "{}") || {};
+        for (const k of Object.keys(savedAt)) delete savedAt[k];
+        Object.assign(savedAt, at);
+      } catch {}
+    }
+
+    const filters = { q: "", fresh: true, minScore: 0, source: "", sort: "match", savedOnly: false, state: "" };
+
+    /* City -> state, so "Chennai" and "Tamil Nadu" are the same filter. Order
+       matters: a specific state is checked before Delhi NCR, so Gurugram is
+       Haryana and Noida is Uttar Pradesh, not both NCR. */
+    const STATE_ALIASES = {
+      "tamil nadu": ["tamil nadu", "chennai", "coimbatore", "madurai", "tiruchirappalli", "trichy", "salem", "tirunelveli", "vellore", "erode", "thanjavur", "hosur", "ooty"],
+      "karnataka": ["karnataka", "bengaluru", "bangalore", "mysuru", "mysore", "mangaluru", "hubballi", "belagavi", "davanagere"],
+      "telangana": ["telangana", "hyderabad", "secunderabad", "warangal", "nizamabad"],
+      "andhra pradesh": ["andhra pradesh", "visakhapatnam", "vijayawada", "guntur", "tirupati", "nellore", "rajahmundry"],
+      "maharashtra": ["maharashtra", "mumbai", "pune", "nagpur", "thane", "navi mumbai", "nashik", "aurangabad", "kolhapur"],
+      "haryana": ["haryana", "gurugram", "gurgaon", "faridabad", "panipat", "ambala", "karnal"],
+      "uttar pradesh": ["uttar pradesh", "noida", "greater noida", "lucknow", "kanpur", "varanasi", "agra", "ghaziabad", "meerut"],
+      "delhi ncr": ["delhi", "new delhi", "ncr"],
+      "west bengal": ["west bengal", "kolkata", "howrah", "siliguri", "durgapur"],
+      "gujarat": ["gujarat", "ahmedabad", "surat", "vadodara", "rajkot", "gandhinagar"],
+      "kerala": ["kerala", "kochi", "cochin", "thiruvananthapuram", "trivandrum", "kozhikode", "calicut", "thrissur"],
+      "rajasthan": ["rajasthan", "jaipur", "jodhpur", "udaipur", "kota"],
+      "madhya pradesh": ["madhya pradesh", "indore", "bhopal", "jabalpur", "gwalior"],
+      "punjab": ["punjab", "ludhiana", "amritsar", "jalandhar"],
+      "chandigarh": ["chandigarh", "mohali", "panchkula"],
+      "odisha": ["odisha", "orissa", "bhubaneswar", "cuttack", "rourkela"],
+      "assam": ["assam", "guwahati", "dispur", "silchar"],
+      "uttarakhand": ["uttarakhand", "dehradun", "haridwar", "rishikesh"],
+      "goa": ["goa", "panaji", "margao"],
+      "bihar": ["bihar", "patna", "gaya"],
+      "jharkhand": ["jharkhand", "ranchi", "jamshedpur"],
+      "chhattisgarh": ["chhattisgarh", "raipur", "bhilai"],
+      "himachal pradesh": ["himachal pradesh", "shimla", "manali"],
+      "jammu and kashmir": ["jammu", "kashmir", "srinagar"],
+    };
+    const STATE_KEYS = Object.keys(STATE_ALIASES);
+    const stateCache = new Map();
+    const stateOf = (j) => {
+      if (stateCache.has(j.id)) return stateCache.get(j.id);
+      const loc = String(j.location || "").toLowerCase();
+      if (/\b(remote|work from home|wfh|anywhere)\b/.test(loc)) {
+        stateCache.set(j.id, "remote");
+        return "remote";
+      }
+      const hay = `${loc} ${String(j.title || "").toLowerCase()} ${String(j.jd || "").toLowerCase()}`;
+      let found = "";
+      for (const state of STATE_KEYS) {
+        if (STATE_ALIASES[state].some((k) => new RegExp(`\\b${k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(hay))) {
+          found = state;
+          break;
+        }
+      }
+      stateCache.set(j.id, found);
+      return found;
+    };
 
     const $ = (s) => document.querySelector(s);
 
@@ -645,6 +1713,7 @@
         if (filters.fresh && freshness(j).stale) return false;
         if (j.score < filters.minScore) return false;
         if (filters.source && j.source !== filters.source) return false;
+        if (filters.state && stateOf(j) !== filters.state) return false;
         if (filters.q) {
           const hay = `${j.title} ${j.company} ${(j.have || []).join(" ")} ${(j.miss || []).join(" ")}`.toLowerCase();
           if (!hay.includes(filters.q.toLowerCase())) return false;
@@ -688,6 +1757,41 @@
       }
     }
 
+    /* One-click batches. They sit above the cards rather than in the header,
+       because the header already holds two selects and the count gets crushed
+       on a narrow pane. */
+    function addBatchBars(box, rows) {
+      if (savedIds.size) {
+        const bar = document.createElement("div");
+        bar.className = "savedbar";
+        bar.innerHTML = `
+          <span><b>${savedIds.size}</b> saved</span>
+          <button class="btn btn--sm btn--primary" type="button" id="autoSaved">
+            <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13H11l-1 9 8.5-11H12z"/></svg>
+            <span class="btn-label">Auto apply all</span>
+          </button>`;
+        bar.querySelector("#autoSaved").addEventListener("click", () => {
+          const jobs = JOBS.filter((j) => savedIds.has(j.id));
+          if (jobs.length) openAutoApply(jobs);
+        });
+        box.prepend(bar);
+      }
+
+      if (filters.sort === "score" && rows.length) {
+        const top = rows.slice(0, 10);
+        const bar = document.createElement("div");
+        bar.className = "savedbar scorebar";
+        bar.innerHTML = `
+          <span>Top <b>${top.length}</b> by score</span>
+          <button class="btn btn--sm btn--primary" type="button" id="autoTop">
+            <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13H11l-1 9 8.5-11H12z"/></svg>
+            <span class="btn-label">Auto apply top ${top.length}</span>
+          </button>`;
+        bar.querySelector("#autoTop").addEventListener("click", () => openAutoApply(top));
+        box.prepend(bar);
+      }
+    }
+
     function renderList() {
       const rows = visible();
       const box = $("#list");
@@ -705,7 +1809,7 @@
             </div>
             <h3>${filters.savedOnly ? "Nothing saved yet" : "Nothing matches these filters"}</h3>
             <p>${filters.savedOnly
-              ? "Tap the bookmark on any posting and it lands here, on this machine."
+              ? "Tap the bookmark on any posting and it lands here."
               : filters.fresh
                 ? `No posting from the last ${FRESH_DAYS} days fits. Older listings are usually expired.`
                 : "Widen the score floor or clear the source filter."}</p>
@@ -732,6 +1836,7 @@
           $("#fFresh").setAttribute("aria-pressed", "true");
           $("#fFresh .btn-label").textContent = "Last 7 days";
           $("#fSource .btn-label").textContent = "All sources";
+          $("#fSource").setAttribute("aria-pressed", "false");
           renderList();
         });
         const b = $("#backFresh");
@@ -742,8 +1847,11 @@
           renderList();
         });
         if (selected) { selected = null; renderDetail(); }
+        addBatchBars(box, rows);
         return;
       }
+
+      addBatchBars(box, rows);
 
       const matchedRows = rows.filter((j) => j.matched);
       const otherRows = rows.filter((j) => !j.matched);
@@ -826,6 +1934,66 @@
 
     /* ---------- detail ---------- */
 
+    function timelineFor(j) {
+      const entry = readTrack().find((e) => String(e.id) === String(j.id)) || null;
+      const stage = entry ? (entry.stage || "applied") : null;
+      const at = { saved: 0, tailoring: 1, ready: 2, applied: 3, interview: 4, closed: 3 }[stage] ?? -1;
+
+      /* Each step is its own fact. An application does not prove the posting
+         was saved or tailored, so do not infer one step from another. Older
+         entries only carry `stage`; for those, fall back to the stage order. */
+      const legacy = Boolean(
+        entry && !entry.savedAt && !entry.tailoredAt && !entry.readyAt && !entry.appliedAt && !entry.interviewAt
+      );
+      const saved = savedIds.has(j.id) || Boolean(entry && entry.savedAt);
+      const tailored = Boolean(entry && (entry.tailoredAt || (legacy && at >= 1)));
+      const ready = Boolean(entry && (entry.readyAt || (legacy && at >= 2)));
+      const applied = Boolean(entry && (entry.appliedAt || (legacy && at >= 3)));
+      const interview = Boolean(entry && (stage === "interview" || entry.interviewAt));
+
+      const posted = (() => {
+        if (!j.datePosted) return "date not stated";
+        const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(j.datePosted) ? j.datePosted + "T00:00:00Z" : j.datePosted);
+        if (!Number.isFinite(d.getTime())) return "date not stated";
+        return "posted " + d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+      })();
+
+      const when = (iso) => {
+        if (!iso) return "";
+        const d = new Date(iso);
+        if (!Number.isFinite(d.getTime())) return "";
+        return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+      };
+
+      const steps = [
+        { k: "discovered", label: "Found on " + sourceName(j.source), sub: posted, done: true },
+        { k: "scored", label: "Scored " + j.score.toFixed(1) + " against your profile", sub: "deterministic, from the posting text", done: true },
+        { k: "saved", label: "Saved for later", sub: "in your list", done: saved, at: savedAt[j.id] },
+        { k: "tailoring", label: "Resume tailored", sub: "Sarvam rewrote it for this posting", done: tailored, at: entry && entry.tailoredAt },
+        { k: "ready", label: "Reviewed and ready", sub: "waiting on you to send", done: ready, at: entry && entry.readyAt },
+        { k: "applied", label: "Submitted", sub: "you sent the application", done: applied, at: entry && entry.appliedAt },
+        { k: "interview", label: "Interview", sub: "a conversation is booked", done: interview, at: entry && entry.interviewAt },
+      ];
+
+      const nowKey = interview ? "interview" : applied ? "applied" : ready ? "ready" : tailored ? "tailoring" : saved ? "saved" : null;
+
+      return steps.map((s) => {
+        const stamp = s.done ? when(s.at) : "";
+        return `<li class="${s.done ? "done" : ""} ${s.k === nowKey ? "now" : ""}">
+          <b>${UI.esc(s.label)}</b>
+          <span>${s.done ? UI.esc(s.sub) + (stamp ? ` · ${stamp}` : "") : "not yet"}</span>
+        </li>`;
+      }).join("");
+    }
+
+    /* Update the History in place. Re-rendering the whole detail pane would
+       reset the user's scroll position every time they bookmark a posting. */
+    function refreshTimeline(j) {
+      const tl = document.querySelector(".tl");
+      if (!tl || !j || String(selected) !== String(j.id)) return;
+      tl.innerHTML = timelineFor(j);
+    }
+
     function renderDetail() {
       const j = JOBS.find((x) => x.id === selected);
       const box = $("#detail");
@@ -851,6 +2019,15 @@
       const posted = postedDate ? fmt(postedDate) : "Not stated";
       const seen = seenDate ? fmt(seenDate) : "Not recorded";
 
+      /* One line that says why the number is what it is. A score with no
+         reason is a number the user has to trust; this is the reason. */
+      const bd = j.breakdown || [];
+      const best = bd.length ? bd.reduce((a, b) => (b.max && b.got / b.max > a.got / a.max ? b : a)) : null;
+      const worst = bd.length ? bd.reduce((a, b) => (b.max && b.got / b.max < a.got / a.max ? b : a)) : null;
+      const reason = best && worst && best.k !== worst.k
+        ? `Strongest on ${best.k.toLowerCase()} (${best.got.toFixed(0)}/${best.max}) · weakest on ${worst.k.toLowerCase()} (${worst.got.toFixed(0)}/${worst.max}).`
+        : "";
+
       box.innerHTML = `
         <div class="detail-inner">
           <button class="backlink" id="dBack" type="button">
@@ -870,6 +2047,12 @@
             </div>
             <span class="ring" id="heroRing"></span>
           </div>
+
+          ${reason ? `
+            <p class="score-why">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg>
+              <span>${UI.esc(reason)}</span>
+            </p>` : ""}
 
           ${f.stale ? `
             <div class="notice bad">
@@ -902,6 +2085,7 @@
             <div class="sec-head">
               <h2>Why this score</h2>
               <span class="note">deterministic · same inputs, same number</span>
+              ${(j.breakdown || []).length >= 3 ? `<button class="linkbtn" id="bdToggle" type="button">Radar view</button>` : ""}
             </div>
             <div class="bd" id="bd">
               ${(j.breakdown || []).map((r) => `
@@ -911,6 +2095,7 @@
                   <span class="val"><b>${r.got.toFixed(1)}</b> / ${r.max}</span>
                 </div>`).join("")}
             </div>
+            ${radarSVG(j.breakdown)}
           </div>
 
           <div class="sec">
@@ -937,6 +2122,28 @@
           </div>
 
           <div class="sec">
+            <div class="sec-head">
+              <h2>ATS keyword gap</h2>
+              <span class="note">deterministic · no model</span>
+            </div>
+            <div class="ats-gap" id="atsGap">
+              <button class="btn btn--secondary btn--sm" id="atsRun" type="button">
+                <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h7"/></svg>
+                <span class="btn-label">Check this posting against my resume</span>
+              </button>
+              <p class="hint">Finds the terms an ATS indexes that your resume never mentions. Same answer every time — no key, no model.</p>
+            </div>
+          </div>
+
+          <div class="sec">
+            <div class="sec-head">
+              <h2>History</h2>
+              <span class="note">what you have done with this posting</span>
+            </div>
+            <ul class="tl">${timelineFor(j)}</ul>
+          </div>
+
+          <div class="sec">
             <div class="sec-head"><h2>Posting</h2></div>
             <div class="jd" id="jd">${UI.esc(j.jd || "The source did not send a description. Open the original to read it.")}</div>
             <button class="jd-toggle" id="jdToggle" type="button">Read full posting</button>
@@ -951,6 +2158,10 @@
               <svg viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
               <span class="btn-label">Open original</span>
             </button>
+            <button class="btn" type="button" id="autoApply" title="Fill and submit this application">
+              <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13H11l-1 9 8.5-11H12z"/></svg>
+              <span class="btn-label">Auto apply</span>
+            </button>
             <button class="icon-btn" id="save" type="button" title="${savedIds.has(j.id) ? "Saved — remove" : "Save for later"}" aria-label="Save for later" aria-pressed="${savedIds.has(j.id) ? "true" : "false"}" style="${savedIds.has(j.id) ? "color:var(--accent)" : ""}">
               <svg viewBox="0 0 24 24"><path d="M6 4h12v17l-6-4-6 4z" ${savedIds.has(j.id) ? 'fill="currentColor"' : ""}/></svg>
             </button>
@@ -961,6 +2172,20 @@
       /* score ring */
       UI.ring($("#heroRing"), j.score, { size: 76, stroke: 7 });
 
+      /* bars <-> radar, same numbers */
+      const bdToggle = $("#bdToggle");
+      if (bdToggle) {
+        bdToggle.addEventListener("click", () => {
+          const bars = $("#bd");
+          const radar = $("#radarWrap");
+          if (!radar) return;
+          const showRadar = radar.hidden;
+          radar.hidden = !showRadar;
+          bars.hidden = showRadar;
+          bdToggle.textContent = showRadar ? "Bar view" : "Radar view";
+        });
+      }
+
       /* bars grow after paint */
       requestAnimationFrame(() => {
         document.querySelectorAll("#bd .track > i").forEach((el, i) => {
@@ -968,12 +2193,85 @@
         });
       });
 
+      /* ATS gap — deterministic, runs locally, no key needed */
+      const atsRun = $("#atsRun");
+      if (atsRun) {
+        atsRun.addEventListener("click", async () => {
+          const box = $("#atsGap");
+          if (!state.rawText) {
+            box.innerHTML = `
+              <p class="hint">There is no resume text on this profile, so there is nothing to compare against.
+              <a href="index.html" style="color:inherit;font-weight:600">Add a resume</a> and this becomes a real check.</p>`;
+            return;
+          }
+          atsRun.disabled = true;
+          atsRun.querySelector(".btn-label").textContent = "Checking…";
+          try {
+            const r = await fetch("/api/ats/gap", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ resume: state.rawText || "", jd: j.jd || j.title || "" }),
+            });
+            const d = await r.json();
+            if (!d.ok) throw new Error(d.message || "Could not read the posting.");
+            const missing = (d.missing || []).slice(0, 18);
+            const matched = (d.matched || []).slice(0, 12);
+            box.innerHTML = `
+              <div class="ats-score">
+                <span class="ats-num">${d.score}<small>%</small></span>
+                <span class="ats-cap">of the posting's indexed terms are in your resume<br><b>${d.matched.length}</b> matched · <b>${d.missing.length}</b> missing · <b>${d.jdTerms}</b> terms read</span>
+              </div>
+              ${missing.length ? `
+                <div class="ats-block">
+                  <div class="ats-h">Missing — add only what you can show</div>
+                  <div class="ats-tags">${missing.map((s) => `<span class="ats-tag miss">${UI.esc(s)}</span>`).join("")}</div>
+                </div>` : `<p class="hint">Every indexed term in the posting already appears in your resume.</p>`}
+              ${matched.length ? `
+                <div class="ats-block">
+                  <div class="ats-h">Already covered</div>
+                  <div class="ats-tags">${matched.map((s) => `<span class="ats-tag have">${UI.esc(s)}</span>`).join("")}</div>
+                </div>` : ""}
+              ${(d.other || []).length ? `
+                <details class="ats-other">
+                  <summary>${d.other.length} capitalised terms the vocabulary did not know — read these yourself</summary>
+                  <div class="ats-tags">${d.other.slice(0, 24).map((s) => `<span class="ats-tag">${UI.esc(s)}</span>`).join("")}</div>
+                </details>` : ""}
+              <button class="linkbtn" id="atsAgain" type="button">Check again</button>`;
+            $("#atsAgain").addEventListener("click", () => atsRun.click());
+          } catch (e) {
+            box.innerHTML = `<p class="hint">${UI.esc(e instanceof Error ? e.message : String(e))}</p>
+              <button class="linkbtn" id="atsAgain" type="button">Try again</button>`;
+            $("#atsAgain").addEventListener("click", () => atsRun.click());
+          }
+        });
+      }
+
       $("#tailor").addEventListener("click", () => openTailor(j));
+      $("#autoApply").addEventListener("click", () => {
+        if (!tailoredIds.has(j.id)) {
+          UI.toast("Tailor this resume first. Auto apply attaches the tailored PDF.", { kind: "info", title: "Tailor first" });
+          openTailor(j);
+          return;
+        }
+        openAutoApply([j]);
+      });
+      {
+        const btn = $("#autoApply");
+        const ready = tailoredIds.has(j.id);
+        btn.querySelector(".btn-label").textContent = ready ? "Auto apply" : "Tailor first";
+        btn.title = ready ? "Fill and submit this application" : "Tailor the resume, then auto apply";
+      }
       $("#open").addEventListener("click", () => window.open(j.sourceUrl, "_blank", "noopener"));
       $("#save").addEventListener("click", (e) => {
         const btn = e.currentTarget;
         const on = !savedIds.has(j.id);
-        if (on) savedIds.add(j.id); else savedIds.delete(j.id);
+        if (on) {
+          savedIds.add(j.id);
+          savedAt[j.id] = new Date().toISOString();
+        } else {
+          savedIds.delete(j.id);
+          delete savedAt[j.id];
+        }
         persistSaved();
         btn.style.color = on ? "var(--accent)" : "";
         btn.querySelector("path").setAttribute("fill", on ? "currentColor" : "none");
@@ -981,6 +2279,7 @@
         btn.title = on ? "Saved — remove" : "Save for later";
         paintSavedLabel();
         renderList();
+        refreshTimeline(j);
         UI.toast(
           on ? `${j.title} at ${j.company} saved.` : `${j.title} removed from saved.`,
           { kind: on ? "ok" : "info", title: on ? "Saved for later" : "Removed" }
@@ -1100,6 +2399,7 @@
 
     $("#q").addEventListener("input", (e) => { filters.q = e.target.value.trim(); renderList(); });
     $("#sort").addEventListener("change", (e) => { filters.sort = e.target.value; renderList(); });
+    $("#loc").addEventListener("change", (e) => { filters.state = e.target.value; renderList(); });
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "/" && document.activeElement !== $("#q")) {
@@ -1127,6 +2427,7 @@
 
     const SOURCE_CYCLE = [
       { label: "All sources", id: "" },
+      { label: "Company portals", id: "company" },
       { label: "Lever", id: "lever" },
       { label: "Greenhouse", id: "greenhouse" },
       { label: "Ashby", id: "ashby" },
@@ -1147,14 +2448,159 @@
     );
     SOURCE_NAME.freelancer = "Freelancer.com";
     const sourceName = (id) => SOURCE_NAME[id] || id;
-    $("#fSource").addEventListener("click", (e) => {
-      const i = SOURCE_CYCLE.findIndex((s) => s.id === filters.source);
-      const next = SOURCE_CYCLE[(i + 1) % SOURCE_CYCLE.length];
-      filters.source = next.id;
-      e.currentTarget.querySelector(".btn-label").textContent = next.label;
-      e.currentTarget.setAttribute("aria-pressed", String(Boolean(next.id)));
+    /* The source filter is a list, not a switch. It used to walk the whole
+       catalogue one source per click, so reaching "Working Nomads" meant
+       eleven clicks and overshooting meant starting again. */
+    const srcBtn = $("#fSource");
+    const srcMenu = document.createElement("div");
+    srcMenu.className = "srcmenu";
+    srcMenu.id = "srcMenu";
+    srcMenu.setAttribute("role", "listbox");
+    srcMenu.setAttribute("aria-label", "Filter by source");
+    srcMenu.hidden = true;
+    document.body.appendChild(srcMenu);
+
+    const TICK = '<svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>';
+
+    function buildSourceMenu() {
+      srcMenu.innerHTML = SOURCE_CYCLE.map((s) => {
+        const on = s.id === filters.source;
+        return `<button class="menu-item" type="button" role="option" data-id="${s.id}" aria-selected="${on}">${TICK}<span>${s.label}</span></button>`;
+      }).join("");
+    }
+
+    /* fixed and clamped to the viewport: the filter row scrolls sideways on a
+       phone, and a panel anchored inside it would be clipped */
+    function placeSourceMenu() {
+      const r = srcBtn.getBoundingClientRect();
+      srcMenu.style.visibility = "hidden";
+      srcMenu.hidden = false;
+      const w = srcMenu.offsetWidth;
+      const h = srcMenu.offsetHeight;
+      const left = Math.max(8, Math.min(r.right - w, innerWidth - w - 8));
+      let top = r.bottom + 6;
+      if (top + h > innerHeight - 8) top = Math.max(8, r.top - h - 6);
+      srcMenu.style.left = `${Math.round(left)}px`;
+      srcMenu.style.top = `${Math.round(top)}px`;
+      srcMenu.style.visibility = "";
+    }
+
+    function openSourceMenu() {
+      buildSourceMenu();
+      placeSourceMenu();
+      srcBtn.setAttribute("aria-expanded", "true");
+      const sel = srcMenu.querySelector('[aria-selected="true"]') || srcMenu.querySelector(".menu-item");
+      if (sel) sel.focus({ preventScroll: true });
+    }
+
+    function closeSourceMenu(refocus) {
+      if (srcMenu.hidden) return;
+      srcMenu.hidden = true;
+      srcBtn.setAttribute("aria-expanded", "false");
+      if (refocus) srcBtn.focus();
+    }
+
+    function chooseSource(id) {
+      const item = SOURCE_CYCLE.find((s) => s.id === id) || SOURCE_CYCLE[0];
+      filters.source = item.id;
+      srcBtn.querySelector(".btn-label").textContent = item.label;
+      srcBtn.setAttribute("aria-pressed", String(Boolean(item.id)));
+      closeSourceMenu(true);
       renderList();
+    }
+
+    srcBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (srcMenu.hidden) openSourceMenu();
+      else closeSourceMenu(true);
     });
+
+    srcMenu.addEventListener("click", (e) => {
+      const item = e.target.closest(".menu-item");
+      if (item) chooseSource(item.dataset.id);
+    });
+
+    srcMenu.addEventListener("keydown", (e) => {
+      const items = [...srcMenu.querySelectorAll(".menu-item")];
+      const i = items.indexOf(document.activeElement);
+      if (e.key === "ArrowDown") { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+      else if (e.key === "Home") { e.preventDefault(); items[0].focus(); }
+      else if (e.key === "End") { e.preventDefault(); items[items.length - 1].focus(); }
+      else if (e.key === "Escape") { e.preventDefault(); closeSourceMenu(true); }
+      else if (e.key === "Tab") { closeSourceMenu(false); }
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!srcMenu.hidden && !srcMenu.contains(e.target) && !srcBtn.contains(e.target)) closeSourceMenu(false);
+    });
+    addEventListener("resize", () => closeSourceMenu(false));
+    addEventListener("scroll", (e) => {
+      if (srcMenu.contains(e.target)) return;
+      closeSourceMenu(false);
+    }, true);
+
+    /* ---------------- tooltip ---------------- */
+    /* One element for the whole page, driven by data-tip. Shown on hover and
+       on keyboard focus, so the hint is not mouse-only. */
+    const tip = document.createElement("div");
+    tip.className = "tip";
+    tip.id = "tip";
+    tip.setAttribute("role", "tooltip");
+    document.body.appendChild(tip);
+    let tipTimer = 0;
+    let tipTarget = null;
+
+    function showTip(el) {
+      const text = el.dataset.tip;
+      if (!text) return;
+      tipTarget = el;
+      tip.textContent = text;
+      tip.dataset.show = "false";
+      tip.style.visibility = "hidden";
+      tip.style.left = "0px";
+      tip.style.top = "0px";
+      const r = el.getBoundingClientRect();
+      const w = tip.offsetWidth;
+      const h = tip.offsetHeight;
+      const left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, innerWidth - w - 8));
+      let top = r.bottom + 9;
+      let side = "bottom";
+      if (top + h > innerHeight - 8) { top = r.top - h - 9; side = "top"; }
+      tip.style.left = `${Math.round(left)}px`;
+      tip.style.top = `${Math.round(top)}px`;
+      tip.style.setProperty("--arrow-x", `${Math.round(r.left + r.width / 2 - left)}px`);
+      tip.dataset.side = side;
+      tip.style.visibility = "";
+      tip.dataset.show = "true";
+    }
+
+    function hideTip() {
+      clearTimeout(tipTimer);
+      tipTarget = null;
+      tip.dataset.show = "false";
+    }
+
+    document.addEventListener("pointerover", (e) => {
+      const el = e.target.closest("[data-tip]");
+      if (!el || el === tipTarget) return;
+      clearTimeout(tipTimer);
+      tipTimer = setTimeout(() => showTip(el), 140);
+    });
+    document.addEventListener("pointerout", (e) => {
+      const el = e.target.closest("[data-tip]");
+      if (!el) return;
+      if (e.relatedTarget && el.contains(e.relatedTarget)) return;
+      hideTip();
+    });
+    document.addEventListener("focusin", (e) => {
+      const el = e.target.closest("[data-tip]");
+      if (el) showTip(el);
+    });
+    document.addEventListener("focusout", hideTip);
+    document.addEventListener("click", hideTip);
+    addEventListener("scroll", hideTip, true);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") hideTip(); });
 
     /* ---------- saved ---------- */
 
@@ -1221,11 +2667,319 @@
       return ((state.facts || []).find((f) => f.k === k) || {}).v || "";
     }
 
+    /* Pre-flight: what the posting asks for that the master resume does not
+       show. Deterministic and instant, so the user sees the gap before the
+       model spends a call. */
+    async function gapFor(job) {
+      if (!state.rawText || !job.jd) return null;
+      try {
+        const r = await fetch("/api/ats/gap", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ resume: state.rawText, jd: job.jd }),
+          signal: AbortSignal.timeout(8000),
+        });
+        const d = await r.json();
+        return d.ok ? d : null;
+      } catch {
+        return null;
+      }
+    }
+
+    /* ---------- auto apply ---------- */
+
+    const AA_STATUS = {
+      queued: "Queued",
+      filling: "Filling",
+      filled: "Filled",
+      needs: "Needs you",
+      submitted: "Submitted",
+      failed: "Failed",
+      skipped: "Skipped",
+    };
+
+    function aaProfile() {
+      const years = Number(String(factOf("Years of experience")).replace(/[^0-9.]/g, ""));
+      return {
+        fullName: factOf("Full name"),
+        email: factOf("Email"),
+        phone: factOf("Phone"),
+        city: factOf("Location"),
+        linkedin: factOf("LinkedIn"),
+        website: factOf("Website"),
+        currentCompany: factOf("Current company"),
+        currentTitle: factOf("Current title"),
+        years: Number.isFinite(years) ? years : undefined,
+      };
+    }
+
+    function aaJob(j) {
+      return {
+        id: j.id,
+        title: j.title,
+        company: j.company,
+        source: j.source,
+        applyUrl: j.applyUrl || "",
+        sourceUrl: j.sourceUrl || "",
+        score: j.score,
+      };
+    }
+
+    let aaTimer = null;
+    const aaRecorded = new Set();
+
+    function renderQueue(st) {
+      const items = st.items || [];
+
+      /* A submission is a Track event, not only a queue row. Record it once so
+         History shows Submitted without a reload. */
+      for (const it of items) {
+        if (it.status === "submitted" && !aaRecorded.has(it.id)) {
+          aaRecorded.add(it.id);
+          recordStage(
+            { id: it.id, title: it.title, company: it.company, source: it.source, score: it.score },
+            "applied",
+            { appliedAt: it.finishedAt || new Date().toISOString(), confirmation: it.confirmation || "" }
+          );
+        }
+      }
+
+      const done = items.filter((x) => ["submitted", "filled", "failed", "skipped"].includes(x.status)).length;
+      const rows = items.map((it) => `
+        <li class="aa-row ${it.status}">
+          <span class="aa-dot"></span>
+          <span class="aa-what">
+            <b>${UI.esc(it.title)}</b>
+            <small>${UI.esc(it.company)} · ${UI.esc(sourceName(it.source))}</small>
+            ${it.message ? `<em>${UI.esc(it.message)}</em>` : ""}
+            ${it.confirmation ? `<em class="ok">${UI.esc(it.confirmation)}</em>` : ""}
+            ${(it.fields || []).length ? `<em>Fields: ${it.fields.map(UI.esc).join(", ")}</em>` : ""}
+          </span>
+          <span class="aa-state">${AA_STATUS[it.status] || it.status}</span>
+        </li>`).join("");
+
+      $("#dBody").innerHTML = `
+        <div class="aa">
+          <div class="aa-progress"><b>${done}</b> of ${items.length} done · ${st.mode === "submit" ? "fill and submit" : "fill only"}</div>
+          <ul class="aa-list aa-rows">${rows}</ul>
+          ${st.paused ? `<div class="notice info" style="margin-top:12px"><span>The run is paused. Answer in the browser panel, then press Continue.</span></div>` : ""}
+        </div>`;
+
+      $("#dFoot").hidden = false;
+      $("#dFoot").innerHTML = `
+        <a class="btn" href="browser.html" target="_blank" rel="noopener"><span class="btn-label">Open browser</span></a>
+        ${st.paused ? `<button class="btn btn--primary" id="aaResume" type="button"><span class="btn-label">Continue</span></button>` : ""}
+        ${st.running || st.paused ? `<button class="btn" id="aaStop" type="button"><span class="btn-label">Stop</span></button>` : ""}
+        <span class="note">${st.running ? "Working…" : st.paused ? "Waiting on you." : "Finished."}</span>`;
+
+      const stop = $("#aaStop");
+      if (stop) stop.addEventListener("click", async () => {
+        stop.disabled = true;
+        try {
+          const r = await fetch("/api/autoapply/stop", { method: "POST" });
+          const d = await r.json();
+          if (d.ok) renderQueue(d.state);
+        } catch {
+          stop.disabled = false;
+        }
+      });
+      const resume = $("#aaResume");
+      if (resume) resume.addEventListener("click", async () => {
+        resume.disabled = true;
+        try {
+          const r = await fetch("/api/autoapply/resume", { method: "POST" });
+          const d = await r.json();
+          if (!d.ok) UI.toast(d.error || "Still needs you.", { kind: "info", title: "Auto apply" });
+          renderQueue(d.state);
+        } catch {
+          resume.disabled = false;
+        }
+      });
+    }
+
+    function pollQueue() {
+      clearInterval(aaTimer);
+      aaTimer = setInterval(async () => {
+        if (!drawer.hasAttribute("data-open")) { clearInterval(aaTimer); return; }
+        try {
+          const r = await fetch("/api/autoapply/status");
+          const d = await r.json();
+          if (!d.ok) return;
+          renderQueue(d.state);
+          if (!d.state.running && !d.state.paused) clearInterval(aaTimer);
+        } catch {}
+      }, 1500);
+    }
+
+    function openAutoApply(jobs) {
+      openDrawer();
+      $("#dTitle").textContent = "Auto apply";
+      $("#dFoot").hidden = false;
+
+      /* Never send the same application twice. Track is the record of what was
+         already submitted, so those jobs are removed before the list is built. */
+      const appliedIds = new Set(
+        readTrack().filter((e) => e && e.appliedAt).map((e) => String(e.id))
+      );
+      const already = jobs.filter((j) => appliedIds.has(String(j.id)));
+      jobs = jobs.filter((j) => !appliedIds.has(String(j.id)));
+
+      $("#dSub").textContent = jobs.length
+        ? `${jobs.length} job${jobs.length === 1 ? "" : "s"} selected`
+        : "Nothing left to apply to";
+
+      const untailored = jobs.filter((j) => !tailoredIds.has(j.id));
+      const allUntailored = jobs.length > 0 && untailored.length === jobs.length;
+
+      const rows = jobs.map((j) => `
+        <li>
+          <span class="aa-what"><b>${UI.esc(j.title)}</b><small>${UI.esc(j.company)} · ${UI.esc(sourceName(j.source))}</small></span>
+          <span class="aa-score">${tailoredIds.has(j.id) ? Number(j.score || 0).toFixed(1) : "tailor"}</span>
+        </li>`).join("");
+
+      $("#dBody").innerHTML = `
+        <div class="aa">
+          ${already.length ? `
+          <div class="notice info">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
+            <span>${already.length === 1 ? "1 job was" : `${already.length} jobs were`} already submitted and ${already.length === 1 ? "is" : "are"} left out: ${already.map((j) => UI.esc(j.title)).join(", ")}.</span>
+          </div>` : ""}
+          ${jobs.length ? `<p class="aa-lead">The agent opens each posting in your browser, fills the form with your confirmed details, attaches the tailored PDF, and ${jobs.length === 1 ? "submits it" : "submits each one"}.</p>` : ""}
+          ${jobs.length ? `<ul class="aa-list">${rows}</ul>` : ""}
+          ${untailored.length ? `
+          <div class="notice ${allUntailored ? "bad" : "warn"}">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
+            <span>${allUntailored
+              ? "None of these has a tailored resume yet. Tailor each one first, then auto apply."
+              : `${untailored.length} of these ${untailored.length === 1 ? "has" : "have"} no tailored resume and will be skipped. Tailor ${untailored.length === 1 ? "it" : "them"} first to include ${untailored.length === 1 ? "it" : "them"}.`}</span>
+          </div>` : ""}
+          ${jobs.length ? `
+          <div class="aa-mode" role="radiogroup" aria-label="Mode">
+            <label><input type="radio" name="aaMode" value="fill" checked> Fill only, I review each one</label>
+            <label><input type="radio" name="aaMode" value="submit"> Fill and submit</label>
+          </div>
+          <label class="aa-check"><input type="checkbox" id="aaOk"> I understand these are real applications.</label>
+          <p class="aa-note">A required field with no answer stops the run and asks. A captcha is never bypassed. Today's cap is 10.</p>` : ""}
+        </div>`;
+
+      $("#dFoot").innerHTML = `
+        <button class="btn btn--primary" id="aaStart" type="button" disabled>
+          <span class="btn-label">${jobs.length ? "Start" : "Close"}</span>
+        </button>
+        <span class="note">${jobs.length ? "You can stop at any time." : "Every selected job is already submitted."}</span>`;
+
+      const ok = $("#aaOk");
+      const start = $("#aaStart");
+      if (!jobs.length) {
+        start.disabled = false;
+        start.addEventListener("click", closeDrawer);
+        return;
+      }
+      if (allUntailored) {
+        ok.disabled = true;
+        start.querySelector(".btn-label").textContent = "Tailor first";
+      }
+      ok.addEventListener("change", () => { start.disabled = !ok.checked; });
+
+      start.addEventListener("click", async () => {
+        const mode = (document.querySelector('input[name="aaMode"]:checked') || {}).value || "fill";
+        start.disabled = true;
+        start.querySelector(".btn-label").textContent = "Starting…";
+        try {
+          const r = await fetch("/api/autoapply/start", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ jobs: jobs.map(aaJob), mode, cap: 10, profile: aaProfile() }),
+          });
+          const d = await r.json();
+          if (!d.ok) {
+            UI.toast(d.error || "Could not start.", { kind: "bad", title: "Auto apply" });
+            start.disabled = false;
+            start.querySelector(".btn-label").textContent = "Start";
+            return;
+          }
+          renderQueue(d.state);
+          pollQueue();
+        } catch {
+          UI.toast("Could not reach the server.", { kind: "bad", title: "Auto apply" });
+          start.disabled = false;
+          start.querySelector(".btn-label").textContent = "Start";
+        }
+      });
+    }
+
+    async function saveTailoredFor(job, d, html) {
+      try {
+        const r = await fetch("/api/tailored/save", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ jobId: job.id, data: d, html }),
+        });
+        const j = await r.json();
+        if (j.ok) {
+          tailoredIds.add(job.id);
+          persistTailoredIds();
+          const btn = $("#autoApply");
+          if (btn && String(selected) === String(job.id)) {
+            btn.querySelector(".btn-label").textContent = "Auto apply";
+            btn.title = "Fill and submit this application";
+          }
+          return true;
+        }
+        UI.toast(j.error || "Could not save the tailored PDF.", { kind: "bad", title: "Tailored PDF" });
+        return false;
+      } catch {
+        /* the tailor result is still on screen; the button stays "Tailor first" */
+        return false;
+      }
+    }
+
     async function openTailor(job) {
       openDrawer();
       $("#dTitle").textContent = `Tailoring for ${job.company}`;
       $("#dSub").textContent = job.title;
       $("#dFoot").hidden = true;
+      $("#dBody").innerHTML = `<ul class="stage-list"><li class="stage-row" data-state="run"><span class="dot"></span><span>Checking the posting against your master resume</span></li></ul>`;
+
+      const gap = await gapFor(job);
+      renderGate(job, gap);
+    }
+
+    function renderGate(job, gap) {
+      if (!gap) { runTailor(job); return; }
+
+      const missing = (gap.missing || []).slice(0, 14);
+      const matched = (gap.matched || []).length;
+      const total = gap.jdTerms || 0;
+
+      $("#dBody").innerHTML = missing.length
+        ? `<div class="gate">
+            <h3>Before we tailor</h3>
+            <p>This posting names <b>${total}</b> terms an ATS indexes. Your master resume already shows <b>${matched}</b> of them.</p>
+            <div class="gate-miss">
+              <span class="gate-label">Not in your resume</span>
+              <div class="skills">${missing.map((s) => `<span class="skill miss">${UI.esc(s)}</span>`).join("")}</div>
+            </div>
+            <p class="gate-note">Tailoring rewrites your summary, skills and experience bullets in the posting's words, using only what your master resume already proves. It will not add a skill you cannot show. If you do not have these yet, prepare a short answer for the interview — you can still apply.</p>
+            <div class="gate-actions">
+              <button class="btn btn--primary" type="button" id="gateGo"><span class="btn-label">Tailor anyway</span></button>
+              <button class="btn" type="button" id="gateCancel"><span class="btn-label">Cancel</span></button>
+            </div>
+          </div>`
+        : `<div class="gate">
+            <h3>Nothing missing</h3>
+            <p>Your master resume already covers all <b>${total}</b> indexed terms in this posting. Tailoring will re-emphasise them and reorder your experience for this role.</p>
+            <div class="gate-actions">
+              <button class="btn btn--primary" type="button" id="gateGo"><span class="btn-label">Tailor resume</span></button>
+              <button class="btn" type="button" id="gateCancel"><span class="btn-label">Cancel</span></button>
+            </div>
+          </div>`;
+
+      $("#gateGo").addEventListener("click", () => runTailor(job));
+      $("#gateCancel").addEventListener("click", closeDrawer);
+    }
+
+    async function runTailor(job) {
       $("#dBody").innerHTML = stageList();
       setStage(0, "run");
 
@@ -1256,7 +3010,6 @@
               title: factOf("Current title"),
               company: factOf("Current company"),
               years: Number.isFinite(years) ? years : undefined,
-              skills: state.tasks || [],
             },
             resumeText: state.rawText || "",
           }),
@@ -1269,13 +3022,20 @@
           TAILOR_STAGES.forEach((_, i) => setStage(i, "done"));
           const why = d.reason === "no-key"
             ? "Sarvam is not connected yet. Add your key in Connections and this runs on your own account."
-            : d.error || "The model did not answer.";
+            : d.reason === "no-resume"
+              ? d.hint || "Upload your master resume in onboarding first."
+              : d.error || "The model did not answer.";
+          const action = d.reason === "no-key"
+            ? `<div style="margin-top:14px"><a class="btn btn--primary" href="settings.html">Open Connections</a></div>`
+            : d.reason === "no-resume"
+              ? `<div style="margin-top:14px"><a class="btn btn--primary" href="index.html">Upload master resume</a></div>`
+              : "";
           $("#dBody").innerHTML = `
-            <div class="notice ${d.reason === "no-key" ? "info" : "bad"}">
+            <div class="notice ${d.reason === "no-key" || d.reason === "no-resume" ? "info" : "bad"}">
               <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
               <span>${UI.esc(why)}</span>
             </div>
-            ${d.reason === "no-key" ? `<div style="margin-top:14px"><a class="btn btn--primary" href="settings.html">Open Connections</a></div>` : ""}`;
+            ${action}`;
           return;
         }
 
@@ -1293,67 +3053,280 @@
       }
     }
 
+    /* the resume is built from the model's structured answer, never from the
+       onboarding chips: those are generic task sentences, not the candidate's
+       own history. The renderer itself lives in resume.js so Apply prints the
+       same document. */
+    function resumeHtml(job, d) {
+      const a = state.answers || {};
+      const yearsRaw = factOf("Years of experience");
+      const years = yearsRaw && /^\d+(\.\d+)?$/.test(yearsRaw) ? `${yearsRaw} years` : yearsRaw;
+      return window.CO.resumeHtml(job, d, {
+        name: factOf("Full name"),
+        headline: factOf("Current title"),
+        years,
+        contact: [
+          factOf("Phone") || a.phone,
+          factOf("Email"),
+          factOf("Location") || a.address,
+          factOf("LinkedIn") || a.linkedin,
+          factOf("Website") || a.portfolio,
+        ].filter(Boolean),
+      });
+    }
+
+    /* One place that writes a stage, so the History and the Track board read
+       the same record. `extra` carries the timestamp for that step. */
+    const STAGE_ORDER = ["saved", "tailoring", "ready", "applied", "interview", "closed"];
+    function recordStage(job, stage, extra = {}) {
+      const id = String(job.id || `${job.company}:${job.title}`);
+      const list = readTrack();
+      const i = list.findIndex((x) => String(x.id) === id);
+      const prev = i >= 0 ? list[i] : null;
+      /* Re-tailoring an application must not drag the Track card back from
+         Applied to Tailoring. Keep the furthest stage reached. */
+      const prevRank = prev ? STAGE_ORDER.indexOf(prev.stage) : -1;
+      const nextRank = STAGE_ORDER.indexOf(stage);
+      const keptStage = prev && (prev.stage === "closed" || prevRank > nextRank) ? prev.stage : stage;
+      const entry = {
+        id,
+        title: job.title,
+        company: job.company,
+        source: job.source,
+        score: job.score,
+        stage: keptStage,
+        updatedAt: new Date().toISOString(),
+        ...extra,
+      };
+      if (i >= 0) list[i] = { ...list[i], ...entry };
+      else list.push(entry);
+      writeTrack(list);
+      refreshTimeline(job);
+    }
+
+    /* The before/after the user asked for: what the master resume said, and
+       what this version says now. The "before" side is read from the master
+       resume on the server, not written by the model. */
+    const sameTerm = (a, b) => {
+      const n = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9+#. ]/g, " ").replace(/\s+/g, " ").trim();
+      const x = n(a), y = n(b);
+      return x === y || (x.length > 3 && y.length > 3 && (x.includes(y) || y.includes(x)));
+    };
+
+    function changesHtml(d) {
+      const b = d.before || {};
+      const afterSkills = (d.skills || []).flatMap((g) => g.items || []);
+      const beforeSkills = b.skills || [];
+      const added = afterSkills.filter((s) => !beforeSkills.some((x) => sameTerm(x, s)));
+      const dropped = beforeSkills.filter((s) => !afterSkills.some((x) => sameTerm(x, s)));
+      const roles = d.experience || [];
+      const beforeRoles = b.roles || [];
+      const certs = d.certifications || [];
+      const langs = d.languages || [];
+      const invented = (d.verify && d.verify.invented) || [];
+      const removed = d.skillsDropped || [];
+      const summaryChanged = Boolean(b.summary && d.summary && !sameTerm(b.summary, d.summary));
+      const modeLabel = d.summaryMode === "rewrite"
+        ? "rewritten from scratch"
+        : d.summaryMode === "modify"
+          ? "modified for this posting"
+          : "updated for this posting";
+      const reordered = roles.length > 1 && beforeRoles.length > 1 && !sameTerm(roles[0].role, beforeRoles[0].line);
+      const bullets = roles.reduce((n, r) => n + (r.lines || []).length, 0);
+
+      const rows = [];
+
+      if (b.summary || d.summary) {
+        rows.push(`
+          <div class="chg-row">
+            <div class="chg-h">Professional summary <span class="chg-badge ${summaryChanged ? "on" : ""}">${summaryChanged ? modeLabel : "unchanged"}</span></div>
+            <div class="chg-diff">
+              <div class="chg-side before">
+                <span class="chg-tag">Before</span>
+                <p>${UI.esc(b.summary || "—")}</p>
+              </div>
+              <div class="chg-side after">
+                <span class="chg-tag after">After</span>
+                <p>${UI.esc(d.summary || "—")}</p>
+              </div>
+            </div>
+          </div>`);
+      }
+
+      const skillsSame = added.length === 0 && dropped.length === 0 && removed.length === 0;
+      rows.push(`
+        <div class="chg-row">
+          <div class="chg-h">Skills <span class="chg-meta">${afterSkills.length} terms · ${added.length} added · ${dropped.length} dropped</span></div>
+          ${skillsSame ? `<p class="chg-note chg-ok">Same ${afterSkills.length} skills as your master resume, regrouped for this posting.</p>` : ""}
+          <details class="chg-more" ${skillsSame ? "" : "open"}>
+            <summary>${skillsSame ? "Compare before and after" : "Before and after"}</summary>
+            <div class="chg-diff">
+              <div class="chg-side before">
+                <span class="chg-tag">Before</span>
+                <div class="chg-chips">${beforeSkills.slice(0, 60).map((s) => `<span class="chg-chip">${UI.esc(s)}</span>`).join("") || `<p>No skills block found in the master resume.</p>`}</div>
+              </div>
+              <div class="chg-side after">
+                <span class="chg-tag after">After</span>
+                ${(d.skills || []).map((g) => `
+                  <div class="chg-group">
+                    <b>${UI.esc(g.group || "Skills")}</b>
+                    <div class="chg-chips">${(g.items || []).map((x) => `<span class="chg-chip on">${UI.esc(x)}</span>`).join("")}</div>
+                  </div>`).join("")}
+              </div>
+            </div>
+          </details>
+          ${added.length
+            ? `<p class="chg-note chg-bad">${added.length} term${added.length === 1 ? "" : "s"} in this version ${added.length === 1 ? "is" : "are"} not in the master resume: ${added.map((x) => UI.esc(x)).join(", ")}. Check ${added.length === 1 ? "it" : "them"} before you send.</p>`
+            : ""}
+          ${removed.length
+            ? `<p class="chg-note chg-bad">Removed ${removed.length} suggested term${removed.length === 1 ? "" : "s"} your master resume does not show: ${removed.map((x) => UI.esc(x)).join(", ")}.</p>`
+            : ""}
+        </div>`);
+
+      rows.push(`
+        <div class="chg-row">
+          <div class="chg-h">Work experience <span class="chg-meta">${roles.length} roles · ${bullets} bullets${reordered ? " · reordered for this posting" : ""}</span></div>
+          <ul class="chg-list">
+            ${roles.map((r) => `<li><span>${UI.esc(r.role)}${r.company ? ` — ${UI.esc(r.company)}` : ""}</span><span class="when">${UI.esc(r.dates || "")} · ${(r.lines || []).length} bullets</span></li>`).join("")}
+          </ul>
+          <p class="chg-note">Employers and dates are copied from the master resume. The bullets were rewritten in the posting's words.</p>
+        </div>`);
+
+      rows.push(`
+        <div class="chg-row">
+          <div class="chg-h">Facts kept <span class="chg-meta">${certs.length} certifications · ${langs.length} languages</span></div>
+          <p class="chg-note">${invented.length
+            ? `<span class="chg-bad">Not found in your master resume: ${invented.map((x) => UI.esc(x)).join(", ")}. Remove these before you send.</span>`
+            : `<span class="chg-ok">Every employer, degree, certification and language in this version appears in your master resume.</span>`}</p>
+        </div>`);
+
+      return `<details class="chg" open>
+        <summary>What changed <span class="chg-sub">${summaryChanged ? "summary " + modeLabel : "summary unchanged"} · ${roles.length} roles kept</span></summary>
+        <div class="chg-body">${rows.join("")}</div>
+      </details>`;
+    }
+
     function renderTailor(job, d) {
       const have = (d.keywords || []).filter((k) => k.inResume);
       const miss = (d.keywords || []).filter((k) => !k.inResume);
+      const html = resumeHtml(job, d);
+
+      /* Keep the exact PDF the user is looking at, so auto apply attaches this
+         one and not a re-render that might differ. The drawer's Auto apply
+         button stays disabled until the file is on disk. */
+      void saveTailoredFor(job, d, html).then((ok) => {
+        const b = $("#dAuto");
+        if (b) b.disabled = !ok;
+      });
+
+      /* The History must show that this posting was tailored, not only that
+         it was found and scored. */
+      recordStage(job, "tailoring", {
+        tailoredAt: new Date().toISOString(),
+        summaryMode: d.summaryMode || "update",
+        coverage: d.coverage,
+      });
 
       $("#dBody").innerHTML = `
         <div class="cov">
-          <div class="num">${d.coverage}<small>%</small></div>
+          <div class="num"><span id="covNum">0</span><small>%</small></div>
           <div class="txt"><b>${have.length} of ${(d.keywords || []).length}</b> phrases the posting asks for already appear in your resume.<br>
           The rest are gaps, not lies — they stay out.</div>
         </div>
 
-        <div class="sec" style="margin-top:18px">
-          <div class="sec-head"><h2>Keywords</h2><span class="note">green in your resume · red missing</span></div>
+        <details class="kw">
+          <summary>Keywords · ${have.length} in your resume, ${miss.length} missing</summary>
           <div class="skills">
             ${have.map((k) => `<span class="skill have"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>${UI.esc(k.term)}</span>`).join("")}
             ${miss.map((k) => `<span class="skill miss"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>${UI.esc(k.term)}</span>`).join("")}
           </div>
-        </div>
+        </details>
 
-        <div class="sec">
-          <div class="sec-head"><h2>Rewritten summary</h2><span class="note">your facts, their words</span></div>
-          <div class="draft" id="dSummary">${UI.esc(d.summary || "—")}</div>
-        </div>
+        ${changesHtml(d)}
 
-        ${(d.competencies || []).length ? `
-        <div class="sec">
-          <div class="sec-head"><h2>Core competencies</h2></div>
-          <div class="skills">${d.competencies.map((c) => `<span class="skill">${UI.esc(c)}</span>`).join("")}</div>
+        ${(d.missingRoles || []).length ? `
+        <div class="notice bad" style="margin-top:12px">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
+          <span>The model left out ${d.missingRoles.length} role${d.missingRoles.length === 1 ? "" : "s"} from your master resume: ${d.missingRoles.map((r) => UI.esc(r)).join("; ")}. Tailor again, or add ${d.missingRoles.length === 1 ? "it" : "them"} before you send.</span>
         </div>` : ""}
 
-        <div class="sec">
-          <div class="sec-head"><h2>Experience, reordered</h2><span class="note">most relevant first</span></div>
-          ${(d.bullets || []).map((r) => `
-            <div class="draft-role">
-              <div class="rh">${UI.esc(r.role)}</div>
-              <div class="rc">${UI.esc(r.company)}</div>
-              <ul>${r.lines.map((l) => `<li>${UI.esc(l)}</li>`).join("")}</ul>
-            </div>`).join("") || `<p class="hint">No roles were returned. Re-upload your resume so the text is available.</p>`}
+        ${(d.missingFacts || []).length ? `
+        <div class="notice bad" style="margin-top:12px">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
+          <span>The model left out ${d.missingFacts.length === 1 ? "this fact" : "these facts"} from your master resume: ${d.missingFacts.map((r) => UI.esc(r)).join("; ")}. Tailor again before you send.</span>
+        </div>` : ""}
+
+        ${(d.claimsGaps || []).length ? `
+        <div class="notice bad" style="margin-top:12px">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
+          <span>The tailored text mentions ${d.claimsGaps.map((g) => UI.esc(g)).join(", ")}, which the posting asks for but your master resume does not show. Check those lines before you send.</span>
+        </div>` : ""}
+
+        <div class="rpreview">
+          <div class="rpreview-bar">
+            <b>Preview</b>
+            <span>A4 · ${(d.experience || []).length} roles · ${(d.skills || []).length} skill groups</span>
+            <span class="spacer"></span>
+            <button class="rpreview-open" type="button" id="rOpen">Open full size</button>
+          </div>
+          <div class="rpreview-stage"><iframe id="rFrame" title="Resume preview"></iframe></div>
         </div>
 
         ${(d.gaps || []).length ? `
-        <div class="sec">
+        <div class="sec" style="margin-top:16px">
           <div class="sec-head"><h2>Gaps to address yourself</h2><span class="note">never added to the CV</span></div>
           <div class="skills">${d.gaps.map((g) => `<span class="skill miss">${UI.esc(g)}</span>`).join("")}</div>
+          <p class="chg-note" style="margin-top:8px">Do not claim these. If you have them, add them to your master resume and tailor again. If not, prepare a one-line answer for the interview — the application still goes out.</p>
         </div>` : ""}
 
-        <p class="hint">Assessed by ${UI.esc(d.model || "the model")} in ${Math.round((d.ms || 0) / 1000)}s. Nothing was added that your resume does not already contain.</p>`;
+        <p class="hint">Re-cut from your master resume by ${UI.esc(d.model || "the model")} in ${Math.round((d.ms || 0) / 1000)}s. The summary, skills and bullets were rewritten for this posting; no employer, date, degree, certification or language was added.</p>`;
+
+      UI.count($("#covNum"), d.coverage, { decimals: 0, ms: 700 });
+
+      const frame = $("#rFrame");
+      const sizeFrame = () => {
+        try {
+          const doc = frame.contentDocument;
+          const h = Math.max(doc.documentElement.scrollHeight, doc.body.scrollHeight);
+          const stage = frame.parentElement;
+          const w = 794; /* 210mm at 96dpi */
+          const scale = Math.min(1, stage.clientWidth / w);
+          frame.style.width = w + "px";
+          frame.style.height = h + "px";
+          frame.style.transform = `scale(${scale})`;
+          stage.style.height = Math.ceil(h * scale) + "px";
+        } catch {}
+      };
+      frame.addEventListener("load", sizeFrame);
+      frame.srcdoc = html;
+      setTimeout(sizeFrame, 350);
 
       $("#dFoot").hidden = false;
       $("#dFoot").innerHTML = `
-        <button class="btn btn--primary" type="button" id="dPrint">
+        <button class="btn btn--primary" type="button" id="dAuto" disabled>
+          <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13H11l-1 9 8.5-11H12z"/></svg>
+          <span class="btn-label">Auto apply</span>
+        </button>
+        <button class="btn" type="button" id="dPrint">
           <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
           <span class="btn-label">Download PDF</span>
         </button>
         <button class="btn" type="button" id="dPrepare">
           <span class="btn-label">Prepare application</span>
         </button>
-        <span class="note">Print to PDF, then attach it on the posting.</span>`;
+        <span class="note">Auto apply fills and submits with this PDF.</span>`;
 
+      $("#dAuto").addEventListener("click", () => openAutoApply([job]));
       $("#dPrint").addEventListener("click", () => printResume(job, d));
+      $("#rOpen").addEventListener("click", () => {
+        const w = window.open("", "_blank");
+        if (!w) { UI.toast("The browser blocked the new tab. Allow pop-ups for this page.", { kind: "bad" }); return; }
+        w.document.open();
+        w.document.write(html);
+        w.document.close();
+      });
       $("#dPrepare").addEventListener("click", () => {
+        recordStage(job, "ready", { readyAt: new Date().toISOString() });
         sessionStorage.setItem("co.job", JSON.stringify(job));
         sessionStorage.setItem("co.tailored", JSON.stringify(d));
         location.href = "apply.html";
@@ -1367,49 +3340,11 @@
         UI.toast("The browser blocked the new tab. Allow pop-ups for this page.", { kind: "bad" });
         return;
       }
-      const name = factOf("Full name") || "Your name";
-      const contact = [
-        factOf("Email"), factOf("Phone"), factOf("Location"),
-        factOf("LinkedIn"), factOf("Website"),
-      ].filter(Boolean).join(" · ");
-
-      const html = `<!doctype html><html><head><meta charset="utf-8"><title>${UI.esc(name)} — ${UI.esc(job.company)}</title>
-        <style>
-          @page { size: A4; margin: 14mm; }
-          * { box-sizing: border-box; }
-          body { margin: 0; font: 10.5pt/1.45 -apple-system, "Segoe UI", Arial, sans-serif; color: #111; }
-          h1 { margin: 0; font-size: 20pt; letter-spacing: -0.02em; }
-          .contact { margin-top: 4px; font-size: 9pt; color: #444; }
-          h2 { margin: 16px 0 6px; font-size: 9.5pt; text-transform: uppercase; letter-spacing: 0.08em; color: #0d55c9; border-bottom: 1px solid #d8dde5; padding-bottom: 3px; }
-          p { margin: 0 0 6px; }
-          ul { margin: 4px 0 0; padding-left: 16px; }
-          li { margin-bottom: 3px; }
-          .role { margin-top: 10px; }
-          .role b { font-size: 10.5pt; }
-          .role span { color: #555; }
-          .tags { font-size: 9.5pt; color: #333; }
-        </style></head><body>
-        <h1>${UI.esc(name)}</h1>
-        <div class="contact">${UI.esc(contact)}</div>
-        <h2>Professional Summary</h2>
-        <p>${UI.esc(d.summary || "")}</p>
-        ${(d.competencies || []).length ? `<h2>Core Competencies</h2><p class="tags">${d.competencies.map((c) => UI.esc(c)).join(" · ")}</p>` : ""}
-        <h2>Work Experience</h2>
-        ${(d.bullets || []).map((r) => `
-          <div class="role"><b>${UI.esc(r.role)}</b> <span>— ${UI.esc(r.company)}</span>
-            <ul>${r.lines.map((l) => `<li>${UI.esc(l)}</li>`).join("")}</ul>
-          </div>`).join("")}
-        <h2>Education</h2>
-        <p>${UI.esc(factOf("Highest education") || "—")}</p>
-        <h2>Skills</h2>
-        <p class="tags">${(state.tasks || []).map((s) => UI.esc(s)).join(" · ") || "—"}</p>
-        </body></html>`;
-
       w.document.open();
-      w.document.write(html);
+      w.document.write(resumeHtml(job, d));
       w.document.close();
       w.focus();
-      setTimeout(() => { try { w.print(); } catch {} }, 350);
+      setTimeout(() => { try { w.print(); } catch {} }, 400);
     }
 
     /* ---------- live feeds ---------- */
@@ -1426,9 +3361,10 @@
       const t0 = Date.now();
       const stages = [
         [0, "Opening the Career-Ops browser…"],
-        [6000, "Reading Naukri and Indeed search results…"],
-        [20000, "Still reading — a cold browser start is slow…"],
-        [45000, "Almost there — the browser panel may need you to sign in."],
+        [6, "Reading Naukri and Indeed search results…"],
+        [20, "Still reading — a cold browser start is slow…"],
+        [45, "Almost there — 30 feeds are still returning."],
+        [90, "Still working. The browser panel may need you to sign in."],
       ];
       const paint = () => {
         const s = Math.round((Date.now() - t0) / 1000);
@@ -1471,6 +3407,7 @@
         JOBS = data.jobs;
         live = true;
         loading = false;
+        try { localStorage.setItem("co.liveOn", "1"); } catch {}
         btn.dataset.state = "";
         btn.setAttribute("aria-pressed", "true");
         btn.querySelector(".btn-label").textContent = `Live · ${data.jobs.length}`;
@@ -1497,8 +3434,9 @@
         }
       } catch (err) {
         loading = false;
-        btn.dataset.state = "";
+        btn.dataset.state = "error";
         btn.querySelector(".btn-label").textContent = "Live feeds";
+        setTimeout(() => { if (btn.dataset.state === "error") btn.dataset.state = ""; }, 6000);
         const timedOut = err && (err.name === "TimeoutError" || err.name === "AbortError");
         UI.toast(
           timedOut
@@ -1517,6 +3455,7 @@
       const btn = e.currentTarget;
       if (live) {
         live = false;
+        try { localStorage.setItem("co.liveOn", "0"); } catch {}
         JOBS = window.CO.jobsFor(family, state.role);
         btn.setAttribute("aria-pressed", "false");
         btn.querySelector(".btn-label").textContent = "Live feeds";
@@ -1534,6 +3473,452 @@
       else UI.toast("Pick a posting first.", { kind: "info" });
     });
 
+    /* ---------- track + improve ---------- */
+
+    const TRACK_KEY = "co.track";
+    const readTrack = () => {
+      try { return JSON.parse(localStorage.getItem(TRACK_KEY) || "[]"); } catch { return []; }
+    };
+    const writeTrack = (list) => {
+      try { localStorage.setItem(TRACK_KEY, JSON.stringify(list)); } catch {}
+    };
+
+    const STAGES = [
+      { id: "saved", label: "Saved", hint: "Bookmarked, not started" },
+      { id: "tailoring", label: "Tailoring", hint: "Resume being rewritten" },
+      { id: "ready", label: "Ready", hint: "Reviewed, waiting on you" },
+      { id: "applied", label: "Applied", hint: "Submitted by you" },
+      { id: "interview", label: "Interview", hint: "A conversation is booked" },
+      { id: "closed", label: "Closed", hint: "No longer live" },
+    ];
+
+    function setView(v) {
+      const track = $("#viewTrack");
+      const improve = $("#viewImprove");
+      const split = $("#split");
+      split.hidden = v !== "matches";
+      track.hidden = v !== "track";
+      improve.hidden = v !== "improve";
+      $("#railRecommend").classList.toggle("on", v === "matches");
+      $("#railTrack").classList.toggle("on", v === "track");
+      $("#railImprove").classList.toggle("on", v === "improve");
+      const mobNames = { matches: "Recommend", track: "Track", improve: "Improve" };
+      const mobStep = $("#mobStep");
+      if (mobStep) mobStep.textContent = mobNames[v] || "Recommend";
+      if (v === "track") { renderTrack(); loadCap(); }
+      if (v === "improve") renderImprove();
+    }
+
+    function cardFor(entry) {
+      const job = JOBS.find((x) => x.id === entry.id);
+      const title = entry.title || job?.title || "Untitled posting";
+      const company = entry.company || job?.company || "";
+      const source = entry.source || job?.source || "";
+      const score = entry.score ?? job?.score;
+      const due = entry.dueAt ? new Date(entry.dueAt) : null;
+      const days = due ? Math.round((due.getTime() - Date.now()) / 86400000) : null;
+      return `
+        <article class="tcard" tabindex="0" role="button" data-id="${UI.esc(String(entry.id))}">
+          <b>${UI.esc(title)}</b>
+          <span class="co">${UI.esc(company)}${source ? " · " + UI.esc(source) : ""}</span>
+          <div class="meta">
+            ${score != null ? `<span class="badge ${score >= 75 ? "badge--ok" : ""}">${score.toFixed(1)}</span>` : ""}
+            ${days != null ? `<span class="due ${days > 3 ? "calm" : ""}">${days < 0 ? "overdue" : days === 0 ? "due today" : `due in ${days}d`}</span>` : ""}
+          </div>
+        </article>`;
+    }
+
+    function renderTrack() {
+      const board = $("#board");
+      const entries = readTrack();
+      const tracked = new Set(entries.map((e) => String(e.id)));
+      const savedCards = [...savedIds]
+        .filter((id) => !tracked.has(String(id)))
+        .map((id) => {
+          const j = JOBS.find((x) => x.id === id);
+          return { id, title: j?.title, company: j?.company, source: j?.source, score: j?.score };
+        });
+
+      board.innerHTML = STAGES.map((s) => {
+        const cards = s.id === "saved"
+          ? savedCards
+          : entries.filter((e) => (e.stage || "applied") === s.id);
+        const needsYou = s.id === "ready" && cards.length > 0;
+        return `
+          <div class="col">
+            <div class="col-h">
+              <b>${s.label}</b>
+              <span class="n ${needsYou ? "amber" : ""}">${cards.length}</span>
+            </div>
+            <div class="col-body">
+              ${cards.length
+                ? cards.map(cardFor).join("")
+                : `<div class="col-empty">${s.hint}</div>`}
+            </div>
+          </div>`;
+      }).join("");
+
+      board.querySelectorAll(".tcard").forEach((el) => {
+        const open = () => {
+          const id = el.dataset.id;
+          const j = JOBS.find((x) => x.id === id);
+          if (!j) {
+            UI.toast("That posting is not in the current set. Run live feeds to load it again.", { kind: "info" });
+            return;
+          }
+          selected = id;
+          setView("matches");
+          renderList();
+          renderDetail();
+        };
+        el.addEventListener("click", open);
+        el.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+        });
+      });
+
+      if (trackLayout === "table") renderTrackTable();
+      renderHeat();
+      renderBell();
+    }
+
+    /* ---------- track: table ---------- */
+
+    let trackLayout = "board";
+    const tableSort = { key: "stage", dir: 1 };
+
+    function trackRows() {
+      const entries = readTrack();
+      const tracked = new Set(entries.map((e) => String(e.id)));
+      const saved = [...savedIds]
+        .filter((id) => !tracked.has(String(id)))
+        .map((id) => {
+          const j = JOBS.find((x) => x.id === id);
+          return {
+            id, title: j?.title, company: j?.company, source: j?.source,
+            score: j?.score, stage: "saved", dueAt: null,
+          };
+        });
+      return [...saved, ...entries.map((e) => ({ ...e, stage: e.stage || "applied" }))];
+    }
+
+    function renderTrackTable() {
+      const box = $("#trackTable");
+      const rows = trackRows();
+      if (!rows.length) {
+        box.innerHTML = `<div class="tbl-empty">Nothing tracked yet. Save a posting and it appears here.</div>`;
+        return;
+      }
+      const order = STAGES.map((s) => s.id);
+      const sorted = [...rows].sort((a, b) => {
+        const k = tableSort.key;
+        let av, bv;
+        if (k === "stage") { av = order.indexOf(a.stage); bv = order.indexOf(b.stage); }
+        else if (k === "score") { av = a.score ?? -1; bv = b.score ?? -1; }
+        else { av = String(a[k] || "").toLowerCase(); bv = String(b[k] || "").toLowerCase(); }
+        if (av < bv) return -1 * tableSort.dir;
+        if (av > bv) return 1 * tableSort.dir;
+        return 0;
+      });
+
+      const th = (key, label, cls) => `
+        <th class="${cls || ""} sortable" data-k="${key}" ${tableSort.key === key ? `aria-sort="${tableSort.dir === 1 ? "ascending" : "descending"}"` : ""}>
+          ${label}<span class="arrow">${tableSort.key === key ? (tableSort.dir === 1 ? "▲" : "▼") : "↕"}</span>
+        </th>`;
+
+      box.innerHTML = `
+        <table class="tbl">
+          <thead>
+            <tr>
+              ${th("title", "Posting")}
+              ${th("company", "Company")}
+              ${th("stage", "Stage")}
+              ${th("score", "Score", "num")}
+              ${th("dueAt", "Due", "num")}
+            </tr>
+          </thead>
+          <tbody>
+            ${sorted.map((r) => {
+              const stage = STAGES.find((s) => s.id === r.stage) || STAGES[0];
+              const due = r.dueAt ? new Date(r.dueAt) : null;
+              const days = due ? Math.round((due.getTime() - Date.now()) / 86400000) : null;
+              return `
+                <tr tabindex="0" data-id="${UI.esc(String(r.id))}">
+                  <td class="cell-title"><b>${UI.esc(r.title || "Untitled posting")}</b><small>${UI.esc(r.source || "")}</small></td>
+                  <td>${UI.esc(r.company || "—")}</td>
+                  <td><span class="stage-pill" data-s="${stage.id}"><i></i>${stage.label}</span></td>
+                  <td class="num">${r.score != null ? r.score.toFixed(1) : "—"}</td>
+                  <td class="num">${days == null ? "—" : days < 0 ? "overdue" : days === 0 ? "today" : `${days}d`}</td>
+                </tr>`;
+            }).join("")}
+          </tbody>
+        </table>`;
+
+      box.querySelectorAll("th.sortable").forEach((el) => {
+        el.addEventListener("click", () => {
+          const k = el.dataset.k;
+          if (tableSort.key === k) tableSort.dir *= -1;
+          else { tableSort.key = k; tableSort.dir = 1; }
+          renderTrackTable();
+        });
+      });
+      box.querySelectorAll("tbody tr").forEach((tr) => {
+        const open = () => {
+          const j = JOBS.find((x) => x.id === tr.dataset.id);
+          if (!j) { UI.toast("That posting is not in the current set.", { kind: "info" }); return; }
+          selected = j.id;
+          setView("matches");
+          renderList();
+          renderDetail();
+        };
+        tr.addEventListener("click", open);
+        tr.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+        });
+      });
+    }
+
+    function setTrackLayout(mode) {
+      trackLayout = mode;
+      $("#segBoard").setAttribute("aria-pressed", String(mode === "board"));
+      $("#segTable").setAttribute("aria-pressed", String(mode === "table"));
+      $("#board").hidden = mode !== "board";
+      $("#trackTable").hidden = mode !== "table";
+      if (mode === "table") renderTrackTable();
+    }
+
+    $("#segBoard").addEventListener("click", () => setTrackLayout("board"));
+    $("#segTable").addEventListener("click", () => setTrackLayout("table"));
+
+    function renderImprove() {
+      const rows = visible();
+      const counts = new Map();
+      for (const j of rows) {
+        for (const s of new Set(j.miss || [])) counts.set(s, (counts.get(s) || 0) + 1);
+      }
+      const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+      const top = ranked.length ? ranked[0][1] : 0;
+
+      const skillsRow = (j) => (j.breakdown || []).find((r) => /skill/i.test(r.k));
+      const gaps = rows.map(skillsRow).filter(Boolean);
+      const avgGap = gaps.length
+        ? gaps.reduce((n, r) => n + (r.max - r.got), 0) / gaps.length
+        : 0;
+
+      $("#gapList").innerHTML = ranked.length
+        ? ranked.map(([name, n], i) => `
+            <div class="gap-row">
+              <span class="rank">${String(i + 1).padStart(2, "0")}</span>
+              <span class="name">${UI.esc(name)}<small>asked for by ${n} of ${rows.length} matches</small></span>
+              <span class="meter"><i style="width:${top ? (n / top) * 100 : 0}%"></i></span>
+              <span class="pts"><b>${n}</b>/${rows.length}</span>
+            </div>`).join("")
+        : `<div class="col-empty" style="margin:18px">No repeated gaps in the current set. That is a good sign, or a sign the postings are thin on detail.</div>`;
+
+      const tasks = ranked.slice(0, 3).map(([name, n]) => `
+        <div class="task">
+          <span class="box"></span>
+          <div>
+            <b>Add evidence for ${UI.esc(name)}</b>
+            <span>One line with a result, a number and a date. It lifts ${n} of your ${rows.length} matches.</span>
+          </div>
+        </div>`).join("");
+
+      $("#taskList").innerHTML = tasks || `<div class="col-empty" style="margin:18px">Nothing to fix yet. Pick a few matches first.</div>`;
+
+      if (avgGap > 0) {
+        $("#taskList").insertAdjacentHTML("beforeend", `
+          <div class="task">
+            <span class="box"></span>
+            <div>
+              <b>Close the skills gap</b>
+              <span>Worth up to ${avgGap.toFixed(1)} points on the average match. Only claim what you can show.</span>
+            </div>
+          </div>`);
+      }
+    }
+
+    $("#railTrack").addEventListener("click", () => setView("track"));
+    $("#railImprove").addEventListener("click", () => setView("improve"));
+    $("#trackBack").addEventListener("click", () => setView("matches"));
+    $("#improveBack").addEventListener("click", () => setView("matches"));
+
+    /* ---------- command palette ---------- */
+
+    const ICONS = {
+      board: '<path d="M4 4h5v16H4zM15 4h5v10h-5z"/>',
+      spark: '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/>',
+      list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+      bookmark: '<path d="M6 4h12v17l-6-4-6 4z"/>',
+      gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9 2 2 0 1 1-2.8 2.8 1.7 1.7 0 0 0-2.9 1.2 2 2 0 1 1-4 0 1.7 1.7 0 0 0-2.9-1.2 2 2 0 1 1-2.8-2.8A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.2-2.9 2 2 0 1 1 2.8-2.8A1.7 1.7 0 0 0 10 4a2 2 0 1 1 4 0 1.7 1.7 0 0 0 2.9 1.2 2 2 0 1 1 2.8 2.8A1.7 1.7 0 0 0 21 11a2 2 0 1 1 0 4z"/>',
+      globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18"/>',
+      job: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+    };
+
+    const cmdkState = { items: [], active: 0 };
+
+    function cmdkCommands() {
+      return [
+        { group: "Actions", label: "Go to Track", sub: "every saved and applied posting", icon: "board", run: () => setView("track") },
+        { group: "Actions", label: "Go to Improve", sub: "the gaps that repeat", icon: "spark", run: () => setView("improve") },
+        { group: "Actions", label: "Back to matches", sub: "the scored list", icon: "list", run: () => setView("matches") },
+        { group: "Actions", label: "Show saved only", sub: "filter the list", icon: "bookmark", run: () => {
+            filters.savedOnly = true;
+            $("#fSaved").setAttribute("aria-pressed", "true");
+            paintSavedLabel();
+            setView("matches");
+            renderList();
+          } },
+        { group: "Actions", label: "Open Connections", sub: "keys and job sources", icon: "gear", run: () => { location.href = "settings.html"; } },
+        { group: "Actions", label: "Open the browser", sub: "Naukri and Indeed", icon: "globe", run: () => { location.href = "browser.html"; } },
+      ];
+    }
+
+    function cmdkRender() {
+      const q = $("#cmdkInput").value.trim().toLowerCase();
+      const jobs = visible()
+        .filter((j) => !q || `${j.title} ${j.company}`.toLowerCase().includes(q))
+        .slice(0, 40)
+        .map((j) => ({
+          group: "Postings",
+          label: j.title,
+          sub: `${j.company} · ${j.score.toFixed(1)}`,
+          icon: "job",
+          run: () => {
+            selected = j.id;
+            setView("matches");
+            renderList();
+            renderDetail();
+          },
+        }));
+      const cmds = cmdkCommands().filter((c) => !q || `${c.label} ${c.sub}`.toLowerCase().includes(q));
+      const items = [...cmds, ...jobs];
+      cmdkState.items = items;
+      if (cmdkState.active >= items.length) cmdkState.active = 0;
+
+      const list = $("#cmdkList");
+      if (!items.length) {
+        list.innerHTML = `<div class="cmdk-empty">Nothing matches “${UI.esc(q)}”.</div>`;
+        return;
+      }
+      let html = "";
+      let last = "";
+      items.forEach((it, i) => {
+        if (it.group !== last) {
+          html += `<div class="cmdk-group">${it.group}</div>`;
+          last = it.group;
+        }
+        html += `
+          <button class="cmdk-item" type="button" role="option" data-i="${i}" aria-selected="${i === cmdkState.active}">
+            <span class="ico"><svg viewBox="0 0 24 24">${ICONS[it.icon] || ICONS.job}</svg></span>
+            <span class="tx"><b>${UI.esc(it.label)}</b>${it.sub ? `<small>${UI.esc(it.sub)}</small>` : ""}</span>
+          </button>`;
+      });
+      list.innerHTML = html;
+      list.querySelectorAll(".cmdk-item").forEach((el) => {
+        el.addEventListener("click", () => cmdkRun(Number(el.dataset.i)));
+        el.addEventListener("mousemove", () => {
+          const i = Number(el.dataset.i);
+          if (i !== cmdkState.active) { cmdkState.active = i; cmdkPaint(); }
+        });
+      });
+      const sel = list.querySelector('[aria-selected="true"]');
+      if (sel) sel.scrollIntoView({ block: "nearest" });
+    }
+
+    function cmdkPaint() {
+      $("#cmdkList").querySelectorAll(".cmdk-item").forEach((el) => {
+        el.setAttribute("aria-selected", String(Number(el.dataset.i) === cmdkState.active));
+      });
+    }
+
+    function cmdkRun(i) {
+      const it = cmdkState.items[i];
+      if (!it) return;
+      cmdkClose();
+      it.run();
+    }
+
+    function cmdkOpen() {
+      $("#cmdkScrim").hidden = false;
+      $("#cmdkInput").value = "";
+      cmdkState.active = 0;
+      cmdkRender();
+      $("#cmdkInput").focus();
+    }
+
+    function cmdkClose() {
+      $("#cmdkScrim").hidden = true;
+    }
+
+    $("#cmdkInput").addEventListener("input", () => { cmdkState.active = 0; cmdkRender(); });
+    $("#cmdkInput").addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        cmdkState.active = Math.min(cmdkState.active + 1, cmdkState.items.length - 1);
+        cmdkPaint();
+        const sel = $("#cmdkList").querySelector('[aria-selected="true"]');
+        if (sel) sel.scrollIntoView({ block: "nearest" });
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        cmdkState.active = Math.max(cmdkState.active - 1, 0);
+        cmdkPaint();
+        const sel = $("#cmdkList").querySelector('[aria-selected="true"]');
+        if (sel) sel.scrollIntoView({ block: "nearest" });
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        cmdkRun(cmdkState.active);
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        cmdkClose();
+      }
+    });
+    $("#cmdkScrim").addEventListener("click", (e) => {
+      if (e.target === e.currentTarget) cmdkClose();
+    });
+    $("#cmdkHint").addEventListener("click", cmdkOpen);
+    document.addEventListener("keydown", (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        $("#cmdkScrim").hidden ? cmdkOpen() : cmdkClose();
+      }
+    });
+
+    /* ---------- side navigation ---------- */
+
+    const SNAV_KEY = "co.sidenav";
+    function setSnav(collapsed) {
+      const nav = $("#sidenav");
+      nav.classList.toggle("collapsed", collapsed);
+      $("#snavToggle").setAttribute("aria-expanded", String(!collapsed));
+      $("#snavToggle").setAttribute("aria-label", collapsed ? "Expand the sidebar" : "Collapse the sidebar");
+      try { localStorage.setItem(SNAV_KEY, collapsed ? "1" : "0"); } catch {}
+    }
+    $("#snavToggle").addEventListener("click", () => {
+      setSnav(!$("#sidenav").classList.contains("collapsed"));
+    });
+    try { if (localStorage.getItem(SNAV_KEY) === "1") setSnav(true); } catch {}
+
+    /* ---------- mobile menu ---------- */
+
+    const mobScrim = $("#mobScrim");
+    const mobMenu = $("#mobMenu");
+    function setMenu(open) {
+      $("#sidenav").toggleAttribute("data-open", open);
+      mobScrim.hidden = !open;
+      mobMenu.setAttribute("aria-expanded", String(open));
+      mobMenu.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      if (open) $("#sidenav").querySelector(".snav-item")?.focus();
+    }
+    mobMenu.addEventListener("click", () => setMenu(true));
+    mobScrim.addEventListener("click", () => setMenu(false));
+    $("#sidenav").addEventListener("click", (e) => {
+      if (e.target.closest(".snav-item")) setMenu(false);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && $("#sidenav").hasAttribute("data-open")) setMenu(false);
+    });
+
     /* ---------- profile chip ---------- */
 
     $("#chipRole").textContent = state.role || "Your role";
@@ -1541,13 +3926,490 @@
     $("#chipAvatar").textContent = initials(state.role || "You");
     $("#profileChip").addEventListener("click", () => { location.href = "index.html"; });
 
+    /* ---------- resizable split ---------- */
+
+    const SPLIT_KEY = "co.splitw";
+    (function initSplitter() {
+      const split = $("#split");
+      const bar = $("#splitter");
+      if (!split || !bar) return;
+
+      const saved = Number(localStorage.getItem(SPLIT_KEY) || 0);
+      if (saved > 0) split.style.setProperty("--listw", saved + "px");
+
+      let dragging = false;
+      const clamp = (x) => Math.max(320, Math.min(window.innerWidth - 420, x));
+      const apply = (x) => {
+        const w = clamp(x);
+        split.style.setProperty("--listw", w + "px");
+        return w;
+      };
+      const onMove = (e) => {
+        if (!dragging) return;
+        apply(e.clientX - split.getBoundingClientRect().left);
+      };
+      const stop = () => {
+        if (!dragging) return;
+        dragging = false;
+        bar.classList.remove("dragging");
+        document.body.classList.remove("resizing");
+        const w = parseInt(getComputedStyle(split).getPropertyValue("--listw"), 10);
+        if (w > 0) { try { localStorage.setItem(SPLIT_KEY, String(w)); } catch {} }
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", stop);
+      };
+
+      bar.addEventListener("pointerdown", (e) => {
+        dragging = true;
+        bar.classList.add("dragging");
+        document.body.classList.add("resizing");
+        window.addEventListener("pointermove", onMove);
+        window.addEventListener("pointerup", stop);
+        e.preventDefault();
+      });
+      bar.addEventListener("keydown", (e) => {
+        const list = split.querySelector(".listpane");
+        if (!list) return;
+        const w = list.getBoundingClientRect().width;
+        if (e.key === "ArrowLeft") { apply(w - 24); e.preventDefault(); }
+        if (e.key === "ArrowRight") { apply(w + 24); e.preventDefault(); }
+      });
+      bar.addEventListener("dblclick", () => {
+        split.style.removeProperty("--listw");
+        try { localStorage.removeItem(SPLIT_KEY); } catch {}
+      });
+    })();
+
+    /* ---------- activity heatmap + sparkline ---------- */
+
+    function trackDates() {
+      const out = [];
+      for (const e of readTrack()) {
+        const d = e.updatedAt ? new Date(e.updatedAt) : null;
+        if (d && !isNaN(d)) out.push(d);
+      }
+      return out;
+    }
+
+    const dayKey = (d) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+
+    function weeklySeries(dates, n) {
+      const out = new Array(n).fill(0);
+      const now = Date.now();
+      for (const d of dates) {
+        const weeksAgo = Math.floor((now - d.getTime()) / (7 * 86400000));
+        if (weeksAgo >= 0 && weeksAgo < n) out[n - 1 - weeksAgo]++;
+      }
+      return out;
+    }
+
+    function sparkline(values, opts) {
+      const o = opts || {};
+      const w = o.w || 96, h = o.h || 26, pad = 3;
+      const max = Math.max(1, ...values);
+      const step = values.length > 1 ? (w - pad * 2) / (values.length - 1) : 0;
+      const pts = values.map((v, i) => [
+        pad + i * step,
+        h - pad - (v / max) * (h - pad * 2),
+      ]);
+      const line = pts.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" ");
+      const last = pts[pts.length - 1];
+      const area = `${line} L${last[0].toFixed(1)} ${h - pad} L${pts[0][0].toFixed(1)} ${h - pad} Z`;
+      return `<svg class="sparkline" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">
+        <path class="area" d="${area}"/>
+        <path class="line" d="${line}"/>
+        <circle class="pt" cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2.2"/>
+      </svg>`;
+    }
+
+    function renderHeat() {
+      const wrap = $("#heatWrap");
+      if (!wrap) return;
+      const dates = trackDates();
+      const counts = new Map();
+      for (const d of dates) counts.set(dayKey(d), (counts.get(dayKey(d)) || 0) + 1);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const dow = (today.getDay() + 6) % 7;
+      const end = new Date(today);
+      end.setDate(end.getDate() + (6 - dow));
+      const start = new Date(end);
+      start.setDate(start.getDate() - (52 * 7 - 1));
+
+      const max = Math.max(1, ...counts.values());
+      const level = (n) => (n === 0 ? 0 : Math.min(4, Math.ceil((n / max) * 4)));
+
+      let cols = "";
+      const cursor = new Date(start);
+      for (let w = 0; w < 52; w++) {
+        let col = "";
+        for (let d = 0; d < 7; d++) {
+          const key = dayKey(cursor);
+          const n = counts.get(key) || 0;
+          const future = cursor > today;
+          const tip = `${cursor.toDateString()} — ${n ? `${n} update${n === 1 ? "" : "s"}` : "nothing"}`;
+          col += `<span class="heat-cell" data-l="${future ? 0 : level(n)}" title="${tip}"></span>`;
+          cursor.setDate(cursor.getDate() + 1);
+        }
+        cols += `<div class="heat-col">${col}</div>`;
+      }
+
+      const total = dates.length;
+      const weeks = weeklySeries(dates, 8);
+
+      wrap.innerHTML = `
+        <div class="heat-card">
+          <div class="heat-head">
+            <h2>Activity</h2>
+            <span class="sub">${total ? `${total} update${total === 1 ? "" : "s"} in the last 12 months` : "Nothing tracked yet"}</span>
+            <span class="spark">
+              ${sparkline(weeks, { w: 96, h: 26 })}
+              <span class="spark-val">${weeks[weeks.length - 1] || 0}/wk</span>
+            </span>
+          </div>
+          <div class="heat-scroll"><div class="heat">${cols}</div></div>
+          <div class="heat-legend">
+            <span>Less</span>
+            <span class="heat-cell" data-l="0"></span>
+            <span class="heat-cell" data-l="1"></span>
+            <span class="heat-cell" data-l="2"></span>
+            <span class="heat-cell" data-l="3"></span>
+            <span class="heat-cell" data-l="4"></span>
+            <span>More</span>
+          </div>
+        </div>`;
+    }
+
+    /* ---------- notification panel ---------- */
+
+    const NOTIF_KEY = "co.notifSeen";
+
+    function notifItems() {
+      const seen = Number(localStorage.getItem(NOTIF_KEY) || 0);
+      const items = [];
+      const now = Date.now();
+      for (const e of readTrack()) {
+        const stage = e.stage || "applied";
+        const title = e.title || "Untitled posting";
+        const company = e.company || "";
+        if (stage === "ready") {
+          items.push({
+            kind: "warn",
+            title: `Ready to send: ${title}`,
+            sub: `${company} · reviewed, waiting on you`,
+            at: e.updatedAt ? new Date(e.updatedAt) : new Date(now),
+            id: e.id,
+          });
+        }
+        if (e.dueAt && stage !== "closed") {
+          const due = new Date(e.dueAt);
+          const days = Math.round((due.getTime() - now) / 86400000);
+          if (days <= 2) {
+            items.push({
+              kind: days < 0 ? "warn" : "ok",
+              title: days < 0 ? `Overdue: ${title}` : days === 0 ? `Due today: ${title}` : `Due in ${days}d: ${title}`,
+              sub: company,
+              at: due,
+              id: e.id,
+            });
+          }
+        }
+      }
+      return items.filter((i) => i.at.getTime() > seen).sort((a, b) => b.at - a.at);
+    }
+
+    function renderBell() {
+      const badge = $("#bellCount");
+      if (!badge) return;
+      const n = notifItems().length;
+      badge.hidden = n === 0;
+      badge.textContent = n > 9 ? "9+" : String(n);
+    }
+
+    function notifDayLabel(d) {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const t = new Date(d); t.setHours(0, 0, 0, 0);
+      const diff = Math.round((today - t) / 86400000);
+      if (diff === 0) return "Today";
+      if (diff === 1) return "Yesterday";
+      if (diff > 1 && diff < 7) return `${diff} days ago`;
+      return t.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+    }
+
+    function renderNotif() {
+      const box = $("#notif");
+      const items = notifItems();
+      if (!items.length) {
+        box.innerHTML = `<div class="notif-h"><b>Nothing needs you</b></div>
+          <div class="notif-empty">Postings you mark Ready, and deadlines in the next two days, appear here.</div>`;
+        return;
+      }
+      let html = `<div class="notif-h"><b>${items.length} thing${items.length === 1 ? "" : "s"} need you</b>
+        <button class="linkbtn" type="button" id="notifClear">Mark all read</button></div>`;
+      let last = "";
+      for (const it of items) {
+        const day = notifDayLabel(it.at);
+        if (day !== last) { html += `<div class="notif-day">${day}</div>`; last = day; }
+        html += `<button class="notif-item" type="button" data-id="${UI.esc(String(it.id))}">
+          <span class="ic ${it.kind === "ok" ? "ok" : ""}">
+            <svg viewBox="0 0 24 24">${it.kind === "ok"
+              ? '<path d="M5 13l4 4L19 7"/>'
+              : '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/>'}</svg>
+          </span>
+          <span class="tx"><b>${UI.esc(it.title)}</b><small>${UI.esc(it.sub)}</small></span>
+        </button>`;
+      }
+      box.innerHTML = html;
+
+      box.querySelectorAll(".notif-item").forEach((el) => {
+        el.addEventListener("click", () => {
+          const id = el.dataset.id;
+          const j = JOBS.find((x) => x.id === id);
+          notifClose();
+          if (!j) { UI.toast("That posting is not in the current set.", { kind: "info" }); return; }
+          selected = id;
+          setView("matches");
+          renderList();
+          renderDetail();
+        });
+      });
+      const clear = $("#notifClear");
+      if (clear) clear.addEventListener("click", () => {
+        try { localStorage.setItem(NOTIF_KEY, String(Date.now())); } catch {}
+        notifClose();
+        renderBell();
+        UI.toast("Notifications cleared for now.", { kind: "ok" });
+      });
+    }
+
+    function notifOpen() {
+      $("#notif").hidden = false;
+      $("#bell").setAttribute("aria-expanded", "true");
+      renderNotif();
+    }
+    function notifClose() {
+      const box = $("#notif");
+      if (!box || box.hidden) return;
+      box.hidden = true;
+      $("#bell").setAttribute("aria-expanded", "false");
+    }
+
+    $("#bell").addEventListener("click", (e) => {
+      e.stopPropagation();
+      $("#notif").hidden ? notifOpen() : notifClose();
+    });
+    document.addEventListener("click", (e) => {
+      if (!$("#bellWrap").contains(e.target)) notifClose();
+    });
+
+    /* ---------- copy button ---------- */
+
+    function copyButton(text, label) {
+      return `<button class="copybtn" type="button" data-copy="${UI.esc(text)}" aria-label="Copy ${UI.esc(label || "text")}">
+        <svg class="copy-ic" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+        <svg class="tick" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+        <span class="copy-label">Copy</span>
+      </button>`;
+    }
+
+    document.addEventListener("click", async (e) => {
+      const btn = e.target.closest(".copybtn");
+      if (!btn) return;
+      const text = btn.dataset.copy || "";
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); } catch {}
+        ta.remove();
+      }
+      btn.classList.add("done");
+      btn.querySelector(".copy-label").textContent = "Copied";
+      setTimeout(() => {
+        btn.classList.remove("done");
+        btn.querySelector(".copy-label").textContent = "Copy";
+      }, 1600);
+    });
+
+    /* ---------- radar score chart ---------- */
+
+    function radarSVG(breakdown) {
+      const rows = breakdown || [];
+      if (rows.length < 3) return "";
+      const size = 300, cx = size / 2, cy = size / 2 + 6, R = 92;
+      const n = rows.length;
+      const ang = (i) => -Math.PI / 2 + (i * 2 * Math.PI) / n;
+      const pt = (i, r) => [cx + Math.cos(ang(i)) * r, cy + Math.sin(ang(i)) * r];
+      const frac = (r) => (r.max ? Math.max(0, Math.min(1, r.got / r.max)) : 0);
+
+      let grid = "";
+      for (const f of [0.25, 0.5, 0.75, 1]) {
+        const poly = rows.map((_, i) => pt(i, R * f).map((v) => v.toFixed(1)).join(",")).join(" ");
+        grid += `<polygon class="grid-line" points="${poly}"/>`;
+      }
+      let axes = "";
+      for (let i = 0; i < n; i++) {
+        const [x, y] = pt(i, R);
+        axes += `<line class="axis" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+      }
+      const shape = rows.map((r, i) => pt(i, R * frac(r)).map((v) => v.toFixed(1)).join(",")).join(" ");
+
+      let dots = "", labels = "";
+      rows.forEach((r, i) => {
+        const [px, py] = pt(i, R * frac(r));
+        dots += `<circle class="pt" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="2.6"/>`;
+        const [lx, ly] = pt(i, R + 24);
+        const anchor = Math.abs(lx - cx) < 8 ? "middle" : lx > cx ? "start" : "end";
+        labels += `<text x="${lx.toFixed(1)}" y="${(ly - 1).toFixed(1)}" text-anchor="${anchor}">${UI.esc(r.k)}</text>
+          <text class="val" x="${lx.toFixed(1)}" y="${(ly + 10).toFixed(1)}" text-anchor="${anchor}">${r.got.toFixed(1)}</text>`;
+      });
+
+      return `<div class="radar-wrap" id="radarWrap" hidden>
+        <svg class="radar" viewBox="0 0 ${size} ${size + 16}" role="img" aria-label="Score breakdown as a radar chart">
+          ${grid}${axes}<polygon class="shape" points="${shape}"/>${dots}${labels}
+        </svg>
+      </div>`;
+    }
+
+    /* ---------- product tour ---------- */
+
+    const TOUR_KEY = "co.tour.done";
+    const TOUR_STEPS = [
+      { sel: ".search", title: "Search or jump", body: "Type a title or company, or press ⌘K / Ctrl K for the command palette." },
+      { sel: "#railTrack", title: "Track", body: "Every posting you save or start, in the order it moves — board or table." },
+      { sel: "#railImprove", title: "Improve", body: "The gaps that repeat across your matches, ranked by what closing them is worth." },
+      { sel: ".detailpane", title: "The score, explained", body: "Every match is broken into its parts. Bars or radar — the same numbers." },
+    ];
+    let tourStep = 0;
+
+    function tourShow(i) {
+      tourStep = Math.max(0, Math.min(TOUR_STEPS.length - 1, i));
+      const step = TOUR_STEPS[tourStep];
+      const target = document.querySelector(step.sel);
+      const hole = $("#tourHole");
+      const card = $("#tourCard");
+      const pad = 8;
+
+      let r = { top: 90, left: 90, width: 220, height: 60 };
+      if (target) {
+        const b = target.getBoundingClientRect();
+        if (b.width > 0 && b.height > 0) r = b;
+      }
+      hole.style.top = (r.top - pad) + "px";
+      hole.style.left = (r.left - pad) + "px";
+      hole.style.width = (r.width + pad * 2) + "px";
+      hole.style.height = (r.height + pad * 2) + "px";
+
+      const cw = 300, ch = 196;
+      let top = r.top + r.height + 14;
+      if (top + ch > window.innerHeight - 12) top = Math.max(12, r.top - ch - 14);
+      const left = Math.min(Math.max(12, r.left), window.innerWidth - cw - 12);
+      card.style.top = top + "px";
+      card.style.left = left + "px";
+
+      card.innerHTML = `
+        <div class="step">Step ${tourStep + 1} of ${TOUR_STEPS.length}</div>
+        <h3>${UI.esc(step.title)}</h3>
+        <p>${UI.esc(step.body)}</p>
+        <div class="row">
+          <span class="tour-dots">${TOUR_STEPS.map((_, k) => `<i class="${k === tourStep ? "on" : ""}"></i>`).join("")}</span>
+          <span class="spacer"></span>
+          <button class="btn btn--sm btn--ghost" type="button" id="tourSkip">Skip</button>
+          <button class="btn btn--sm btn--primary" type="button" id="tourNext">${tourStep === TOUR_STEPS.length - 1 ? "Done" : "Next"}</button>
+        </div>`;
+      $("#tourSkip").addEventListener("click", tourEnd);
+      $("#tourNext").addEventListener("click", () => {
+        if (tourStep === TOUR_STEPS.length - 1) tourEnd();
+        else tourShow(tourStep + 1);
+      });
+    }
+
+    function tourStart() {
+      $("#tour").hidden = false;
+      tourShow(0);
+    }
+    function tourEnd() {
+      $("#tour").hidden = true;
+      try { localStorage.setItem(TOUR_KEY, "1"); } catch {}
+    }
+    document.addEventListener("keydown", (e) => {
+      if ($("#tour").hidden) return;
+      if (e.key === "Escape") { e.preventDefault(); tourEnd(); }
+      else if (e.key === "ArrowRight" || e.key === "Enter") {
+        e.preventDefault();
+        if (tourStep === TOUR_STEPS.length - 1) tourEnd();
+        else tourShow(tourStep + 1);
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        tourShow(tourStep - 1);
+      }
+    });
+
     /* ---------- boot ---------- */
 
     selected = visible()[0]?.id ?? null;
     paintSavedLabel();
     renderList();
     renderDetail();
+    renderBell();
     UI.reveal();
+
+    /* Returning from Apply (back button or bfcache) must not show a stale
+       History. Re-read the shared keys and repaint the timeline. */
+    function refreshFromStorage() {
+      reloadSaved();
+      paintSavedLabel();
+      const j = JOBS.find((x) => x.id === selected);
+      if (j) {
+        refreshTimeline(j);
+        const btn = $("#save");
+        if (btn) {
+          const on = savedIds.has(j.id);
+          btn.style.color = on ? "var(--accent)" : "";
+          btn.querySelector("path").setAttribute("fill", on ? "currentColor" : "none");
+          btn.setAttribute("aria-pressed", String(on));
+          btn.title = on ? "Saved — remove" : "Save for later";
+        }
+      }
+      renderList();
+    }
+
+    addEventListener("pageshow", (e) => { if (e.persisted) refreshFromStorage(); });
+    addEventListener("storage", (e) => {
+      if (e.key === SAVED_KEY || e.key === SAVED_AT_KEY || e.key === "co.track") refreshFromStorage();
+    });
+
+    /* Today's applications, against the cap. A number the user can see is the
+       difference between "it applied somewhere" and "it applied 12 times". */
+    function loadCap() {
+      fetch("/api/cap")
+        .then((r) => r.json())
+        .then((d) => {
+          const label = $("#capLabel");
+          if (!label || typeof d.used !== "number") return;
+          label.textContent = `${d.used} / ${d.cap}`;
+          const bar = $("#capBar");
+          if (bar) {
+            bar.style.width = (d.cap ? Math.min(100, (d.used / d.cap) * 100) : 0) + "%";
+            bar.dataset.full = d.blocked ? "1" : "0";
+          }
+          const left = $("#capLeft");
+          if (left) left.textContent = d.blocked ? "Cap reached — raise CAREER_OPS_DAILY_CAP or wait" : `${d.remaining} left`;
+          const strip = $("#capStrip");
+          if (strip) strip.dataset.full = d.blocked ? "1" : "0";
+        })
+        .catch(() => {});
+    }
+    loadCap();
+
+    /* first run: point at the four things that are not obvious */
+    try {
+      if (!localStorage.getItem(TOUR_KEY)) setTimeout(tourStart, 800);
+    } catch {}
 
     fetch("/api/settings")
       .then((r) => r.json())
@@ -1560,7 +4422,13 @@
       })
       .catch(() => {});
 
-    if (state.role) runLive($("#fLive"));
+    /* Live feeds are on demand, not on load. Opening Chrome for every visit
+       cost ~750 MB before the user had asked for anything, and the bundled
+       set is already scored. Once the user has chosen live, remember it and
+       bring it back on the next visit. */
+    let liveWanted = false;
+    try { liveWanted = localStorage.getItem("co.liveOn") === "1"; } catch {}
+    if (state.role && (liveWanted || !window.CO.jobsFor(family, state.role).length)) runLive($("#fLive"));
   </script>
 </body>
 </html>

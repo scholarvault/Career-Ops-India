@@ -123,7 +123,7 @@ ADR-013 for the pattern Naukri already uses).
 | Description | 9,197 chars — Responsibilities (43), Required (41), Preferred (7) |
 | Submission | Employer-side API key required — not obtainable from a candidate account |
 
-## Tier 2 — Indian portals (user-directed, human submits)
+## Tier 2 — Indian portals (user's own session; auto apply pauses for OTP/captcha)
 
 | Platform | Login methods | Profile creation | Apply | Evidence |
 |---|---|---|---|---|

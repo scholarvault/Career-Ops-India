@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Naukri API · Career-Ops India</title>
+
+  <script type="module" src="https://ui-sdk.dev/web.js"></script>
+  <link rel="stylesheet" href="https://ui-sdk.dev/web.css" />
+  <link rel="stylesheet" href="design.css" />
+
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      background: var(--bg); color: var(--ink);
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      display: flex; align-items: center; gap: 18px;
+      padding: 13px 24px; background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .wordmark { font-size: 17px; letter-spacing: -0.01em; white-space: nowrap; }
+    .wordmark b { font-weight: 600; }
+    .wordmark span { color: var(--muted); font-weight: 400; }
+    .head-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+
+    .wrap { max-width: 900px; margin: 0 auto; padding: 30px 24px 90px; }
+    h1 { font-size: 27px; font-weight: 500; letter-spacing: -0.02em; margin: 0 0 6px; }
+    .sub { color: var(--muted); margin: 0 0 26px; font-size: 14.5px; max-width: 62ch; }
+    h2 { font-size: 14px; font-weight: 650; margin: 0 0 3px; letter-spacing: 0.01em; }
+    .hint { color: var(--muted); font-size: 12.5px; margin: 0 0 14px; line-height: 1.5; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 18px 20px; margin-bottom: 16px;
+    }
+    .card-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+    .card-head .grow { flex: 1 1 auto; min-width: 0; }
+
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+    .row > .field { flex: 1 1 200px; min-width: 0; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field > label { font-size: 12px; font-weight: 600; color: var(--muted); }
+    .input {
+      width: 100%; height: 38px; padding: 0 12px;
+      border: 1px solid var(--border); border-radius: 9px;
+      background: var(--surface); color: var(--ink);
+      font: inherit; font-size: 14px;
+      transition: border-color 120ms, box-shadow 120ms;
+    }
+    .input:hover { border-color: var(--border-strong); }
+    .input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+
+    .btn { height: 38px; padding: 0 16px; border-radius: 9px; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
+    .btn--primary { background: var(--accent); color: #fff; }
+    .btn--primary:hover { background: var(--accent-ink); }
+    .btn--primary:disabled { opacity: 0.5; cursor: default; }
+    .btn--secondary { background: var(--surface); border-color: var(--border); color: var(--ink-2); }
+    .btn--secondary:hover { background: var(--surface-3); }
+    .btn--sm { height: 30px; padding: 0 11px; font-size: 12.5px; border-radius: 8px; }
+    .btn:focus-visible { outline: 3px solid var(--accent-ring); outline-offset: 1px; }
+
+    .status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; white-space: nowrap; flex: 0 0 auto; }
+    .status i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .status[data-s="on"] { background: var(--ok-soft); color: var(--ok); }
+    .status[data-s="off"] { background: var(--surface-3); color: var(--muted); }
+    .status[data-s="wait"] { background: var(--warn-soft); color: var(--warn); }
+
+    .msg { margin: 12px 0 0; padding: 10px 12px; border-radius: 9px; font-size: 13px; line-height: 1.5; }
+    .msg[data-k="bad"] { background: var(--bad-soft); color: var(--bad); }
+    .msg[data-k="ok"] { background: var(--ok-soft); color: var(--ok); }
+    .msg[data-k="warn"] { background: var(--warn-soft); color: var(--warn); }
+    .msg[data-k="info"] { background: var(--accent-soft); color: var(--accent-ink); }
+
+    /* the path that works: borrow the browser's session */
+    .import {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      padding: 12px 14px; border-radius: 10px;
+      background: var(--surface-2); border: 1px solid var(--border);
+    }
+    .import .hint { margin: 0; flex: 1 1 240px; min-width: 0; }
+    .alt { margin-top: 14px; }
+    .alt > summary {
+      cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--muted);
+      padding: 4px 0; list-style: none;
+    }
+    .alt > summary::-webkit-details-marker { display: none; }
+    .alt > summary::before { content: "▸ "; }
+    .alt[open] > summary::before { content: "▾ "; }
+    .alt > summary:hover { color: var(--ink); }
+    .alt > summary:focus-visible { outline: 2px solid var(--accent-ring); outline-offset: 2px; border-radius: 4px; }
+    .alt .hint { margin: 10px 0 12px; }
+
+    .cap { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+    .cap-bar { flex: 1 1 auto; height: 8px; border-radius: 5px; background: var(--surface-3); overflow: hidden; }
+    .cap-bar > i { display: block; height: 100%; background: var(--accent); border-radius: 5px; transition: width 300ms var(--ease-out); }
+    .cap-bar > i[data-full="1"] { background: var(--bad); }
+    .cap-num { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .cap-num b { color: var(--ink); font-weight: 650; }
+
+    .jobs { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+    .job {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 13px; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--surface);
+    }
+    .job .j-main { flex: 1 1 auto; min-width: 0; }
+    .job .j-title { font-size: 13.5px; font-weight: 600; letter-spacing: -0.01em; }
+    .job .j-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .job .j-meta b { color: var(--ink-2); font-weight: 600; }
+    .job .j-state { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+
+    .tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .tbl th { text-align: left; font-weight: 600; color: var(--faint); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; padding: 0 10px 8px 0; }
+    .tbl td { padding: 8px 10px 8px 0; border-top: 1px solid var(--border); color: var(--ink-2); vertical-align: top; }
+    .tbl td.mono { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+    .pill { display: inline-block; font-size: 10.5px; font-weight: 650; padding: 2px 7px; border-radius: 999px; }
+    .pill[data-ok="1"] { background: var(--ok-soft); color: var(--ok); }
+    .pill[data-ok="0"] { background: var(--bad-soft); color: var(--bad); }
+
+    .empty { text-align: center; padding: 26px 16px; color: var(--muted); font-size: 13px; }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    [hidden] { display: none !important; }
+
+    @media (max-width: 640px) {
+      header { padding: 11px 14px; gap: 10px; flex-wrap: wrap; }
+      .head-right { margin-left: auto; }
+      .wrap { padding: 22px 14px 80px; }
+      h1 { font-size: 23px; }
+      .card { padding: 15px 14px; }
+      .job { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark"><b>career</b> <span>ops india</span></div>
+  <span class="status" id="status" data-s="off"><i></i><span id="statusText">Checking…</span></span>
+  <div class="head-right">
+    <a class="btn btn--secondary btn--sm" href="workspace.html">Workspace</a>
+    <a class="btn btn--secondary btn--sm" href="browser.html">Browser</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <h1>Naukri, without the browser.</h1>
+  <p class="sub">
+    Naukri's own endpoints, called from this machine with your own account.
+    There is no key to buy. The token stays in <code>data/naukri-session.json</code>;
+    your password is never written to disk. If Naukri changes an endpoint, the browser panel is still there.
+  </p>
+
+  <!-- sign in -->
+  <section class="card" id="signinCard">
+    <div class="card-head">
+      <div class="grow">
+        <h2>Sign in</h2>
+        <p class="hint">The reliable way: sign in to Naukri once in the browser panel, then borrow that session here. No password is typed on this page and no captcha is bypassed.</p>
+      </div>
+    </div>
+
+    <div class="import">
+      <button class="btn btn--primary" id="importBtn" type="button">Use the browser session</button>
+      <span class="hint">Reads the <code>nauk_at</code> token out of the Chrome profile the browser panel already uses.</span>
+    </div>
+
+    <details class="alt">
+      <summary>Or sign in with a password</summary>
+      <p class="hint">Naukri often answers a password login with a captcha-gated one-time code. If that happens, use the browser session above instead.</p>
+
+      <form id="loginForm" autocomplete="on">
+        <div class="row">
+          <div class="field">
+            <label for="username">Email or phone</label>
+            <input class="input" id="username" name="username" type="text" autocomplete="username" required />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input class="input" id="password" name="password" type="password" autocomplete="current-password" required />
+          </div>
+          <button class="btn btn--secondary" id="loginBtn" type="submit">Sign in</button>
+        </div>
+      </form>
+
+      <form id="otpForm" hidden autocomplete="one-time-code">
+        <div class="row">
+          <div class="field">
+            <label for="otp">One-time code</label>
+            <input class="input" id="otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="6-digit code" />
+          </div>
+          <button class="btn btn--primary" id="otpBtn" type="submit">Verify</button>
+          <button class="btn btn--secondary" id="resendBtn" type="button">Resend</button>
+        </div>
+      </form>
+    </details>
+
+    <p class="msg" id="loginMsg" hidden></p>
+  </section>
+
+  <!-- signed in -->
+  <section class="card" id="sessionCard" hidden>
+    <div class="card-head">
+      <div class="grow">
+        <h2>Signed in</h2>
+        <p class="hint" id="sessionMeta">The token is on this machine only.</p>
+      </div>
+      <button class="btn btn--secondary btn--sm" id="signOut" type="button">Sign out</button>
+    </div>
+    <div class="cap">
+      <span class="cap-num"><b id="capUsed">0</b> / <span id="capMax">25</span> today</span>
+      <span class="cap-bar"><i id="capBar" style="width:0%"></i></span>
+      <span class="cap-num" id="capLeft">25 left</span>
+    </div>
+    <p class="hint" style="margin-top:10px">
+      The cap counts successful applications only. A failed attempt is logged but does not use the day.
+      Set <code>CAREER_OPS_DAILY_CAP</code> to change it.
+    </p>
+  </section>
+
+  <!-- search -->
+  <section class="card" id="searchCard" hidden>
+    <div class="card-head">
+      <div class="grow">
+        <h2>Search and apply</h2>
+        <p class="hint">Results come straight from Naukri. Applying here sends the same request the site does.</p>
+      </div>
+    </div>
+    <form id="searchForm">
+      <div class="row">
+        <div class="field">
+          <label for="role">Role</label>
+          <input class="input" id="role" type="text" placeholder="Product Manager" required />
+        </div>
+        <div class="field">
+          <label for="city">City (optional)</label>
+          <input class="input" id="city" type="text" placeholder="Chennai" />
+        </div>
+        <button class="btn btn--primary" id="searchBtn" type="submit">Search</button>
+      </div>
+    </form>
+    <p class="msg" id="searchMsg" hidden></p>
+    <div class="jobs" id="jobs"></div>
+  </section>
+
+  <!-- audit -->
+  <section class="card" id="auditCard">
+    <div class="card-head">
+      <div class="grow">
+        <h2>What was actually sent</h2>
+        <p class="hint">Append-only, on this machine. Every apply writes one row, whether it worked or not.</p>
+      </div>
+      <button class="btn btn--secondary btn--sm" id="refreshAudit" type="button">Refresh</button>
+    </div>
+    <div id="auditBody"><div class="empty">No applications yet.</div></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const statusEl = $("#status");
+  const statusText = $("#statusText");
+  const signinCard = $("#signinCard");
+  const sessionCard = $("#sessionCard");
+  const searchCard = $("#searchCard");
+  const loginForm = $("#loginForm");
+  const otpForm = $("#otpForm");
+  const loginMsg = $("#loginMsg");
+  const searchMsg = $("#searchMsg");
+
+  let signedIn = false;
+  let otpPending = false;
+  let pendingUser = "";
+
+  function say(el, kind, text) {
+    el.hidden = false;
+    el.dataset.k = kind;
+    el.textContent = text;
+  }
+  function clear(el) { el.hidden = true; el.textContent = ""; }
+
+  function paintStatus(on, text) {
+    statusEl.dataset.s = on ? "on" : "off";
+    statusText.textContent = text;
+  }
+
+  async function loadStatus() {
+    try {
+      const r = await fetch("/api/naukri/status", { cache: "no-store" });
+      const d = await r.json();
+      signedIn = Boolean(d.signedIn);
+      otpPending = Boolean(d.otpPending);
+      if (otpPending) pendingUser = d.username || pendingUser;
+
+      paintStatus(signedIn, signedIn ? "Signed in" : otpPending ? "Code needed" : "Not signed in");
+      signinCard.hidden = signedIn;
+      sessionCard.hidden = !signedIn;
+      searchCard.hidden = !signedIn;
+      otpForm.hidden = !otpPending || signedIn;
+      loginForm.hidden = otpPending && !signedIn;
+      const alt = document.querySelector(".alt");
+      if (alt && otpPending && !signedIn) alt.open = true;
+
+      if (signedIn) {
+        const when = d.savedAt ? new Date(d.savedAt).toLocaleString("en-IN") : "this session";
+        $("#sessionMeta").textContent = `Token saved ${when}. It is on this machine only.`;
+      }
+    } catch {
+      paintStatus(false, "Server?");
+    }
+    await loadCap();
+    await loadAudit();
+  }
+
+  async function loadCap() {
+    try {
+      const r = await fetch("/api/cap", { cache: "no-store" });
+      const d = await r.json();
+      const pct = d.cap ? Math.min(100, Math.round((d.used / d.cap) * 100)) : 0;
+      $("#capUsed").textContent = d.used;
+      $("#capMax").textContent = d.cap;
+      $("#capLeft").textContent = d.blocked ? "cap reached" : `${d.remaining} left`;
+      const bar = $("#capBar");
+      bar.style.width = pct + "%";
+      bar.dataset.full = d.blocked ? "1" : "0";
+    } catch { /* the card simply keeps its last numbers */ }
+  }
+
+  async function loadAudit() {
+    try {
+      const r = await fetch("/api/audit", { cache: "no-store" });
+      const d = await r.json();
+      const rows = d.entries || [];
+      const box = $("#auditBody");
+      if (!rows.length) {
+        box.innerHTML = `<div class="empty">No applications yet. The first one writes the first row.</div>`;
+        return;
+      }
+      box.innerHTML = `
+        <table class="tbl">
+          <thead><tr><th>When</th><th>Role</th><th>Company</th><th>Via</th><th>Result</th></tr></thead>
+          <tbody>${rows.slice(0, 40).map((e) => `
+            <tr>
+              <td class="mono">${new Date(e.at).toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</td>
+              <td>${esc(e.title || "—")}</td>
+              <td>${esc(e.company || "—")}</td>
+              <td>${esc(e.via || "—")}</td>
+              <td><span class="pill" data-ok="${e.ok ? "1" : "0"}">${e.ok ? "Applied" : "Failed"}</span>${e.message ? `<div class="hint" style="margin:3px 0 0">${esc(e.message)}</div>` : ""}</td>
+            </tr>`).join("")}</tbody>
+        </table>`;
+    } catch {
+      $("#auditBody").innerHTML = `<div class="empty">Could not read the log.</div>`;
+    }
+  }
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  /* ---------------- borrow the browser session ---------------- */
+
+  $("#importBtn").addEventListener("click", async () => {
+    clear(loginMsg);
+    const btn = $("#importBtn");
+    btn.disabled = true;
+    const label = btn.textContent;
+    btn.textContent = "Reading the browser profile…";
+    try {
+      const r = await fetch("/api/naukri/import", { method: "POST" });
+      const d = await r.json();
+      if (d.ok) {
+        say(loginMsg, "ok", d.message || "Using the session from the browser.");
+        await loadStatus();
+      } else {
+        say(loginMsg, "bad", d.message || "Could not read a Naukri session from the browser.");
+      }
+    } catch (e) {
+      say(loginMsg, "bad", "Could not reach the server.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = label;
+    }
+  });
+
+  /* ---------------- login ---------------- */
+
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clear(loginMsg);
+    const username = $("#username").value.trim();
+    const password = $("#password").value;
+    if (!username || !password) return say(loginMsg, "bad", "Email and password are both required.");
+    pendingUser = username;
+    const btn = $("#loginBtn");
+    btn.disabled = true;
+    btn.textContent = "Signing in…";
+    try {
+      const r = await fetch("/api/naukri/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      const d = await r.json();
+      if (d.ok) {
+        $("#password").value = "";
+        say(loginMsg, "ok", "Signed in. The token is saved on this machine.");
+        await loadStatus();
+      } else if (d.needsOtp) {
+        say(loginMsg, "warn", d.message || "Naukri sent a code. Enter it below.");
+        otpPending = true;
+        loginForm.hidden = true;
+        otpForm.hidden = false;
+        $("#otp").focus();
+        paintStatus(false, "Code needed");
+      } else {
+        say(loginMsg, "bad", d.message || "Sign-in failed.");
+      }
+    } catch {
+      say(loginMsg, "bad", "Could not reach the local server.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Sign in";
+    }
+  });
+
+  otpForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clear(loginMsg);
+    const otp = $("#otp").value.replace(/\D/g, "");
+    if (otp.length < 4) return say(loginMsg, "bad", "Enter the code Naukri sent.");
+    const btn = $("#otpBtn");
+    btn.disabled = true;
+    btn.textContent = "Verifying…";
+    try {
+      const r = await fetch("/api/naukri/otp", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ otp, username: pendingUser }),
+      });
+      const d = await r.json();
+      if (d.ok) {
+        say(loginMsg, "ok", "Verified. You are signed in.");
+        await loadStatus();
+      } else {
+        say(loginMsg, "bad", d.message || "That code was not accepted.");
+      }
+    } catch {
+      say(loginMsg, "bad", "Could not reach the local server.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Verify";
+    }
+  });
+
+  $("#resendBtn").addEventListener("click", async () => {
+    clear(loginMsg);
+    try {
+      const r = await fetch("/api/naukri/otp", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ resend: true, username: pendingUser }),
+      });
+      const d = await r.json();
+      say(loginMsg, d.ok ? "ok" : "bad", d.message || (d.ok ? "A new code was sent." : "Could not resend."));
+    } catch {
+      say(loginMsg, "bad", "Could not reach the local server.");
+    }
+  });
+
+  $("#signOut").addEventListener("click", async () => {
+    await fetch("/api/naukri/logout", { method: "POST" }).catch(() => {});
+    say(loginMsg, "info", "Signed out. The token was deleted from this machine.");
+    await loadStatus();
+  });
+
+  /* ---------------- search ---------------- */
+
+  $("#searchForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clear(searchMsg);
+    const role = $("#role").value.trim();
+    const city = $("#city").value.trim();
+    if (!role) return say(searchMsg, "bad", "Type a role to search.");
+    const btn = $("#searchBtn");
+    btn.disabled = true;
+    btn.textContent = "Searching…";
+    $("#jobs").innerHTML = "";
+    try {
+      const r = await fetch("/api/naukri/search", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ role, city, limit: 20 }),
+      });
+      const d = await r.json();
+      if (!d.ok) {
+        say(searchMsg, "bad", d.message || "Search failed.");
+        if (d.fallback === "browser") {
+          searchMsg.innerHTML = `${esc(d.message || "Search failed.")} <a href="browser.html" style="color:inherit;font-weight:600">Open the browser panel</a> and search there instead.`;
+        }
+        return;
+      }
+      const jobs = d.jobs || [];
+      if (!jobs.length) {
+        say(searchMsg, "info", "No postings came back for that search. Try a broader role or no city.");
+        return;
+      }
+      say(searchMsg, "ok", `${jobs.length} postings${d.total ? ` of ${d.total}` : ""}. Apply sends the same request the site does.`);
+      $("#jobs").innerHTML = jobs.map((j) => `
+        <div class="job" data-id="${esc(j.id)}">
+          <div class="j-main">
+            <div class="j-title">${esc(j.title)}</div>
+            <div class="j-meta"><b>${esc(j.company)}</b>${j.location ? ` · ${esc(j.location)}` : ""}${j.datePosted ? ` · ${new Date(j.datePosted).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}` : ""}</div>
+          </div>
+          <span class="j-state"></span>
+          <button class="btn btn--secondary btn--sm apply" type="button">Apply</button>
+        </div>`).join("");
+      $("#jobs").querySelectorAll(".job").forEach((row) => {
+        const job = jobs.find((j) => j.id === row.dataset.id);
+        row.querySelector(".apply").addEventListener("click", () => apply(row, job));
+      });
+    } catch {
+      say(searchMsg, "bad", "Could not reach the local server.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Search";
+    }
+  });
+
+  async function apply(row, job) {
+    const btn = row.querySelector(".apply");
+    const state = row.querySelector(".j-state");
+    btn.disabled = true;
+    btn.textContent = "Applying…";
+    try {
+      const r = await fetch("/api/naukri/apply", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ jobId: job.id, title: job.title, company: job.company }),
+      });
+      const d = await r.json();
+      if (d.ok) {
+        btn.textContent = "Applied";
+        state.textContent = "sent";
+        state.style.color = "var(--ok)";
+      } else if (d.capped) {
+        btn.textContent = "Apply";
+        btn.disabled = false;
+        state.textContent = "cap reached";
+        state.style.color = "var(--bad)";
+        say(searchMsg, "warn", d.message || "Daily cap reached.");
+      } else {
+        btn.textContent = "Retry";
+        btn.disabled = false;
+        state.textContent = "needs you";
+        state.style.color = "var(--warn)";
+        say(searchMsg, "warn", d.message || "Naukri did not accept the application.");
+      }
+      await loadCap();
+      await loadAudit();
+    } catch {
+      btn.textContent = "Retry";
+      btn.disabled = false;
+      say(searchMsg, "bad", "Could not reach the local server.");
+    }
+  }
+
+  $("#refreshAudit").addEventListener("click", () => { loadAudit(); loadCap(); });
+
+  loadStatus();
+})();
+</script>
+</body>
+</html>

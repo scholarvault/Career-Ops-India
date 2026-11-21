@@ -14,16 +14,16 @@ Owner: ScholarVault.
 
 - **Never collect a platform password.** The user signs in on the real site; the session stays on their machine.
 - **Never bypass a bot check.** No CAPTCHA solving, no fingerprint spoofing, no proxy rotation to evade a block. A blocked page is a human hand-off.
-- **No automated submission on LinkedIn or Indeed.** Their terms prohibit it.
-  Discovery on Indeed India is allowed and live (ADR-021): it runs in the shared
-  browser profile and reads public search pages. Apply is the user's click.
+- **LinkedIn is never submitted.** Its terms prohibit automated applying; auto
+  apply opens and prefills only (ADR-015, ADR-024). Indeed India is discovered in
+  the shared browser profile (ADR-021) and applied through auto apply (ADR-024).
 - **One browser, owned by the server.** `server/lib/browser.ts` holds the only
   persistent context. Connectors borrow a tab with `withPage()`; they never
   launch or close a browser of their own. `ui/browser.html` streams that browser
   into the app (ADR-022).
-- **Naukri is user-directed in the MVP.** Do not add automation without a new ADR.
+- **Naukri discovery and apply run in the user's browser.** Discovery is ADR-013; apply is ADR-024, which pauses for an OTP, captcha or login.
 - **Never invent CV facts.** Tailoring reorders and rewrites what exists; it never adds a skill, employer, metric or certification. `POST /api/tailor` enforces this in the prompt and returns anything missing as `gaps`.
-- **Apply fills, it does not submit.** `POST /api/fill` writes the confirmed profile into an employer's own ATS form (Lever, Greenhouse, Ashby, SmartRecruiters), then hands the user to `browser.html` with the filled form on screen. It never presses submit, and it never guesses current CTC, notice period or a motivation answer — only an expected CTC the user typed themselves.
+- **Apply fills and submits (ADR-024).** `POST /api/fill` writes the confirmed profile into an employer's own ATS form (Lever, Greenhouse, Ashby, SmartRecruiters); auto apply adds the submit step and verifies a confirmation. It never guesses current CTC, notice period or a motivation answer — only an expected CTC the user typed themselves.
 - **Never mark an application "submitted" on a click alone.** Require a confirmation page or message, and store the evidence.
 - **The model never produces a score.** `scoreJob` is deterministic; the model writes the explanation.
 - **"Assessed", never "Verified"** for anything a model inferred.
@@ -63,6 +63,7 @@ internals — only its public entry.
 pnpm install
 pnpm demo        # the end-to-end loop, no browser, no AI
 pnpm ui          # onboarding prototype on :4173
+pnpm mcp         # the MCP server (stdio) for Claude, ChatGPT and Codex
 pnpm test:extract  # resume extraction regression, real browser, no server
 pnpm check:secrets # no key, no real contact detail in a tracked file
 pnpm typecheck   # must pass before any commit
@@ -70,6 +71,10 @@ pnpm typecheck   # must pass before any commit
 
 ## UI
 
+- `ui/console.html` is the apply console: Connect, Market, Pick, Tailor, Apply,
+  Learn, Overview. It is the primary surface for applying.
+- `ui/browser.html` is the handover view only: a captcha or a password. Do not
+  send a user there to type an email, an OTP or a form field.
 - `ui/` holds static HTML prototypes with **ui-sdk**, no build step.
 - Before using ui-sdk, follow the ui-sdk skill if installed, and read https://ui-sdk.dev/web.md.
 - Each component registers its tags the first time they appear. Load it with:

@@ -29,10 +29,11 @@
   }
   .top .back { flex: 0 0 auto; }
   .who { display: flex; flex-direction: column; min-width: 0; }
-  .who b { font-size: 14px; font-weight: 650; letter-spacing: -0.01em; }
-  .who span { font-size: 12px; color: var(--muted); }
+  .who b { font-size: 14px; font-weight: 650; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .who span { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .top .spacer { flex: 1 1 auto; }
   .top .acts { display: flex; align-items: center; gap: 8px; }
+  .top .acts > * { flex: 0 0 auto; }
 
   .live {
     display: inline-flex;
@@ -54,6 +55,55 @@
   .live[data-state="off"] { color: var(--muted); background: var(--surface-3); }
   .live[data-state="off"] i { animation: none; }
   .live[data-state="wait"] { color: var(--warn); background: var(--warn-soft); }
+
+  /* take control / hand back */
+  .control {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: inherit; font-size: 12px; font-weight: 600;
+    padding: 5px 11px; border-radius: var(--r-pill);
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--ink-2); cursor: pointer;
+    transition: background var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out);
+  }
+  .control:hover { background: var(--surface-3); }
+  .control:focus-visible { outline: 3px solid var(--accent-ring); outline-offset: 1px; }
+  .control[aria-pressed="true"] { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+  .control svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* reason banner above the live view */
+  .reason {
+    flex: 0 0 auto;
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 16px;
+    background: var(--warn-soft);
+    border-bottom: 1px solid var(--warn);
+    color: var(--warn);
+    font-size: 12.5px; line-height: 1.45;
+  }
+  .reason[hidden] { display: none; }
+  .reason svg { width: 15px; height: 15px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .reason b { font-weight: 650; }
+
+  /* page-state strip */
+  .statebar {
+    flex: 0 0 auto;
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 16px;
+    background: var(--surface-2);
+    border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--muted);
+    min-height: 34px;
+  }
+  .statebar[hidden] { display: none; }
+  .statebar .tag {
+    flex: 0 0 auto;
+    font-size: 10.5px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: var(--r-pill);
+    background: var(--surface-3); color: var(--faint);
+  }
+  .statebar .tag[data-needs="otp"], .statebar .tag[data-needs="password"] { background: var(--warn-soft); color: var(--warn); }
+  .statebar .tag[data-needs="captcha"] { background: var(--bad-soft); color: var(--bad); }
+  .statebar .txt { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   @keyframes pulse {
     0% { box-shadow: 0 0 0 0 rgba(15, 123, 79, 0.45); }
     70% { box-shadow: 0 0 0 7px rgba(15, 123, 79, 0); }
@@ -204,6 +254,7 @@
 
   @media (max-width: 720px) {
     .top { padding: 8px 10px; gap: 8px; }
+    .top .back .btn-label { display: none; }
     .who span { display: none; }
     .chrome { padding: 6px 10px; }
     .stage { padding: 0; }
@@ -211,6 +262,10 @@
     .frame img { max-height: calc(100vh - 150px); }
     .foot { display: none; }
     .top .acts .hide-sm { display: none; }
+  }
+  @media (max-width: 430px) {
+    /* the frame and the state strip already say what the page is doing */
+    .top .acts .live { display: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     .frame, .idle { animation: none; }
@@ -227,19 +282,34 @@
   </a>
   <div class="who">
     <b>Career-Ops browser</b>
-    <span id="where">A real Chrome on this machine. Nothing leaves it.</span>
+    <span id="where">Handover view: clear a captcha or sign in, then go back to the console.</span>
   </div>
   <div class="spacer"></div>
   <div class="acts">
+    <a class="btn btn--primary btn--sm" href="console.html" title="The apply console is the main surface">
+      <span class="btn-label">Apply console</span>
+    </a>
     <span class="live" id="live" data-state="off"><i></i><span id="liveText">Not open</span></span>
+    <button class="control" id="control" type="button" aria-pressed="false" title="Pause automation and drive the page yourself">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>
+      <span id="controlText">Take control</span>
+    </button>
     <button class="btn btn--secondary btn--sm hide-sm" id="presetNaukri" type="button">
       <span class="btn-label">Naukri</span>
     </button>
     <button class="btn btn--secondary btn--sm hide-sm" id="presetIndeed" type="button">
       <span class="btn-label">Indeed</span>
     </button>
+    <a class="btn btn--secondary btn--sm hide-sm" href="naukri.html" title="Naukri API — no browser">
+      <span class="btn-label">Naukri API</span>
+    </a>
   </div>
 </header>
+
+<div class="reason" id="reason" hidden>
+  <svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 9v4M12 16.5v.5"/></svg>
+  <span id="reasonText"></span>
+</div>
 
 <div class="chrome">
   <button class="iconbtn" id="back" type="button" title="Back" aria-label="Back" disabled>
@@ -264,9 +334,9 @@
     </div>
     <h1>Sign in once, inside Career-Ops</h1>
     <p>
-      This is a real Chrome running on your machine, shown here instead of in a
-      separate window. Sign in to Naukri or Indeed below — the session is kept in
-      a local profile folder and reused by every search. We never see your password.
+      This is a real Chrome window, shown here instead of in a separate one.
+      Sign in to Naukri or Indeed below — the session is kept in a profile folder
+      and reused by every search. Your password is never read.
     </p>
     <div class="row">
       <button class="btn btn--primary" id="openNaukri" type="button">
@@ -284,9 +354,14 @@
   </div>
 </main>
 
+<div class="statebar" id="statebar" hidden>
+  <span class="tag" id="stateTag">Page</span>
+  <span class="txt" id="stateText"></span>
+</div>
+
 <footer class="foot">
   <svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
-  <span>Local profile only. No password is read, stored or sent. A bot check is yours to solve — we never bypass one.</span>
+  <span>You sign in yourself. Your password is never read, stored or sent. A bot check is yours to solve — we never bypass one.</span>
   <div class="spacer"></div>
   <span><kbd>Esc</kbd> release the keyboard</span>
 </footer>
@@ -307,6 +382,13 @@
   const backBtn = $("#back");
   const reloadBtn = $("#reload");
   const stopBtn = $("#stop");
+  const controlBtn = $("#control");
+  const controlText = $("#controlText");
+  const reasonEl = $("#reason");
+  const reasonText = $("#reasonText");
+  const statebar = $("#statebar");
+  const stateTag = $("#stateTag");
+  const stateText = $("#stateText");
 
   const toast = (m, o) => (window.CO && window.CO.ui ? window.CO.ui.toast(m, o) : console.log(m));
 
@@ -315,6 +397,7 @@
   let objectUrl = null;
   let polling = false;
   let addrDirty = false;
+  let paused = false;
 
   /* ---------------- status ---------------- */
 
@@ -323,24 +406,60 @@
     liveText.textContent = text;
   }
 
+  function paintControl() {
+    controlBtn.setAttribute("aria-pressed", String(paused));
+    controlText.textContent = paused ? "Hand back" : "Take control";
+    controlBtn.title = paused ? "Resume automation" : "Pause automation and drive the page yourself";
+  }
+
+  function paintState(ps) {
+    if (!ps) {
+      statebar.hidden = true;
+      reasonEl.hidden = true;
+      return;
+    }
+    statebar.hidden = false;
+    const needs = ps.needs || "page";
+    stateTag.dataset.needs = needs;
+    stateTag.textContent =
+      needs === "otp" ? "OTP"
+      : needs === "password" ? "Sign in"
+      : needs === "captcha" ? "Bot check"
+      : needs === "consent" ? "Consent"
+      : needs === "form" ? "Form"
+      : "Page";
+    stateText.textContent = ps.text || ps.title || ps.url || "";
+    stateText.title = ps.text || "";
+    if (ps.reason) {
+      reasonEl.hidden = false;
+      reasonText.textContent = ps.reason;
+    } else {
+      reasonEl.hidden = true;
+    }
+  }
+
   async function status() {
     try {
       const r = await fetch("/api/browser/status", { cache: "no-store" });
       const d = await r.json();
       open = Boolean(d.open);
+      paused = Boolean(d.paused);
+      paintControl();
       if (!d.hasChrome) {
         setLive("wait", "No Chrome");
         where.textContent = "Chrome or Edge was not found on this machine.";
+        paintState(null);
         return;
       }
       if (!open) {
         setLive("off", "Not open");
-        where.textContent = "A real Chrome on this machine. Nothing leaves it.";
+        where.textContent = "A real Chrome window, driven from this app.";
         idle.hidden = false;
         frameEl.hidden = true;
         backBtn.disabled = true;
         reloadBtn.disabled = true;
         stopBtn.disabled = true;
+        paintState(null);
         return;
       }
       setLive("on", "Live");
@@ -349,6 +468,7 @@
       backBtn.disabled = false;
       reloadBtn.disabled = false;
       stopBtn.disabled = false;
+      paintState(d.pageState);
 
       if (d.url && d.url !== "about:blank") {
         lastUrl = d.url;
@@ -420,7 +540,7 @@
         return;
       }
       await status();
-      toast("Signed-in sessions are kept in the local profile.", { kind: "ok", title: "Browser open" });
+      toast("Signed in. The session is ready.", { kind: "ok", title: "Browser open" });
     } catch (e) {
       const timedOut = e && (e.name === "TimeoutError" || e.name === "AbortError");
       toast(timedOut ? "The page took too long to load." : "Could not reach the local agent.", { kind: "bad", title: "Not opened" });
@@ -472,6 +592,20 @@
     await fetch("/api/browser/close", { method: "POST" }).catch(() => {});
     toast("The browser was closed. The profile folder is still on disk.", { kind: "info", title: "Closed" });
     await status();
+  });
+
+  controlBtn.addEventListener("click", async () => {
+    paused = !paused;
+    paintControl();
+    await fetch("/api/browser/control", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ paused }),
+    }).catch(() => {});
+    toast(
+      paused ? "Automation paused. The page is yours until you hand it back." : "Automation resumed.",
+      { kind: paused ? "warn" : "ok", title: paused ? "You have control" : "Handed back" },
+    );
   });
 
   $("#openNaukri").addEventListener("click", () => openAt("https://www.naukri.com/", ""));
@@ -558,8 +692,8 @@
          top of the form so they read it from the beginning. */
       send({ kind: "scrollTop" });
       toast(
-        `${n} field${n === 1 ? "" : "s"} filled${s ? `, ${s} need you` : ""}. Read every field, attach the tailored PDF, then press the form's own submit button.`,
-        { kind: "ok", title: "Form filled — you submit", ms: 12000 }
+        `${n} field${n === 1 ? "" : "s"} filled${s ? `, ${s} need you` : ""}. Read every field, attach the tailored PDF, then auto apply or press the form's own submit button.`,
+        { kind: "ok", title: "Form filled — auto apply can submit", ms: 12000 }
       );
     }
     tick();

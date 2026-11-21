@@ -10,49 +10,54 @@
  *  - motion is transform/opacity only, and reduced motion resolves instantly
  */
 
+@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300..700&family=Geist:wght@300..700&display=swap");
+
 :root {
-  /* surfaces */
-  --bg: #f5f6f8;
+  /* surfaces — fog ground, white work surface, ink-navy text */
+  --bg: #edf0f2;
   --surface: #ffffff;
-  --surface-2: #fafbfc;
-  --surface-3: #f1f3f6;
-  --ink: #14171c;
-  --ink-2: #3d4450;
-  --muted: #626b7a;
-  --faint: #8b93a1;
-  --border: #e2e5ea;
-  --border-strong: #cfd4dc;
-  --line: #eef0f3;
+  --surface-2: #fafbfb;
+  --surface-3: #f1f4f6;
+  --ink: #0e1b24;
+  --ink-2: #3a4a55;
+  --muted: #5c6b75;
+  --faint: #8a99a3;
+  --border: #e4e9ec;
+  --border-strong: #d2dae0;
+  --line: #edf0f2;
   /* older pages still say --chip; keep the alias so they inherit the theme */
   --chip: var(--surface-3);
 
-  /* accent */
-  --accent: #1b6ef3;
-  --accent-ink: #0d55c9;
-  --accent-soft: #e9f1ff;
-  --accent-ring: rgba(27, 110, 243, 0.28);
+  /* accent — deep petrol; amber is reserved for "needs you" */
+  --accent: #0e4749;
+  --accent-ink: #0a3537;
+  --accent-soft: #e7f0ef;
+  --accent-ring: rgba(14, 71, 73, 0.22);
+  --rail: #0a2e30;
+  --rail-active: #14484a;
+  --amber: #b4761f;
 
   /* status */
   --ok: #0f7b4f;
   --ok-soft: #e6f5ee;
   --warn: #8a5a00;
-  --warn-soft: #fdf3dd;
+  --warn-soft: #fbf1dd;
   --bad: #b3261e;
   --bad-soft: #fdecea;
-  --info-soft: #eef2f7;
+  --info-soft: #eaf1f0;
 
   /* shape */
-  --r-sm: 8px;
-  --r-md: 10px;
-  --r-lg: 14px;
-  --r-xl: 18px;
+  --r-sm: 7px;
+  --r-md: 9px;
+  --r-lg: 12px;
+  --r-xl: 16px;
   --r-pill: 999px;
 
-  /* elevation */
-  --sh-1: 0 1px 2px rgba(16, 24, 40, 0.05);
-  --sh-2: 0 2px 6px rgba(16, 24, 40, 0.07), 0 1px 2px rgba(16, 24, 40, 0.04);
-  --sh-3: 0 10px 28px rgba(16, 24, 40, 0.12), 0 2px 6px rgba(16, 24, 40, 0.06);
-  --sh-4: 0 24px 60px rgba(16, 24, 40, 0.18);
+  /* elevation — navy-tinted, never grey */
+  --sh-1: 0 1px 2px rgba(11, 34, 51, 0.05);
+  --sh-2: 0 2px 6px rgba(11, 34, 51, 0.07), 0 1px 2px rgba(11, 34, 51, 0.04);
+  --sh-3: 0 10px 28px rgba(11, 34, 51, 0.12), 0 2px 6px rgba(11, 34, 51, 0.06);
+  --sh-4: 0 24px 60px rgba(11, 34, 51, 0.2);
 
   /* motion */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -64,15 +69,15 @@
 
   /* ui-sdk bridge */
   color-scheme: light;
-  --ui-radius: 10px;
+  --ui-radius: 9px;
   --ui-font-size: 15px;
   --ui-background: #ffffff;
-  --ui-foreground: #14171c;
-  --ui-muted: #f1f3f6;
-  --ui-muted-foreground: #626b7a;
-  --ui-border: #e2e5ea;
-  --ui-input: #cfd4dc;
-  --ui-primary: #1b6ef3;
+  --ui-foreground: #0e1b24;
+  --ui-muted: #f1f4f6;
+  --ui-muted-foreground: #5c6b75;
+  --ui-border: #e4e9ec;
+  --ui-input: #d2dae0;
+  --ui-primary: #0e4749;
   --ui-primary-foreground: #ffffff;
 }
 
@@ -81,10 +86,20 @@ html, body { margin: 0; }
 body {
   background: var(--bg);
   color: var(--ink);
-  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font: 15px/1.5 "Geist", "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  font-feature-settings: "cv11", "ss01";
 }
+
+/* Screen titles carry the one warm, human note in the system. */
+h1, .serif {
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  font-variation-settings: "opsz" 40;
+  letter-spacing: -0.015em;
+}
+h1 { line-height: 1.04; }
 
 ::selection { background: var(--accent-soft); color: var(--accent-ink); }
 
@@ -144,9 +159,9 @@ body {
   --btn-hover: var(--accent-ink);
   --btn-ink: #fff;
   --btn-border: var(--accent);
-  box-shadow: 0 1px 2px rgba(13, 85, 201, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  box-shadow: 0 1px 2px rgba(11, 34, 51, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
-.btn--primary:hover { --btn-border: var(--accent-ink); box-shadow: 0 4px 14px rgba(13, 85, 201, 0.28); transform: translateY(-1px); }
+.btn--primary:hover { --btn-border: var(--accent-ink); box-shadow: 0 4px 14px rgba(11, 34, 51, 0.3); transform: translateY(-1px); }
 .btn--primary:active { transform: scale(0.975) translateY(0); }
 
 .btn--secondary { --btn-bg: var(--surface); --btn-hover: var(--surface-2); --btn-ink: var(--ink); }
@@ -393,7 +408,7 @@ body {
   transition: stroke-dashoffset 900ms var(--ease-out), stroke 300ms;
 }
 .ring[data-band="hi"] .ring-fill { stroke: var(--ok); }
-.ring[data-band="mid"] .ring-fill { stroke: #c98a00; }
+.ring[data-band="mid"] .ring-fill { stroke: #4e8c8a; }
 .ring[data-band="lo"] .ring-fill { stroke: var(--faint); }
 .ring .ring-label {
   position: absolute; inset: 0; display: grid; place-items: center;

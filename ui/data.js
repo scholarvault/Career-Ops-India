@@ -430,8 +430,8 @@ const GENERIC = {
       workMode: "Office",
       source: "Lever",
       sourceUrl: "https://jobs.lever.co/valgenesis/acbc0284-0bb8-42e4-9fd1-fa3583cb458f",
-      datePosted: "2026-04-08",
-      firstSeenAt: "2026-11-19",
+      datePosted: isoDaysAgo(5),
+      firstSeenAt: isoDaysAgo(1),
       score: 76.3,
       relationship: "Specialisation",
       breakdown: [
@@ -457,8 +457,8 @@ const GENERIC = {
       workMode: "Hybrid",
       source: "Greenhouse",
       sourceUrl: "https://boards.greenhouse.io/freshworks",
-      datePosted: "2026-11-12",
-      firstSeenAt: "2026-11-19",
+      datePosted: isoDaysAgo(2),
+      firstSeenAt: isoDaysAgo(1),
       score: 81.4,
       relationship: "Direct",
       breakdown: [
@@ -485,7 +485,7 @@ const GENERIC = {
       source: "Company careers",
       sourceUrl: "https://careers.zohocorp.com",
       datePosted: null,
-      firstSeenAt: "2026-11-18",
+      firstSeenAt: isoDaysAgo(2),
       score: 74.8,
       relationship: "Adjacent",
       breakdown: [
@@ -511,8 +511,8 @@ const GENERIC = {
       workMode: "Remote",
       source: "Ashby",
       sourceUrl: "https://jobs.ashbyhq.com/chargebee",
-      datePosted: "2026-10-30",
-      firstSeenAt: "2026-11-19",
+      datePosted: isoDaysAgo(3),
+      firstSeenAt: isoDaysAgo(1),
       score: 63.2,
       relationship: "Progression",
       breakdown: [
@@ -538,8 +538,8 @@ const GENERIC = {
       workMode: "Hybrid",
       source: "SmartRecruiters",
       sourceUrl: "https://jobs.smartrecruiters.com/KaarTech",
-      datePosted: "2026-11-05",
-      firstSeenAt: "2026-11-19",
+      datePosted: isoDaysAgo(1),
+      firstSeenAt: isoDaysAgo(1),
       score: 68.9,
       relationship: "Specialisation",
       breakdown: [

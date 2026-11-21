@@ -154,7 +154,7 @@ export const ApplicationPlanSchema = z.object({
   ),
   uploads: z.array(z.object({ selector: z.string(), path: z.string() })),
   unanswered: z.array(z.string()),
-  /** A plan never submits. Submission is a separate, approved step. */
-  requiresApproval: z.literal(true),
+  /** True when a person must press submit; false for an approved auto-apply run. */
+  requiresApproval: z.boolean(),
 });
 export type ApplicationPlan = z.infer<typeof ApplicationPlanSchema>;

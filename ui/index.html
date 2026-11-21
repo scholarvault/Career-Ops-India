@@ -16,7 +16,7 @@
   <style>
     /* page-specific only: tokens, buttons, chips, toasts live in design.css */
     html, body { height: 100%; }
-    body { display: flex; min-height: 100vh; background: var(--bg); }
+    body { min-height: 100vh; background: var(--bg); }
 
     /* ---------------- shell ---------------- */
 
@@ -26,57 +26,51 @@
 
     .side {
       display: flex; flex-direction: column;
-      padding: 22px 18px 18px;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
+      padding: 26px 20px 20px;
+      background: var(--rail);
+      border-right: 0;
       position: sticky; top: 0; height: 100vh;
     }
-    .brand { display: flex; align-items: center; gap: 10px; padding: 0 6px 22px; }
-    .mark {
-      display: grid; place-items: center; width: 32px; height: 32px;
-      border-radius: 10px; background: linear-gradient(145deg, var(--accent), #0a4fc4);
-      color: #fff; font-size: 13px; font-weight: 700; letter-spacing: -0.03em;
-      box-shadow: 0 2px 8px rgba(13, 85, 201, 0.32);
-    }
-    .brand .wm { font-size: 15px; letter-spacing: -0.015em; line-height: 1.2; }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 0 6px 30px; }
+    .brand .wm { font-size: 14px; letter-spacing: -0.01em; line-height: 1.2; color: #f2f5f6; }
     .brand .wm b { font-weight: 650; }
-    .brand .wm span { color: var(--muted); font-weight: 400; }
+    .brand .wm span { color: #7e9a9a; font-weight: 400; }
 
     .steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
     .steps li { position: relative; }
     .steps button {
-      display: flex; align-items: center; gap: 11px; width: 100%;
-      padding: 9px 10px; border: 0; border-radius: var(--r-md);
-      background: transparent; color: var(--muted);
-      font: inherit; font-size: 13px; text-align: left; cursor: pointer;
+      display: flex; align-items: center; gap: 12px; width: 100%;
+      padding: 10px 12px; border: 0; border-radius: var(--r-md);
+      background: transparent; color: #8fa8a8;
+      font: inherit; font-size: 13.5px; text-align: left; cursor: pointer;
       transition: background var(--t-fast), color var(--t-fast);
     }
-    .steps button:hover:not(:disabled) { background: var(--surface-2); color: var(--ink-2); }
+    .steps button:hover:not(:disabled) { background: var(--rail-active); color: #dbeceb; }
     .steps button:disabled { cursor: default; opacity: 0.55; }
-    .steps button:focus-visible { outline: 3px solid var(--accent-ring); outline-offset: 1px; }
+    .steps button:focus-visible { outline: 3px solid rgba(143, 179, 199, 0.45); outline-offset: 1px; }
     .steps .num {
       display: grid; place-items: center; flex: 0 0 auto;
       width: 22px; height: 22px; border-radius: 50%;
-      background: var(--surface-3); color: var(--faint);
+      background: #14484a; color: #5f7f80;
       font-size: 10.5px; font-weight: 700;
       transition: background var(--t-mid) var(--ease-out), color var(--t-mid), transform var(--t-mid) var(--ease-spring);
     }
     .steps .lbl { flex: 1; }
-    .steps .state { font-size: 10px; color: var(--faint); }
-    .steps li[data-state="done"] button { color: var(--ink-2); }
-    .steps li[data-state="done"] .num { background: var(--ok-soft); color: var(--ok); }
-    .steps li[data-state="now"] button { color: var(--accent-ink); font-weight: 600; background: var(--accent-soft); }
-    .steps li[data-state="now"] .num { background: var(--accent); color: #fff; transform: scale(1.06); }
-    .steps li[data-state="now"] .state { color: var(--accent-ink); }
+    .steps .state { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: #8fbdbd; }
+    .steps li[data-state="done"] button { color: #a8c2c2; }
+    .steps li[data-state="done"] .num { background: transparent; color: #5fa98a; }
+    .steps li[data-state="now"] button { color: #ffffff; font-weight: 600; background: var(--rail-active); }
+    .steps li[data-state="now"] .num { background: #f2f5f6; color: var(--rail); transform: scale(1.06); }
+    .steps li[data-state="now"] .state { color: #8fbdbd; }
 
-    .side-foot { margin-top: auto; padding: 14px 8px 0; border-top: 1px solid var(--line); }
-    .side-foot p { margin: 0 0 8px; font-size: 11.5px; line-height: 1.5; color: var(--faint); }
-    .side-foot .lock { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted); }
+    .side-foot { margin-top: auto; padding: 18px 8px 0; border-top: 1px solid #1d4a4c; }
+    .side-foot p { margin: 0 0 10px; font-size: 12px; line-height: 1.55; color: #7e9a9a; }
+    .side-foot .lock { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 500; color: #8fa8a8; }
     .side-foot .lock svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     /* ---------------- main column ---------------- */
 
-    .main { display: flex; flex-direction: column; min-width: 0; min-height: 100vh; }
+    .main { display: flex; flex-direction: column; min-width: 0; min-height: 100vh; background: var(--surface); }
 
     .topbar {
       display: none; align-items: center; gap: 10px;
@@ -116,6 +110,7 @@
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--r-lg); padding: 16px 16px 14px;
       box-shadow: var(--sh-1);
+      max-height: calc(100vh - 150px); overflow-y: auto;
     }
     .aside-card h3 {
       margin: 0 0 12px; font-size: 10.5px; font-weight: 650;
@@ -125,7 +120,7 @@
     .aside-row:first-of-type { border-top: 0; }
     .aside-row .k { flex: 0 0 84px; font-size: 11.5px; color: var(--faint); }
     .aside-row .v { flex: 1; min-width: 0; font-size: 12.5px; font-weight: 550; color: var(--ink-2); overflow-wrap: anywhere; }
-    .aside-row .v.empty { color: var(--faint); font-weight: 400; }
+    .aside-row .v.empty, .aside-row .v.is-empty { color: var(--faint); font-weight: 400; }
     .aside-note { margin: 12px 0 0; font-size: 11.5px; line-height: 1.5; color: var(--faint); }
     .aside-prog { height: 5px; border-radius: 3px; background: var(--surface-3); overflow: hidden; margin: 12px 0 4px; }
     .aside-prog > i { display: block; height: 100%; background: var(--accent); transition: width 380ms var(--ease-out); }
@@ -140,14 +135,14 @@
 
     .eyebrow {
       display: inline-flex; align-items: center; gap: 6px;
-      margin-bottom: 10px; padding: 3px 9px;
-      border-radius: var(--r-pill); background: var(--accent-soft);
-      color: var(--accent-ink); font-size: 10.5px; font-weight: 650;
-      letter-spacing: 0.05em; text-transform: uppercase;
+      margin-bottom: 14px; padding: 0;
+      background: none; color: var(--amber);
+      font-size: 11px; font-weight: 650;
+      letter-spacing: 0.14em; text-transform: uppercase;
     }
     h1 {
-      margin: 0 0 8px; font-size: clamp(26px, 3.4vw, 34px);
-      font-weight: 600; letter-spacing: -0.025em; line-height: 1.15;
+      margin: 0 0 12px; font-size: clamp(32px, 4vw, 44px);
+      font-weight: 400; letter-spacing: -0.015em; line-height: 1.06;
     }
     .sub { margin: 0 0 26px; color: var(--muted); font-size: 14.5px; line-height: 1.55; max-width: 62ch; }
     .hint { margin: 14px 0 0; color: var(--faint); font-size: 12.5px; line-height: 1.5; }
@@ -157,12 +152,12 @@
     .field { display: flex; flex-direction: column; gap: 6px; }
     .field > label { font-size: 12px; font-weight: 600; color: var(--muted); }
     .searchbox { position: relative; }
-    .searchbox svg {
+    .searchbox > svg {
       position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
       width: 17px; height: 17px; fill: none; stroke: var(--faint); stroke-width: 2; stroke-linecap: round;
     }
     .searchbox input {
-      width: 100%; height: 48px; padding: 0 14px 0 42px;
+      width: 100%; height: 48px; padding: 0 44px 0 42px;
       border: 1px solid var(--border); border-radius: var(--r-md);
       background: var(--surface); color: var(--ink); font: inherit; font-size: 15px;
       transition: border-color var(--t-fast), box-shadow var(--t-fast);
@@ -411,7 +406,7 @@
       position: sticky; bottom: 0; z-index: 15;
       display: flex; align-items: center; gap: 12px;
       padding: 13px 32px 15px;
-      background: rgba(245, 246, 248, 0.92);
+      background: rgba(237, 240, 242, 0.92);
       backdrop-filter: blur(8px);
       border-top: 1px solid var(--border);
     }
@@ -422,6 +417,86 @@
     .actionbar .why.err b { color: var(--bad); }
 
     .shake { animation: shake 340ms var(--ease-in-out); }
+
+    /* ---------------- answers step ---------------- */
+
+    .stepnum { color: var(--faint); font-variant-numeric: tabular-nums; }
+    .stepnum::after { content: "·"; margin: 0 7px; color: var(--border-strong); }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 620px) { .grid2 { grid-template-columns: 1fr; } }
+
+    .plain {
+      width: 100%; height: 44px; padding: 0 12px;
+      border: 1px solid var(--border); border-radius: var(--r-md);
+      background: var(--surface); color: var(--ink); font: inherit; font-size: 14px;
+      transition: border-color var(--t-fast), box-shadow var(--t-fast);
+    }
+    .plain:hover { border-color: var(--border-strong); }
+    .plain:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+
+    .unit {
+      display: flex; align-items: stretch; height: 44px;
+      border: 1px solid var(--border); border-radius: var(--r-md);
+      background: var(--surface); overflow: hidden;
+      transition: border-color var(--t-fast), box-shadow var(--t-fast), opacity var(--t-fast);
+    }
+    .unit:hover { border-color: var(--border-strong); }
+    .unit:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+    .unit > span {
+      display: grid; place-items: center; padding: 0 11px;
+      background: var(--surface-3); color: var(--faint);
+      font-size: 11.5px; font-weight: 600; white-space: nowrap;
+    }
+    .unit > span:first-child { border-right: 1px solid var(--border); }
+    .unit > span:last-child { border-left: 1px solid var(--border); }
+    .unit > input {
+      flex: 1; min-width: 0; height: 100%; padding: 0 11px;
+      border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 14px;
+    }
+    .unit > input:focus { outline: none; }
+    .unit > input:disabled { cursor: not-allowed; }
+
+    /* selected chips fill solid, so a chosen answer reads at a glance */
+    .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+    .auth { display: flex; flex-direction: column; gap: 8px; }
+    .auth-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--r-md);
+      background: var(--surface-2);
+    }
+    .auth-row .flag {
+      flex: 0 0 auto; display: grid; place-items: center; width: 26px; height: 26px;
+      border-radius: 6px; background: var(--surface-3); color: var(--muted);
+      font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+    }
+    .auth-row .q { flex: 1; min-width: 0; font-size: 12.5px; color: var(--ink-2); }
+    .seg { display: flex; gap: 4px; flex: 0 0 auto; }
+    .seg button {
+      min-width: 44px; height: 28px; padding: 0 10px;
+      border: 1px solid var(--border); border-radius: var(--r-pill);
+      background: var(--surface); color: var(--muted);
+      font: inherit; font-size: 11.5px; font-weight: 550; cursor: pointer;
+      transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+    }
+    .seg button:hover { border-color: var(--border-strong); color: var(--ink); }
+    .seg button:focus-visible { outline: 3px solid var(--accent-ring); outline-offset: 1px; }
+    .seg button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+    .why-ask { margin: 0 0 11px; }
+    .why-ask summary {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11.5px; color: var(--faint); cursor: pointer; list-style: none;
+    }
+    .why-ask summary::-webkit-details-marker { display: none; }
+    .why-ask summary .why-i {
+      width: 13px; height: 13px; flex: 0 0 auto;
+      fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round;
+    }
+    .why-ask summary:hover { color: var(--muted); }
+    .why-ask summary:focus-visible { outline: 3px solid var(--accent-ring); outline-offset: 2px; border-radius: 4px; }
+    .why-ask p { margin: 7px 0 0; font-size: 12px; line-height: 1.5; color: var(--muted); max-width: 58ch; }
 
     /* ---------------- responsive ---------------- */
 
@@ -451,7 +526,6 @@
     <!-- ---------------- side rail ---------------- -->
     <aside class="side">
       <div class="brand">
-        <div class="mark" aria-hidden="true">CO</div>
         <div class="wm"><b>career</b> <span>ops india</span></div>
       </div>
 
@@ -461,11 +535,12 @@
         <li data-step="3"><button type="button" data-goto="3"><span class="num">3</span><span class="lbl">Resume</span></button></li>
         <li data-step="4"><button type="button" data-goto="4"><span class="num">4</span><span class="lbl">Verify</span></button></li>
         <li data-step="5"><button type="button" data-goto="5"><span class="num">5</span><span class="lbl">Preferences</span></button></li>
-        <li data-step="6"><button type="button" data-goto="6"><span class="num">6</span><span class="lbl">Career paths</span></button></li>
+        <li data-step="6"><button type="button" data-goto="6"><span class="num">6</span><span class="lbl">Answers</span></button></li>
+        <li data-step="7"><button type="button" data-goto="7"><span class="num">7</span><span class="lbl">Career paths</span></button></li>
       </ol>
 
       <div class="side-foot">
-        <p>Everything stays on this machine. No account, no upload, no password.</p>
+        <p>Seven steps, about five minutes. Every answer stays editable.</p>
         <div class="lock">
           <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
           Read in your browser
@@ -476,9 +551,8 @@
     <!-- ---------------- main ---------------- -->
     <div class="main">
       <div class="topbar">
-        <div class="mark" aria-hidden="true">CO</div>
         <div class="wm" style="font-size:14px"><b>career</b> <span style="color:var(--muted)">ops india</span></div>
-        <span class="count" id="topCount">Step 1 of 6</span>
+        <span class="count" id="topCount">Step 1 of 7</span>
       </div>
       <div class="progress"><i id="bar"></i></div>
 
@@ -486,7 +560,7 @@
         <aside class="aside" id="aside" aria-label="Your profile so far"></aside>
         <!-- 1 — Role -->
         <section class="step" data-active id="s1">
-          <span class="eyebrow">Step 1 · Target role</span>
+          <span class="eyebrow">Target role</span>
           <h1>What role are you aiming for?</h1>
           <p class="sub">Type any job title. We match it against the occupation index, then show the adjacent roles it can lead to.</p>
 
@@ -510,7 +584,7 @@
 
         <!-- 2 — Responsibilities -->
         <section class="step" id="s2">
-          <span class="eyebrow">Step 2 · Experience</span>
+          <span class="eyebrow">Experience</span>
           <h1>Which of these have you actually done?</h1>
           <p class="sub" id="respSub">Not just under the target title. People often did this work under a different one.</p>
 
@@ -532,7 +606,7 @@
 
         <!-- 3 — Resume -->
         <section class="step" id="s3">
-          <span class="eyebrow">Step 3 · Resume</span>
+          <span class="eyebrow">Resume</span>
           <h1>Add your resume.</h1>
           <p class="sub">We read it once, in this browser, then you confirm every field. Nothing is uploaded and nothing is inferred without your say-so.</p>
 
@@ -557,12 +631,12 @@
             <span>No file handy?</span>
             <button class="btn btn--sm btn--ghost" type="button" id="skipResume">I'll type my details instead</button>
           </div>
-          <p class="hint" id="fileHint">The file never leaves this machine. Extraction is deterministic — no model, no key.</p>
+          <p class="hint" id="fileHint">We read the roles, dates and skills from the file. Nothing is invented.</p>
         </section>
 
         <!-- 4 — Verify -->
         <section class="step" id="s4">
-          <span class="eyebrow">Step 4 · Verify</span>
+          <span class="eyebrow">Verify</span>
           <h1>Check what we read.</h1>
           <p class="sub" id="verifySub">Every field below came from your resume. Correct anything that is wrong before it is used.</p>
 
@@ -584,7 +658,7 @@
 
         <!-- 5 — Preferences -->
         <section class="step" id="s5">
-          <span class="eyebrow">Step 5 · Preferences</span>
+          <span class="eyebrow">Preferences</span>
           <h1>Where and how do you want to work?</h1>
           <p class="sub">Location is a hard filter. A Bengaluru office role is not a Chennai match.</p>
 
@@ -603,9 +677,142 @@
           <p class="hint">Work mode and level are scored, not filtered. City is a hard filter.</p>
         </section>
 
-        <!-- 6 — Career paths -->
+        <!-- 6 — Answers -->
         <section class="step" id="s6">
-          <span class="eyebrow">Step 6 · Career paths</span>
+          <span class="eyebrow">Answers</span>
+          <h1>Answer the questions every form asks.</h1>
+          <p class="sub">Naukri, Workday and Greenhouse ask the same dozen things on every application. Fill them once here and the filler uses them instead of stopping to ask you.</p>
+
+          <div class="pref-group">
+            <h3>Compensation</h3>
+            <details class="why-ask">
+              <summary><svg class="why-i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8v.5"/></svg>Why we ask this</summary>
+              <p>Most Indian forms refuse to submit without a current and expected CTC. A fresher has no current CTC, so that field is skipped rather than filled with a zero.</p>
+            </details>
+            <div class="grid2">
+              <div class="field">
+                <label for="curCtc">Current CTC</label>
+                <div class="unit">
+                  <span aria-hidden="true">₹</span>
+                  <input id="curCtc" inputmode="decimal" autocomplete="off" placeholder="18" aria-describedby="ctcHelp" />
+                  <span aria-hidden="true">LPA</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="expCtc">Expected CTC</label>
+                <div class="unit">
+                  <span aria-hidden="true">₹</span>
+                  <input id="expCtc" inputmode="decimal" autocomplete="off" placeholder="28" />
+                  <span aria-hidden="true">LPA</span>
+                </div>
+              </div>
+            </div>
+            <button class="chip" type="button" id="fresher" aria-pressed="false" style="margin-top:10px">I'm a fresher — no current CTC</button>
+            <p class="hint" id="ctcHelp">Stored as a number in lakhs. Nothing leaves this machine.</p>
+          </div>
+
+          <div class="pref-group">
+            <h3>Notice period</h3>
+            <div class="row" id="noticeChips"></div>
+          </div>
+
+          <div class="pref-group">
+            <h3>Work authorisation</h3>
+            <p class="hint" style="margin:-2px 0 10px">India needs no answer. Only these two decide whether a role can sponsor you.</p>
+            <div class="auth">
+              <div class="auth-row">
+                <span class="flag" aria-hidden="true">US</span>
+                <span class="q" id="usAuthQ">Authorised to work in the US?</span>
+                <div class="seg" id="usAuth" role="group" aria-labelledby="usAuthQ">
+                  <button type="button" data-v="yes" aria-pressed="false">Yes</button>
+                  <button type="button" data-v="no" aria-pressed="false">No</button>
+                </div>
+              </div>
+              <div class="auth-row">
+                <span class="flag" aria-hidden="true">US</span>
+                <span class="q" id="usSponsQ">Need US visa sponsorship?</span>
+                <div class="seg" id="usSpons" role="group" aria-labelledby="usSponsQ">
+                  <button type="button" data-v="yes" aria-pressed="false">Yes</button>
+                  <button type="button" data-v="no" aria-pressed="false">No</button>
+                </div>
+              </div>
+              <div class="auth-row">
+                <span class="flag" aria-hidden="true">CA</span>
+                <span class="q" id="caAuthQ">Authorised to work in Canada?</span>
+                <div class="seg" id="caAuth" role="group" aria-labelledby="caAuthQ">
+                  <button type="button" data-v="yes" aria-pressed="false">Yes</button>
+                  <button type="button" data-v="no" aria-pressed="false">No</button>
+                </div>
+              </div>
+              <div class="auth-row">
+                <span class="flag" aria-hidden="true">CA</span>
+                <span class="q" id="caSponsQ">Need Canadian sponsorship?</span>
+                <div class="seg" id="caSpons" role="group" aria-labelledby="caSponsQ">
+                  <button type="button" data-v="yes" aria-pressed="false">Yes</button>
+                  <button type="button" data-v="no" aria-pressed="false">No</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pref-group">
+            <h3>Contact</h3>
+            <div class="grid2">
+              <div class="field">
+                <label for="phone">Phone</label>
+                <div class="unit">
+                  <span aria-hidden="true">+91</span>
+                  <input id="phone" inputmode="tel" autocomplete="tel-national" placeholder="98765 43210" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="pincode">PIN code</label>
+                <input class="plain" id="pincode" inputmode="numeric" autocomplete="postal-code" placeholder="600001" />
+              </div>
+            </div>
+            <div class="field" style="margin-top:12px">
+              <label for="address">Address line 1</label>
+              <input class="plain" id="address" autocomplete="address-line1" placeholder="Flat / street" />
+            </div>
+          </div>
+
+          <div class="pref-group">
+            <h3>Links</h3>
+            <div class="grid2">
+              <div class="field">
+                <label for="linkedin">LinkedIn</label>
+                <input class="plain" id="linkedin" autocomplete="url" placeholder="linkedin.com/in/you" />
+              </div>
+              <div class="field">
+                <label for="github">GitHub</label>
+                <input class="plain" id="github" autocomplete="url" placeholder="github.com/you" />
+              </div>
+            </div>
+            <div class="field" style="margin-top:12px">
+              <label for="portfolio">Portfolio</label>
+              <input class="plain" id="portfolio" autocomplete="url" placeholder="yoursite.com" />
+            </div>
+          </div>
+
+          <div class="pref-group">
+            <h3>Equal opportunity</h3>
+            <p class="hint" style="margin:-2px 0 10px">Asked by US and global forms. “Prefer not to say” is a real answer and is used as-is.</p>
+            <div class="field">
+              <label id="genderLbl">Gender</label>
+              <div class="row" id="genderChips" role="group" aria-labelledby="genderLbl"></div>
+            </div>
+            <div class="field" style="margin-top:14px">
+              <label id="disabilityLbl">Disability</label>
+              <div class="row" id="disabilityChips" role="group" aria-labelledby="disabilityLbl"></div>
+            </div>
+          </div>
+
+          <p class="hint">Every field is optional. A blank answer makes the filler ask you at that form instead of guessing.</p>
+        </section>
+
+        <!-- 7 — Career paths -->
+        <section class="step" id="s7">
+          <span class="eyebrow">Career paths</span>
           <h1>Where this role can take you.</h1>
           <p class="sub" id="pathsSub">Based on what you selected, not on the title alone.</p>
 
@@ -1093,7 +1300,19 @@
         const lines = [];
         for (const y of ys) {
           const items = rows.get(y).sort((a, b) => a.x - b.x);
-          const text = items.map((o) => o.s).join(" ").replace(/\s+/g, " ").trim();
+          /* A wide gap is a column or a list boundary, not a word space.
+             Keep it as a tab so the reader can tell "React" from the next
+             skill; collapsing it to a space loses every boundary. */
+          let text = "";
+          for (let i = 0; i < items.length; i++) {
+            const o = items[i];
+            if (i === 0) { text = o.s; continue; }
+            const prev = items[i - 1];
+            const gap = o.x - (prev.x + (prev.w || 0));
+            const h = Math.max(o.h || 0, prev.h || 0);
+            text += (gap > Math.max(6, h * 0.7) ? "\t" : " ") + o.s;
+          }
+          text = text.replace(/[^\S\t]+/g, " ").trim();
           if (!text) continue;
           lines.push({ y, x: items[0].x, items, text });
         }
@@ -1130,13 +1349,21 @@
       facts: blankFacts(),
       cities: new Set(),
       modes: new Set(),
-      exp: new Set()
+      exp: new Set(),
+      /* the answer bank: what every ATS form asks, collected once */
+      answers: {
+        curCtc: "", expCtc: "", fresher: false, notice: "",
+        usAuth: "", usSpons: "", caAuth: "", caSpons: "",
+        phone: "", pincode: "", address: "",
+        linkedin: "", github: "", portfolio: "",
+        gender: "", disability: ""
+      }
     };
 
-    const TOTAL = 6;
-    const STEP_NAMES = ["Target role", "Experience", "Resume", "Verify", "Preferences", "Career paths"];
+    const TOTAL = 7;
+    const STEP_NAMES = ["Target role", "Experience", "Resume", "Verify", "Preferences", "Answers", "Career paths"];
     const $ = (s) => document.querySelector(s);
-    const steps = [null, $("#s1"), $("#s2"), $("#s3"), $("#s4"), $("#s5"), $("#s6")];
+    const steps = [null, $("#s1"), $("#s2"), $("#s3"), $("#s4"), $("#s5"), $("#s6"), $("#s7")];
 
     function familyData() {
       return state.family ? FAMILIES[state.family] : GENERIC;
@@ -1181,14 +1408,14 @@
       const next = $("#next");
       if (g.ok) {
         why.className = "why";
-        why.innerHTML = state.step === 6
-          ? "Ready. Your profile is saved on this machine."
+        why.innerHTML = state.step === TOTAL
+          ? "Ready. Your profile is saved."
           : `<b>${STEP_NAMES[state.step - 1]}</b> is complete.`;
-        next.querySelector(".btn-label").textContent = state.step === 6 ? "Finish & open workspace" : "Continue";
+        next.querySelector(".btn-label").textContent = state.step === TOTAL ? "Finish & open workspace" : "Continue";
       } else {
         why.className = "why";
         why.textContent = g.msg;
-        next.querySelector(".btn-label").textContent = state.step === 6 ? "Finish" : "Continue";
+        next.querySelector(".btn-label").textContent = state.step === TOTAL ? "Finish" : "Continue";
       }
     }
 
@@ -1217,7 +1444,7 @@
       if (!box) return;
       const fact = (k) => (state.facts.find((f) => f.k === k) || {}).v || "";
       const row = (k, v) =>
-        `<div class="aside-row"><span class="k">${k}</span><span class="v ${v ? "" : "empty"}">${esc(v || "not set")}</span></div>`;
+        `<div class="aside-row"><span class="k">${k}</span><span class="v ${v ? "" : "is-empty"}">${esc(v || "not set")}</span></div>`;
 
       box.innerHTML = `
         <div class="aside-card">
@@ -1229,7 +1456,10 @@
           ${row("Name", fact("Full name"))}
           ${row("City", [...state.cities].join(", "))}
           ${row("Mode", [...state.modes].join(", "))}
-          <p class="aside-note">Everything stays on this machine. No account, no upload, no password.</p>
+          ${row("CTC", state.answers.fresher ? "fresher" : state.answers.curCtc ? `₹${state.answers.curCtc} LPA` : "")}
+          ${row("Notice", state.answers.notice)}
+          ${row("Phone", state.answers.phone)}
+          <p class="aside-note">Seven steps, about five minutes. Every answer stays editable.</p>
         </div>`;
     }
 
@@ -1247,6 +1477,19 @@
         active.setAttribute("data-enter", "");
         clearTimeout(render._t);
         render._t = setTimeout(() => active.removeAttribute("data-enter"), 900);
+
+        /* the counter lives on the eyebrow, so every step reads "03 / 07" */
+        const eb = active.querySelector(".eyebrow");
+        if (eb) {
+          let n = eb.querySelector(".stepnum");
+          if (!n) {
+            n = document.createElement("span");
+            n.className = "stepnum";
+            n.setAttribute("aria-hidden", "true");
+            eb.prepend(n);
+          }
+          n.textContent = `${String(state.step).padStart(2, "0")} / ${String(TOTAL).padStart(2, "0")}`;
+        }
       }
 
       /* rail */
@@ -1268,7 +1511,8 @@
 
       if (state.step === 2) renderTasks();
       if (state.step === 4) renderFacts();
-      if (state.step === 6) renderPaths();
+      if (state.step === 6) renderAnswers();
+      if (state.step === 7) renderPaths();
 
       renderAside();
       refreshGate();
@@ -1661,7 +1905,7 @@
       drop.hidden = false;
       setReading(false);
       $("#next").disabled = false;
-      $("#fileHint").textContent = "The file never leaves this machine. Extraction is deterministic — no model, no key.";
+      $("#fileHint").textContent = "We read the roles, dates and skills from the file. Nothing is invented.";
       $("#skipRow").hidden = false;
       refreshGate();
     }
@@ -1788,6 +2032,95 @@
       });
     }
 
+    /* ---------- answers ----------
+       The answer bank. Everything here is optional; a blank field is a
+       deliberate "ask me at the form" rather than a guess. */
+
+    const NOTICE = ["Immediate", "15 days", "1 month", "2 months", "3 months"];
+    const GENDERS = ["Male", "Female", "Non-binary", "Prefer not to say"];
+    const DISABILITY = ["Yes", "No", "Prefer not to say"];
+    const AUTH_KEYS = ["usAuth", "usSpons", "caAuth", "caSpons"];
+
+    function chipRow(box, values, key) {
+      box.innerHTML = "";
+      values.forEach((v) => {
+        box.appendChild(pill(v, state.answers[key] === v, () => {
+          state.answers[key] = state.answers[key] === v ? "" : v;
+          chipRow(box, values, key);
+          renderAside();
+        }));
+      });
+    }
+
+    function renderAnswers() {
+      const a = state.answers;
+      const text = (id, key) => { const el = document.getElementById(id); if (el) el.value = a[key]; };
+      text("curCtc", "curCtc");
+      text("expCtc", "expCtc");
+      text("phone", "phone");
+      text("pincode", "pincode");
+      text("address", "address");
+      text("linkedin", "linkedin");
+      text("github", "github");
+      text("portfolio", "portfolio");
+
+      const fresher = $("#fresher");
+      if (fresher) fresher.setAttribute("aria-pressed", a.fresher ? "true" : "false");
+      const cur = $("#curCtc");
+      if (cur) {
+        cur.disabled = a.fresher;
+        const unit = cur.closest(".unit");
+        if (unit) unit.style.opacity = a.fresher ? "0.45" : "1";
+      }
+
+      chipRow($("#noticeChips"), NOTICE, "notice");
+      chipRow($("#genderChips"), GENDERS, "gender");
+      chipRow($("#disabilityChips"), DISABILITY, "disability");
+
+      AUTH_KEYS.forEach((k) => {
+        const box = document.getElementById(k);
+        if (!box) return;
+        box.querySelectorAll("button").forEach((b) => {
+          b.setAttribute("aria-pressed", a[k] === b.dataset.v ? "true" : "false");
+        });
+      });
+    }
+
+    function wireAnswers() {
+      const bind = (id, key) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener("input", () => {
+          state.answers[key] = el.value.trim();
+          renderAside();
+        });
+      };
+      ["curCtc", "expCtc", "phone", "pincode", "address", "linkedin", "github", "portfolio"]
+        .forEach((k) => bind(k, k));
+
+      const fresher = $("#fresher");
+      if (fresher) {
+        fresher.addEventListener("click", () => {
+          state.answers.fresher = !state.answers.fresher;
+          if (state.answers.fresher) state.answers.curCtc = "";
+          renderAnswers();
+          renderAside();
+        });
+      }
+
+      AUTH_KEYS.forEach((k) => {
+        const box = document.getElementById(k);
+        if (!box) return;
+        box.querySelectorAll("button").forEach((b) => {
+          b.addEventListener("click", () => {
+            state.answers[k] = state.answers[k] === b.dataset.v ? "" : b.dataset.v;
+            renderAnswers();
+            renderAside();
+          });
+        });
+      });
+    }
+
     /* ---------- navigation ---------- */
 
     function goTo(n) {
@@ -1804,10 +2137,17 @@
         modes: [...state.modes],
         exp: [...state.exp],
         facts: state.facts.map((f) => ({ k: f.k, v: f.v })),
+        answers: { ...state.answers },
         rawText: state.rawText.slice(0, 20000),
         file: state.file ? state.file.name : null,
         hasResume: state.hasResume
       }));
+      /* the master resume is the source of truth for tailoring. sessionStorage
+         dies with the tab, so keep a copy for a fresh workspace tab. */
+      try {
+        localStorage.setItem("co.masterResume", state.rawText.slice(0, 20000));
+        localStorage.setItem("co.masterFile", state.file ? state.file.name : "");
+      } catch {}
       UI.toast("Profile saved. Opening your workspace.", { kind: "ok", title: "Ready" });
       setTimeout(() => { location.href = "map.html"; }, 420);
     }
@@ -1825,7 +2165,7 @@
           renderFamilyTag();
         }
       }
-      if (state.step === 6) { saveAndGo(); return; }
+      if (state.step === TOTAL) { saveAndGo(); return; }
       goTo(state.step + 1);
     });
 
@@ -1851,6 +2191,7 @@
 
     renderRoles();
     renderPrefs();
+    wireAnswers();
 
     /* "Change resume" on the prepare page lands here on step 3. */
     const reopenResume = sessionStorage.getItem("co.reopenResume");
@@ -1870,6 +2211,7 @@
         (saved.cities || []).forEach((c) => state.cities.add(c));
         (saved.modes || []).forEach((m) => state.modes.add(m));
         (saved.exp || []).forEach((e) => state.exp.add(e));
+        if (saved.answers) Object.assign(state.answers, saved.answers);
         if (Array.isArray(saved.facts) && saved.facts.length) {
           state.facts = FACT_KEYS.map((k) => {
             const hit = saved.facts.find((f) => f.k === k);

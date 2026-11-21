@@ -147,7 +147,17 @@ function normalise(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
-/** Resolve a free-text title to a role node. Longest alias wins. */
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Resolve a free-text title to a role node. Longest alias wins.
+ *
+ * Matching is on whole words, not substrings. The short aliases ("PM", "PO",
+ * "BA") are the reason: `includes("po")` turned "Political Partnerships",
+ * "Power Integrity" and "Vehicle Operator" into Product Owner, which put a
+ * power engineer in a product manager's shortlist. A title has to contain the
+ * alias as a word or a phrase.
+ */
 export function findRole(title: string): RoleNode | undefined {
   const t = normalise(title);
   if (!t) return undefined;
@@ -156,9 +166,9 @@ export function findRole(title: string): RoleNode | undefined {
   for (const node of ROLES) {
     const names = [node.title, ...node.aliases].map(normalise);
     for (const n of names) {
-      if (t === n || t.includes(n)) {
-        if (!best || n.length > best.len) best = { node, len: n.length };
-      }
+      if (!n) continue;
+      const hit = t === n || new RegExp(`(^| )${escapeRe(n)}( |$)`).test(t);
+      if (hit && (!best || n.length > best.len)) best = { node, len: n.length };
     }
   }
   return best?.node;

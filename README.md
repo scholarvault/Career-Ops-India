@@ -10,7 +10,7 @@ Three connected systems:
 
 1. **Discovery** — Indian portals, company career pages, ATS feeds, and newly funded startups.
 2. **Career intelligence** — your CV, your preferences, and the adjacent roles you are actually qualified for.
-3. **Application** — a tailored CV, a filled form, and a submission you approve.
+3. **Application** — a tailored CV, a filled form, and a submission with a captured confirmation.
 
 It is **not** a blind auto-apply bot. It automates where a platform permits it, and assists where it does not.
 
@@ -19,7 +19,9 @@ It is **not** a blind auto-apply bot. It automates where a platform permits it, 
 ```bash
 pnpm install
 pnpm demo        # discover → score → career paths → application plan
-pnpm ui          # app + API on http://localhost:4173
+pnpm ui          # app + API on http://localhost:4173 (foreground)
+pnpm start       # same, but detached - survives closing the terminal
+pnpm stop        # stops whatever is on 4173
 pnpm mcp         # MCP server on stdio (for Claude Desktop, Cursor, any client)
 pnpm test:extract  # resume extraction regression, in a real browser
 pnpm typecheck
@@ -27,6 +29,28 @@ pnpm typecheck
 
 `pnpm demo` hits Lever's public API, scores the real ValGenesis posting in
 Chennai, and builds an application plan. It never submits.
+
+## The apply console
+
+`http://localhost:4173/console.html` is the primary surface. Seven steps:
+
+1. **Connect** — upload the master resume, name the target role, confirm the
+   contact details forms ask for.
+2. **Market** — the funnel for that role: India, remote, a state, a city, last
+   7 days. Then role families (core, one step up, adjacent, specialisation).
+3. **Pick** — 10 recommended, not all. Every application costs model tokens and
+   the candidate's attention.
+4. **Tailor** — one resume per job, saved as a PDF with a hash.
+5. **Apply** — the queue. When a site needs an OTP, an unknown field, a login or
+   a captcha, the question appears in the console; the answer is typed into the
+   form and the run continues. A captcha or a password is a handover to
+   `browser.html`, never a solve.
+6. **Learn** — what the agent remembers per site: flow, fields, answers, wins.
+7. **Overview** — submitted with confirmation, parked, failed, and a CSV export.
+
+The same flow is exposed to other agents as MCP tools (`pnpm mcp`) and as a
+Skill at `.agents/skills/career-ops-apply/SKILL.md`, so Claude, ChatGPT and
+Codex can drive it without the page.
 
 `pnpm ui` now runs `server/index.ts`, not a static file server. It serves the
 pages and a real API:
@@ -48,7 +72,29 @@ pages and a real API:
 | `GET /api/browser/frame` | A JPEG of the current page, for the panel in `ui/browser.html`. |
 | `POST /api/browser/input` | Forwards a click, scroll, keystroke or resize to the page. |
 | `POST /api/browser/navigate` / `back` / `close` | Address bar, history and shutdown. |
+| `POST /api/browser/control` | `{ paused: true }` hands the page to the user; every connector refuses to drive it until `false`. |
+| `GET /api/naukri/status` | Whether a Naukri token is on disk, and whether an OTP is pending. |
+| `POST /api/naukri/login` | Email/phone + password. Returns `needsOtp` when Naukri wants a second factor. The password is never stored. |
+| `POST /api/naukri/otp` | Verify a code, or `{ resend: true }` to send a new one. |
+| `POST /api/naukri/search` | Naukri's own search endpoint, signed with `nkparam`. No browser. |
+| `POST /api/naukri/apply` | One-click apply on a Naukri-hosted posting, refused when the daily cap is reached. |
+| `GET /api/naukri/history` | What Naukri itself thinks you applied to, for reconciling the log. |
+| `POST /api/naukri/logout` | Delete the token from disk. |
+| `GET /api/audit` | The append-only application log, plus today's cap state. |
+| `POST /api/audit` | Record one application (`via: api \| browser \| manual`). |
+| `GET /api/cap` | `used`, `cap`, `remaining`, `blocked` for today (IST). |
+| `POST /api/ats/gap` | Deterministic ATS keyword gap between a resume and a job description. No model, no key. |
+| `GET /api/forms` | The per-site form cache: which hosts have a remembered field list. |
 | `POST/DELETE /api/settings/source-key` | Store or remove a free key for Jooble or Careerjet. |
+| `GET/POST /api/resume` | The master resume, shared by the console, the workspace and MCP (`data/resume.json`). |
+| `GET/POST /api/profile` | Target role, years and contact details (`data/profile.json`). |
+| `POST /api/market/summary` | The funnel for a role: India, remote, state, city, last 7 days, plus role families and a shortlist. |
+| `GET /api/sites`, `DELETE /api/sites?host=` | What the agent learned per site: flow, fields, saved answers, success count. |
+| `POST /api/autoapply/start` / `stop` | Start or stop a batch. `mode: "submit"` fills and submits; `"fill"` only fills. |
+| `GET /api/autoapply/status` | The queue, the confirmation text and the open question. |
+| `GET /api/autoapply/events` | The same state over SSE, so the console updates without polling. |
+| `POST /api/autoapply/answer` | Answer the open ask (an OTP, a field, or `done` after a handover). |
+| `POST /api/autoapply/retry` | Requeue the jobs parked on a question and continue. |
 
 ### Configuration
 
@@ -67,7 +113,10 @@ discovery, scoring and the workspace work; tailoring and explanation ask for a k
 | API key | `data/secrets.json` or `.env` | no |
 | Profile, CVs, job files | `data/` | no |
 | Browser sessions | `data/browser-profile*/` | no |
-| Resume text | browser `localStorage` | never leaves the browser |
+| Resume text | `data/resume.json` and browser `localStorage` | no |
+| Target role and contact details | `data/profile.json` | no |
+| Site memory (fields, answers) | `data/sites.json` | no |
+| Tailored PDFs | `data/tailored/` | no |
 
 `pnpm check:secrets` fails if a key or a real contact detail reaches a tracked
 file, and `.githooks/pre-commit` runs it on every commit. Enable it once per
@@ -126,6 +175,28 @@ SmartRecruiters is supported too, because Swiggy and Freshworks use it. Its list
 call carries no description, so the India postings get one detail call each,
 capped at 40 and run 8 at a time.
 
+### Fortune 500 career portals
+
+Big employers do not post on Indian boards first, and some do not post there at
+all. Three of them publish a public JSON endpoint, so they are read directly:
+
+| Company | Endpoint | India postings (2026-11-20) |
+|---|---|---|
+| Tesla | MokaHR social-recruitment API | 63 — Bengaluru 43, Mumbai 9, Pune 3, Chennai 3, Delhi 2, Hyderabad 1 |
+| EPAM Systems | `careers.epam.com/api/jobs/v2/search` | 251 — Hyderabad, Bengaluru, Pune, Chennai, Coimbatore, Gurgaon |
+| Amazon | `amazon.jobs/en/search.json` | 283 |
+
+Workday covers most of the rest of the Fortune 500 (NVIDIA, Salesforce,
+Mastercard, Intel, Cisco, Adobe, Qualcomm, Dell). Its CXS endpoint answers 429
+to a plain HTTP call and to headless Chrome, so it runs through the app's real
+Chrome profile and only when `CAREER_OPS_WORKDAY=1` is set. NVIDIA returns 261
+India postings that way.
+
+Scope rule: a company's postings are kept when they name an Indian city. When a
+company has no Indian posting at all, its remote roles that do not name another
+country are kept instead, so a big employer with no India office still appears
+as a remote option.
+
 Boards are warmed at server start and refreshed in the background
 (stale-while-revalidate, 5-minute TTL, 6 refreshes at a time), so a page load
 reads the cache instead of waiting on 27 hosts. A board that misses an 18-second
@@ -153,19 +224,67 @@ connector error rather than failing the search. Adzuna applies
 `max_days_old=7` at source, so the freshness rule is enforced before download.
 See ADR-015.
 
-### Naukri, through your own browser
+### Naukri, two ways
 
 ATS feeds carry almost no non-engineering roles. Naukri carries 1,600+ Business
-Analyst vacancies in Chennai alone, but its search page is client-rendered and
-its JSON API answers `recaptcha required`. So the connector drives the Chrome
-already installed on the machine, with a persistent profile in
-`data/browser-profile`:
+Analyst vacancies in Chennai alone. It has no public API and no paid key, so
+there are two connectors and you pick per task.
+
+**The API connector** (`ui/naukri.html`) talks to the endpoints Naukri's own web
+app uses. It is free, needs no key, and costs no browser process:
+
+- Sign in with email/phone and password, then the OTP Naukri sends. The password
+  is used once and never written to disk; only the resulting token is, at
+  `data/naukri-session.json` (mode 0600).
+- Search and one-click apply run over HTTPS. No Chrome, no 750 MB.
+- Requests are signed with `nkparam`, the same RSA parameter Naukri's client
+  sends. It is undocumented, so it can break; the browser connector is the
+  fallback and the UI says which one answered.
+- It needs a home IP. Datacenter ranges get MFA-blocked, which is a Naukri
+  policy, not something to work around.
+
+**The browser connector** drives the Chrome already on the machine, with a
+persistent profile in `data/browser-profile`:
 
 - You sign in once, in the window it opens. The agent never reads the password.
 - Headless Chrome is blocked by Akamai, so the window is visible. That is also
   what makes the one-time sign-in possible.
 - A captcha or a login wall returns `needsHuman` and the UI hands control back.
 - It reads search results only. It does not submit applications.
+
+### Guardrails, because "auto-apply" is a footgun
+
+Four things sit between a click and an application leaving the machine.
+
+| Guard | What it does |
+|---|---|
+| Daily cap | `CAREER_OPS_DAILY_CAP` (default 25) per IST day. A failed attempt does not consume it. `GET /api/cap` is the number the UI shows. |
+| Audit log | Every send appends one JSONL row to `data/audit.jsonl`: when, where, which connector, what happened. Append-only, so the history cannot be quietly rewritten. |
+| Take control | `POST /api/browser/control {paused:true}` makes every connector refuse to touch the page until you hand it back. For the OTP, the captcha, or the field it got wrong. |
+| Pacing | A jittered delay between fields and a longer one before a navigation, serialised per host. `CAREER_OPS_PACE_MS=0` turns it off. |
+
+### The answer bank
+
+Onboarding step 6 collects the questions every ATS asks and no resume contains:
+current and expected CTC, notice period, work authorisation, phone, PIN, links,
+and the EEO block. They are stored locally and reused by the form filler, so a
+Greenhouse form is not four minutes of typing every time. All of it is optional;
+an empty answer is skipped, never guessed.
+
+### ATS keyword gap
+
+`POST /api/ats/gap` compares a resume against a posting with a fixed vocabulary
+of ~300 skill terms and a log-weighted score. No model, no key, no network. It
+returns what matched, what is missing, and the capitalised terms it did not
+recognise so you can judge those yourself. It never writes anything into the
+resume — adding a keyword you cannot defend is worse than the gap.
+
+### Headless runs
+
+`pnpm ci --role "Product Manager" --city Chennai --out report.json` runs
+discovery without a window, writes a JSON report sorted by score, and exits
+non-zero when nothing came back. Browser-backed sources are off unless you pass
+`--sources public,naukri,indeed`, so a cron job never opens Chrome.
 
 ### MCP
 

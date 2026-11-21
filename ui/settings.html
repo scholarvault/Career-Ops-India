@@ -97,6 +97,18 @@
       border-left: 2px solid var(--border); padding: 2px 0 2px 12px;
       color: var(--muted); font-size: 13px; margin-top: 14px;
     }
+    .signin-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .signin-row:last-of-type { border-bottom: 0; }
+    .signin-row > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .signin-row b { font-size: 13px; }
+    .signin-row .hint { margin: 0; }
+    @media (max-width: 560px) {
+      .signin-row { flex-wrap: wrap; }
+      .signin-row .btn { width: 100%; justify-content: center; }
+    }
     a { color: var(--accent-ink); }
 
     /* the seven stages, always visible so the page says what the app does */
@@ -120,6 +132,19 @@
     .pipe-step.done b { color: var(--ok); }
     .pipe-step.now { background: var(--accent-soft); }
     .pipe-step.now b { color: var(--accent-ink); }
+
+    /* the key state has to be readable without hunting for a sentence */
+    .aihead { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .aihead h2 { margin: 0; }
+    .keypill {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; padding: 4px 10px;
+      border-radius: 999px; white-space: nowrap;
+    }
+    .keypill .star { font-size: 13px; line-height: 1; }
+    .keypill[data-s="on"] { background: var(--ok-soft); color: var(--ok); }
+    .keypill[data-s="off"] { background: var(--surface-3); color: var(--muted); }
+    .keypill[data-s="check"] { background: var(--warn-soft); color: var(--warn); }
 
     @media (max-width: 640px) {
       header { flex-wrap: wrap; gap: 10px 12px; padding: 12px 16px; }
@@ -146,7 +171,7 @@
 
   <div class="wrap">
     <h1>Connections</h1>
-    <p class="sub">What this app can reach, and the key it uses. Everything here runs on your machine.</p>
+    <p class="sub">What this app can reach, and the key it uses.</p>
 
     <div class="pipe" aria-label="The seven stages of the pipeline">
       <div class="pipe-step done"><b>Discover</b><span>27 ATS boards, 5 free remote APIs, Naukri, Indeed India</span></div>
@@ -157,10 +182,16 @@
       <div class="pipe-step"><b>Track</b><span>Every application, with evidence</span></div>
       <div class="pipe-step"><b>Improve</b><span>Learn from what got replies</span></div>
     </div>
-    <p class="hint" style="margin-top:10px">Green is built and running. Blue is the step you are on. The last two are the next milestone.</p>
+    <p class="hint" style="margin-top:10px">Green is built and running. Navy is the step you are on. The last two are the next milestone.</p>
 
     <!-- ---------------- AI ---------------- -->
-    <h2>AI provider</h2>
+    <div class="aihead">
+      <h2>AI provider</h2>
+      <span class="keypill" id="keyPill" data-s="check">
+        <span class="star" aria-hidden="true">★</span>
+        <span id="keyPillText">Checking…</span>
+      </span>
+    </div>
     <p class="hint">Sarvam is included. Bring your own key to use another provider. With no key, scoring still works — only the written explanation is skipped.</p>
 
     <div class="card">
@@ -195,7 +226,7 @@
       </div>
       <div class="status" id="aiStatus"></div>
       <p class="note">
-        The key is stored in <code>data/secrets.json</code> on this machine and is never sent back to the page.
+        The key is stored server-side in <code>data/secrets.json</code> and is never sent back to the page.
         It is not written to the database, the repo, or any log.
       </p>
     </div>
@@ -240,8 +271,10 @@
         </tbody>
       </table>
       <p class="note">
-        Also free and already wired: 27 employer ATS boards (Lever, Greenhouse, Ashby, SmartRecruiters)
-        and Naukri through your own Chrome profile. No key is needed for any of them.
+        Also free and already wired: 30 employer sources — 27 ATS boards (Lever, Greenhouse, Ashby,
+        SmartRecruiters) plus the Tesla, EPAM and Amazon career portals, and Workday when enabled
+        with CAREER_OPS_WORKDAY=1 — and Naukri through your own Chrome profile. No key is needed
+        for any of them.
       </p>
       <p class="note">
         Checked and not usable without payment or a scrape: Upwork and Guru RSS return 403; Fiverr,
@@ -284,6 +317,37 @@
       <table>
         <thead><tr><th>Source</th><th>How it would work</th><th>State</th></tr></thead>
         <tbody id="manualBody"></tbody>
+      </table>
+    </div>
+
+    <!-- ---------------- one-time sign-in ---------------- -->
+    <h2>Sign in once</h2>
+    <p class="hint">Auto apply drives the same Chrome profile you sign in with here. Sign in to each portal once; the cookie stays on this machine and no password is stored. If a run meets an OTP, a captcha or a login wall, it pauses and asks you in the browser panel.</p>
+
+    <div class="card">
+      <div class="signin-row">
+        <div><b>Naukri</b><span class="hint">Sign in with Google or your Naukri account.</span></div>
+        <button class="btn" type="button" data-open="https://www.naukri.com/nlogin/login" data-profile="default">Open sign-in</button>
+      </div>
+      <div class="signin-row">
+        <div><b>Indeed India</b><span class="hint">Sign in with Google. Indeed keeps its own profile.</span></div>
+        <button class="btn" type="button" data-open="https://in.indeed.com/account/login" data-profile="indeed">Open sign-in</button>
+      </div>
+      <div class="signin-row">
+        <div><b>LinkedIn</b><span class="hint">Opened and prefilled only; auto apply never submits here.</span></div>
+        <button class="btn" type="button" data-open="https://www.linkedin.com/login" data-profile="default">Open sign-in</button>
+      </div>
+      <p class="note">After signing in, open the browser panel to confirm the session. Every job on that site reuses it.</p>
+    </div>
+
+    <!-- ---------------- remembered forms ---------------- -->
+    <h2>Remembered forms</h2>
+    <p class="hint">When the filler has read a site's application form once, it keeps the field list so the next application on that site skips the discovery pass. Nothing here is an answer — only the shape of the form. Delete a row to make it look again.</p>
+
+    <div class="card">
+      <table>
+        <thead><tr><th>Site</th><th>Fields</th><th>Last seen</th><th></th></tr></thead>
+        <tbody id="formBody"><tr><td colspan="4" class="hint">No forms remembered yet.</td></tr></tbody>
       </table>
     </div>
 
@@ -359,7 +423,8 @@
       $("#model").value = s.model;
       $("#baseUrl").value = s.baseUrl;
       $("#baseRow").style.display = s.provider === "custom" ? "flex" : "none";
-      $("#keyState").textContent = s.hasKey ? "A key is stored on this machine." : "No key stored.";
+      $("#keyState").textContent = s.hasKey ? "A key is stored." : "No key stored.";
+      paintKey(s.hasKey);
       $("#clearKey").disabled = !s.hasKey;
       $("#test").disabled = s.provider === "none";
 
@@ -469,6 +534,13 @@
       el.textContent = text;
     }
 
+    function paintKey(has) {
+      const pill = $("#keyPill");
+      if (!pill) return;
+      pill.dataset.s = has ? "on" : "off";
+      $("#keyPillText").textContent = has ? "Connected · your key" : "Included key";
+    }
+
     $("#saveKey").addEventListener("click", async () => {
       const key = $("#key").value.trim();
       if (!key) return say($("#aiStatus"), "bad", "Paste a key first.");
@@ -480,7 +552,8 @@
       const j = await r.json();
       if (!j.ok) return say($("#aiStatus"), "bad", j.error || "Could not save the key.");
       $("#key").value = "";
-      $("#keyState").textContent = "A key is stored on this machine.";
+      $("#keyState").textContent = "A key is stored.";
+      paintKey(true);
       $("#clearKey").disabled = false;
       say($("#aiStatus"), "ok", "Key saved. It will not be shown again.");
     });
@@ -488,6 +561,7 @@
     $("#clearKey").addEventListener("click", async () => {
       await fetch("/api/settings/key", { method: "DELETE" });
       $("#keyState").textContent = "No key stored.";
+      paintKey(false);
       $("#clearKey").disabled = true;
       say($("#aiStatus"), "info", "Key removed. Scoring still works; explanations are skipped.");
     });
@@ -537,6 +611,45 @@
 
     $("#refresh").addEventListener("click", loadConnectors);
 
+    /* ---------- remembered forms ---------- */
+
+    async function loadForms() {
+      const body = $("#formBody");
+      if (!body) return;
+      try {
+        const r = await fetch("/api/forms");
+        const j = await r.json();
+        const hosts = j.hosts || [];
+        if (!hosts.length) {
+          body.innerHTML = `<tr><td colspan="4" class="hint">No forms remembered yet. The first application you fill on a site writes the first row.</td></tr>`;
+          return;
+        }
+        body.innerHTML = hosts.map((h) => `
+          <tr>
+            <td><span class="name">${h.host}</span></td>
+            <td>${h.fields}</td>
+            <td class="meta">${h.at ? new Date(h.at).toLocaleString() : "—"}</td>
+            <td><button class="btn" type="button" data-forget="${h.host}">Forget</button></td>
+          </tr>`).join("");
+      } catch {
+        body.innerHTML = `<tr><td colspan="4" class="hint">Server not reachable.</td></tr>`;
+      }
+    }
+
+    $("#formBody")?.addEventListener("click", async (e) => {
+      const btn = e.target.closest("[data-forget]");
+      if (!btn) return;
+      btn.disabled = true;
+      await fetch("/api/forms", {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ host: btn.dataset.forget }),
+      }).catch(() => {});
+      loadForms();
+    });
+
+    loadForms();
+
     /* ---------- static tables ---------- */
 
     $("#manualBody").innerHTML = MANUAL.map((m) => `
@@ -574,6 +687,38 @@
         $("#copyNote").textContent = "Select the text and copy it";
       }
       setTimeout(() => { $("#copyNote").textContent = ""; }, 2500);
+    });
+
+    /* One-time portal sign-in. The Chrome window is visible, so the user signs
+       in there; the browser panel is opened as a second view of the same page. */
+    document.querySelectorAll("[data-open]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const label = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Opening…";
+        try {
+          const r = await fetch("/api/browser/open", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              url: btn.dataset.open,
+              profile: btn.dataset.profile === "indeed" ? "indeed" : undefined,
+            }),
+          });
+          const d = await r.json();
+          if (!d.ok) {
+            btn.textContent = label;
+            alert(d.message || "Could not open the browser.");
+          } else {
+            btn.textContent = "Sign in there";
+            window.open("browser.html", "_blank", "noopener");
+          }
+        } catch {
+          btn.textContent = label;
+          alert("Could not reach the server.");
+        }
+        btn.disabled = false;
+      });
     });
 
     loadSettings();

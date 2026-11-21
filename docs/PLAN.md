@@ -38,14 +38,14 @@ Every design choice below follows from that sentence.
 
 | Source class | Discovery | Submission |
 |---|---|---|
-| Company ATS — **Lever**, Ashby, Greenhouse, Workable | Public API — automated | Agent fills; **user clicks submit** |
+| Company ATS — **Lever**, Ashby, Greenhouse, Workable | Public API — automated | Agent fills and submits (ADR-024); pauses for OTP/captcha |
 | Company career pages | Crawl | Same |
 | Funded startups (Inc42, Entrackr → site → careers) | Automated | Same |
-| Naukri, Instahyre, Cutshort, Hirist, Apna | User-directed, from the user's own session | Agent fills; **user clicks submit** |
-| **Indeed India** | Live in the shared Chrome profile (ADR-021); posting read on demand | Apply hands off to the employer's ATS; agent fills, **user clicks submit** |
-| LinkedIn | Link only | Manual |
+| Naukri, Instahyre, Cutshort, Hirist, Apna | User-directed, from the user's own session | Agent fills and submits where built (ADR-024); pauses for OTP/captcha |
+| **Indeed India** | Live in the shared Chrome profile (ADR-021); posting read on demand | Apply hands off to the employer's ATS; agent fills and submits (ADR-024) |
+| LinkedIn | Link only | Opened and prefilled; user submits (ADR-015) |
 
-**Naukri is not automated in the MVP.** Even with the user's own session, driving it is automated access under their terms. It ships as a user-directed connector until that is established as authorised.
+**Naukri and Indeed run in the user's own Chrome profile.** Auto apply fills and submits, and pauses for an OTP, captcha or login (ADR-024).
 
 ## Phase 4 proof case
 
@@ -166,8 +166,8 @@ Output on 2026-11-19: 13 postings, 11 in Chennai/remote, ValGenesis scored **76.
 | Risk | Likelihood | Impact | Mitigation | Stop trigger |
 |---|---|---|---|---|
 | Platform changes its DOM | H | M | One connector per source; dry-run test each | Two connectors break in a week |
-| Account flagged for automation | M | H | Human submits; no evasion; rate limits | Any warning from a platform |
-| OTP blocks a connector | H | M | Human hand-off by design | A connector needs OTP every run |
+| Account flagged for automation | M | H | Auto apply submits; no evasion; 10/day cap; 30-90 s spacing | Any warning from a platform |
+| OTP blocks a connector | H | M | Ask in the apply console; the batch parks that job and continues | A connector needs OTP every run |
 | Tailoring invents facts | M | H | Diff against source CV; block on new entities | Any invented fact reaches a submission |
 | Scope creep into 15 portals | H | H | MVP cut is fixed | A new portal lands before M4 passes |
 | Sarvam model unavailable | L | M | Capability registry + fallback model | Two failed runs in a row |

@@ -11,6 +11,7 @@ import { discoverIndeed } from "../connectors/indeed";
 import { AGGREGATORS, runAggregator, type SourceKeys } from "../connectors/aggregators";
 import { REMOTE_SOURCES, runRemote } from "../connectors/remote";
 import { discoverFreelance } from "../connectors/freelance";
+import { activePortals, runCompanyPortal } from "../connectors/companies";
 
 /* ------------------------------------------------------------------ */
 /* sources                                                             */
@@ -132,7 +133,7 @@ export function stripHtml(s: string): string {
     .trim();
 }
 
-function workMode(t: string): "remote" | "hybrid" | "office" | undefined {
+export function workMode(t: string): "remote" | "hybrid" | "office" | undefined {
   if (/\bremote\b|work from home|wfh/i.test(t)) return "remote";
   if (/\bhybrid\b/i.test(t)) return "hybrid";
   if (/\bon-?site\b|in-?office|from office/.test(t)) return "office";
@@ -582,8 +583,10 @@ export async function discoverJobs(req: JobRequest): Promise<DiscoveryResult> { 
         })()
       : Promise.resolve({ jobs: [] as Job[], status: null });
 
-  const [publicRuns, naukri, indeed, aggregatorRuns, remoteRuns, freelanceRun] = await Promise.all([
+  const [publicRuns, companyRuns, naukri, indeed, aggregatorRuns, remoteRuns, freelanceRun] = await Promise.all([
     usePublic ? Promise.all(BOARDS.map(runBoard)) : Promise.resolve([]),
+    /* Employer career portals: Tesla, EPAM, Amazon, and Workday when enabled. */
+    usePublic ? Promise.all(activePortals().map(runCompanyPortal)) : Promise.resolve([]),
     naukriTask,
     indeedTask,
     /* Licensed aggregators only run when the user stored a key for them. */
@@ -604,7 +607,7 @@ export async function discoverJobs(req: JobRequest): Promise<DiscoveryResult> { 
     /* Freelance projects: open API, no key. Remote by nature. */
     usePublic && req.role
       ? discoverFreelance(req.role, 20)
-      : Promise.resolve({ jobs: [] as Job[], ms: 0 }),
+      : Promise.resolve({ jobs: [] as Job[], ms: 0, error: undefined as string | undefined }),
   ]);
 
   const naukriJobs = naukri.jobs;
@@ -617,6 +620,7 @@ export async function discoverJobs(req: JobRequest): Promise<DiscoveryResult> { 
 
   const all = [
     ...publicRuns.flatMap((r) => r.jobs),
+    ...companyRuns.flatMap((r) => r.jobs),
     ...remoteJobs,
     ...freelanceRun.jobs,
     ...naukriJobs,
@@ -654,6 +658,13 @@ export async function discoverJobs(req: JobRequest): Promise<DiscoveryResult> { 
     connectors: [
       ...publicRuns.map((r) => ({
         id: r.board.id,
+        ok: !r.error,
+        count: r.jobs.length,
+        ms: r.ms,
+        ...(r.error ? { error: r.error } : {}),
+      })),
+      ...companyRuns.map((r) => ({
+        id: r.portal.id,
         ok: !r.error,
         count: r.jobs.length,
         ms: r.ms,

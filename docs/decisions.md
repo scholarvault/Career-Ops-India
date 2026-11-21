@@ -52,19 +52,6 @@ A blocked page is a human hand-off.
 
 ---
 
-## ADR-005 — Human submits; the agent fills
-
-**Date:** 2026-11-19
-**Status:** accepted
-
-Every submission is a user action. The agent prepares the form, validates it and previews it.
-
-**Why:** the product principle is that nothing is applied to using information the candidate has not authorised. A click is the authorisation.
-
-**Consequence:** `ApplicationPlan.requiresApproval` is always `true`, and `canSubmit` refuses an unconfirmed profile or an unanswered required field.
-
----
-
 ## ADR-006 — Lever + ValGenesis proves the loop
 
 **Date:** 2026-11-19
@@ -75,19 +62,6 @@ Phase 4 / M4 is proven on the ValGenesis *Platform Product Manager, AI/ML* posti
 **Why:** it is real, it is in the target city, it is a genuine stretch for the candidate (so the score is meaningful), and Lever's public API gives us discovery without a key.
 
 **Constraint:** Lever's submission endpoint needs an employer-side API key. So we discover via API and submit through the public form.
-
----
-
-## ADR-007 — Naukri is user-directed, not automated, in the MVP
-
-**Date:** 2026-11-19
-**Status:** accepted
-
-Even with the user's own authenticated session, driving Naukri is automated access under its terms. It ships as a user-directed connector.
-
-**Same for:** LinkedIn, Indeed.
-
-**Revisit when:** there is a documented, permitted integration route.
 
 ---
 
@@ -199,11 +173,11 @@ Nothing matched → accept the text as a custom role, tagged `Custom role · AI 
 **Date:** 2026-11-19
 **Status:** accepted
 
-ADR-007 said Naukri is user-directed in the MVP. That still holds for
-submission. Discovery is now automated, because the ATS-only approach cannot
+Discovery is automated, because the ATS-only approach cannot
 serve non-engineering roles: across seven verified employer boards, 2 of 72
 postings mentioned "business analyst" at all, while Naukri lists 1,625 Business
-Analyst vacancies in Chennai.
+Analyst vacancies in Chennai. Submission is handled by auto apply (ADR-024),
+which pauses for an OTP, captcha or login.
 
 **What was tried, in order:**
 
@@ -462,19 +436,16 @@ opened Naukri. Both were theatre. A client cannot use either.
 5. **The tailored resume is printed from the page.** One column, standard
    headings, selectable text, A4 — an ATS can read it. The original file is
    never modified.
-6. **Apply fills the employer's own form, and only that.** `POST /api/fill`
-   drives a headed Chrome at a Lever, Greenhouse, Ashby or SmartRecruiters URL,
-   detects the visible fields, fills the ones the confirmed profile answers, and
-   **leaves the window open**. It never presses submit. Salary, notice period and
-   "why this role" are never guessed and are reported as skipped.
-7. **Naukri stays user-directed.** Its apply flow is not automated (ADR-013).
-   The apply page says so in plain words, and notes that many Naukri buttons hand
-   off to one of the ATS forms above, which is the case `/api/fill` covers.
+6. **Apply fills the employer's own form.** `POST /api/fill` drives a headed
+   Chrome at a Lever, Greenhouse, Ashby or SmartRecruiters URL, detects the
+   visible fields, fills the ones the confirmed profile answers, and leaves the
+   window open. Auto apply (ADR-024) adds the submit step; the manual path still
+   stops at the filled form. Salary, notice period and "why this role" are never
+   guessed and are reported as skipped.
 
 **Consequence:** the pipeline is now Discover → Analyse → Recommend → **Tailor
-(real)** → **Apply (real, for ATS)** → Track → Improve. What remains manual is
-what must remain manual: the final submit, the salary, and the motivation
-question.
+(real)** → **Apply (real)** → Track → Improve. What remains manual is what must
+remain manual: the salary and the motivation question.
 
 **Revisit if:** a source changes its form markup often enough that detection
 misses fields. Then add a per-ATS field map rather than loosening the generic
@@ -512,10 +483,10 @@ the block was technical, not legal. Measured on 2026-11-20:
    flagged `partial: true`. `POST /api/job-detail` reads the posting page on
    demand, returns the full description and **re-scores it with the same
    `scoreOne` function** discovery uses, so a re-score cannot drift.
-5. **Submission is never automated.** Indeed's Apply button usually says
+5. **Submission follows ADR-024.** Indeed's Apply button usually says
    "Apply on company site"; when the resolved URL is a Lever, Greenhouse, Ashby
-   or SmartRecruiters host, `/api/fill` fills that form. The final submit is the
-   user's click, exactly as in ADR-020.
+   or SmartRecruiters host, auto apply fills and submits that form, pausing for
+   an OTP, captcha or login.
 6. **No sign-in is required to search.** If Indeed asks for a verification, the
    connector returns `needsHuman` and the browser panel waits for the user.
 
@@ -560,6 +531,10 @@ the browser to live *inside* Career-Ops instead of opening a separate window.
 **Consequence.** "Connect Naukri" now opens `browser.html?naukri=1`. The session
 folder is unchanged (`data/browser-profile`), so the promise in ADR-013 still
 holds: sign in once, reuse it, never store the password.
+
+**Superseded in part by ADR-025:** the panel is no longer the primary surface.
+It is the handover view for a captcha or a password; the apply console asks for
+everything else in place.
 
 **Revisit if:** the screencast is too heavy on a slow machine. Then drop the poll
 interval or switch to CDP `Page.startScreencast`, which pushes frames instead of
@@ -608,3 +583,87 @@ says so.
 
 **Revisit if:** the project needs a permissive licence for a specific
 integration. That is a new ADR, not a quiet edit to `LICENSE`.
+
+---
+
+## ADR-024 - Auto-apply is a first-class mode, with tiers and an audit log
+
+**Date:** 2026-11-21
+**Status:** accepted
+
+The owner asked for one-click auto-apply: pick jobs (top score or saved), and the
+agent fills and submits each application with the tailored resume. This replaces
+the old rule that the agent only fills and a person always presses submit.
+ADR-015 (LinkedIn is never scraped) is unchanged; LinkedIn is opened and
+prefilled, not submitted.
+
+**Tiers:**
+
+1. **ATS (Greenhouse, Lever, Ashby, SmartRecruiters):** fill and submit.
+2. **Naukri and Indeed:** fill and submit, but pause for OTP, captcha, a login
+   or a required field the profile cannot answer.
+3. **LinkedIn:** open and prefill only. The user presses submit.
+
+**Guardrails:**
+
+1. A required field is never guessed. Salary, notice period and "why this role"
+   stop the run and ask.
+2. A captcha is never bypassed. The run asks the user to clear it, then
+   continues.
+3. Every submission writes `data/applications.jsonl` with the job id, URL,
+   timestamp, mode, confirmation text and screenshot path.
+4. The daily cap is 10. Jobs are spaced 30-90 seconds apart.
+5. `CAREER_OPS_AUTOAPPLY=0` turns submit off and leaves fill-only.
+6. A job already in `co.track` as applied is skipped.
+
+**Consequence:** the Apply page no longer says "We do not submit this" when the
+user starts an auto-apply run. The manual path still exists and still never
+submits on its own.
+
+
+## ADR-025 - The apply console replaces the browser panel; questions are asked in place
+
+**Date:** 2026-11-21
+**Status:** accepted
+
+**Context.** Auto apply worked, but the only way to answer it was the live
+browser panel: the run paused, the user found the field in a screencast, typed
+into it, and pressed Continue. That is the interface the owner asked to
+replace. It also meant an OTP, an email or a "notice period" question stopped
+the whole batch, and nothing was learned from one form to the next.
+
+**Decision.**
+
+1. **`ui/console.html` is the primary surface.** Seven steps: Connect, Market,
+   Pick, Tailor, Apply, Learn, Overview. `ui/browser.html` stays as the
+   handover view for a captcha or a password, and is linked from the console.
+2. **An ask is a first-class object.** `server/lib/asks.ts` holds a
+   `PendingAsk` with an id, kind, input type, site and expiry. The run awaits a
+   promise; `POST /api/autoapply/answer` resolves it. `GET
+   /api/autoapply/events` streams the queue and the open ask over SSE.
+3. **An expired ask parks that job and the batch continues.** One job that
+   needs a code must not stop the other nine. Parked jobs are retried with
+   `POST /api/autoapply/retry`.
+4. **The agent learns each site.** `server/lib/sites.ts` writes
+   `data/sites.json`: the sign-in flow, the field map, the answers the user
+   typed, the last use and the success count. A saved answer is offered on a
+   new form, never filled silently.
+5. **Indeed's "Apply on company site" is followed.** The click can open a new
+   tab on a new host; the run switches to that page and re-reads site memory
+   for the new host.
+6. **The same flow is exposed to other agents.** `server/mcp.ts` adds
+   `upload_resume`, `set_target_role`, `market_summary`, `shortlist`,
+   `tailor_batch`, `start_apply_batch`, `get_apply_status`, `answer_ask`,
+   `resume_apply_batch`, `list_sites` and `forget_site`. The Skill lives at
+   `.agents/skills/career-ops-apply/SKILL.md`.
+7. **The resume and role are shared on disk.** `data/resume.json` and
+   `data/profile.json` are written by the console and by MCP, so Claude and the
+   page never disagree.
+
+**Consequence.** A password is still never asked for or stored (ADR-003), a
+captcha is still never solved (ADR-004), and an OTP is used once and dropped.
+The browser panel is no longer the place a user types an email or a code.
+
+**Revisit if:** a site's form is only usable through its own UI (a drag-and-drop
+builder, a multi-page wizard with no stable selectors). Then the handover view
+is the right answer for that site, and the ask card should say so.

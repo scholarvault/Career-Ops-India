@@ -1,0 +1,1550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Career-Ops India — Apply console</title>
+<style>
+  :root{
+    --bg:#edf0f2; --surface:#fff; --surface-2:#fafbfb; --surface-3:#f1f4f6;
+    --ink:#0e1b24; --ink-2:#3a4a55; --muted:#5c6b75; --faint:#8a99a3;
+    --border:#e4e9ec; --border-strong:#d2dae0; --line:#edf0f2;
+    --accent:#0e4749; --accent-ink:#0a3537; --accent-soft:#e7f0ef; --accent-ring:rgba(14,71,73,.16);
+    --rail:#0a2e30; --rail-active:#14484a; --amber:#b4761f;
+    --ok:#0f7b4f; --ok-soft:#e6f5ee; --warn:#8a5a00; --warn-soft:#fbf1dd;
+    --bad:#b3261e; --bad-soft:#fdecea; --info-soft:#eaf1f0;
+    --r-sm:7px; --r-md:9px; --r-lg:12px; --r-xl:16px; --r-pill:999px;
+    --sh-1:0 1px 2px rgba(11,34,51,.05);
+    --sh-2:0 2px 6px rgba(11,34,51,.07),0 1px 2px rgba(11,34,51,.04);
+    --sh-3:0 10px 28px rgba(11,34,51,.12),0 2px 6px rgba(11,34,51,.06);
+    --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;
+  }
+  .app{display:grid;grid-template-columns:236px 1fr;height:100vh;overflow:hidden}
+
+  /* ---------- rail ---------- */
+  .rail{background:var(--rail);color:#cfe0df;display:flex;flex-direction:column;padding:18px 14px;gap:6px;overflow-y:auto}
+  .brand{display:flex;align-items:center;gap:9px;padding:4px 8px 18px}
+  .brand .mark{width:26px;height:26px;border-radius:8px;background:var(--accent-soft);color:var(--accent-ink);
+    display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:15px}
+  .brand b{font-family:var(--serif);font-size:15px;font-weight:600;color:#fff;letter-spacing:.01em}
+  .brand span{display:block;font-size:10px;color:#8fb0ae;letter-spacing:.08em;text-transform:uppercase}
+  .rail button{
+    display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:var(--r-md);
+    color:#b9d0ce;font:inherit;font-size:13px;cursor:pointer;border:1px solid transparent;
+    background:transparent;text-align:left;width:100%;
+  }
+  .rail button:hover{background:rgba(255,255,255,.06);color:#fff}
+  .rail button .n{
+    width:22px;height:22px;border-radius:50%;border:1px solid #2f5c5c;display:grid;place-items:center;
+    font-size:11px;font-variant-numeric:tabular-nums;flex:0 0 auto;color:#9fc0be;
+  }
+  .rail button .t{flex:1;min-width:0}
+  .rail button .t small{display:block;font-size:10.5px;color:#7fa3a1;margin-top:1px}
+  .rail button .tick{font-size:11px;color:#6fd0a0;opacity:0}
+  .rail button.on{background:var(--rail-active);color:#fff;border-color:#1f5555}
+  .rail button.on .n{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent-soft)}
+  .rail button.on .tick{opacity:1}
+  .rail button.done .tick{opacity:1}
+  .rail .spacer{flex:1}
+  .rail .foot{border-top:1px solid #1d4545;padding-top:12px;display:flex;flex-direction:column;gap:8px}
+  .rail .foot a{color:#9fc0be;font-size:12px;text-decoration:none;display:flex;align-items:center;gap:8px}
+  .rail .foot a:hover{color:#fff}
+  .dot{width:7px;height:7px;border-radius:50%;background:#6fd0a0;box-shadow:0 0 0 3px rgba(111,208,160,.15);flex:0 0 auto}
+  .dot.off{background:#7f8f8e;box-shadow:none}
+
+  /* ---------- main ---------- */
+  .main{display:flex;flex-direction:column;min-width:0;overflow:hidden}
+  .topbar{
+    display:flex;align-items:center;gap:12px;padding:12px 22px;background:var(--surface);
+    border-bottom:1px solid var(--border);flex:0 0 auto;
+  }
+  .topbar .live{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-2);
+    background:var(--surface-3);border:1px solid var(--border);border-radius:var(--r-pill);padding:5px 11px}
+  .topbar .live b{font-variant-numeric:tabular-nums;color:var(--ink)}
+  .topbar .grow{flex:1}
+  .topbar .who{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+  .topbar .who .av{width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);
+    display:grid;place-items:center;font-weight:650;font-size:11px}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--border-strong);
+    background:var(--surface);color:var(--ink);border-radius:var(--r-md);padding:8px 13px;font:inherit;
+    font-size:12.5px;font-weight:550;cursor:pointer;text-decoration:none;white-space:nowrap;
+  }
+  .btn:hover{background:var(--surface-2);border-color:var(--faint)}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .btn--primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn--primary:hover{background:var(--accent-ink);border-color:var(--accent-ink)}
+  .btn--ghost{background:transparent;border-color:transparent;color:var(--accent-ink);padding-left:6px;padding-right:6px}
+  .btn--sm{padding:6px 10px;font-size:12px}
+  .btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+  .scroll{flex:1;overflow-y:auto;padding:26px 30px 40px}
+  .screen{display:none;max-width:1080px;margin:0 auto}
+  .screen.on{display:block}
+
+  .eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:650;margin-bottom:8px}
+  h1{font-family:var(--serif);font-size:34px;line-height:1.08;letter-spacing:-.015em;font-weight:600;margin:0 0 8px}
+  h2{font-family:var(--serif);font-size:20px;font-weight:600;margin:0 0 4px;letter-spacing:-.01em}
+  .lede{font-size:14.5px;color:var(--muted);max-width:640px;margin:0 0 22px}
+  .lede b{color:var(--ink-2);font-weight:600}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;box-shadow:var(--sh-1)}
+  .card h3{font-size:13.5px;margin:0 0 4px;font-weight:650}
+  .card p{margin:0;color:var(--muted);font-size:12.5px}
+  .card .row{display:flex;align-items:center;gap:10px}
+  .muted{color:var(--muted)}
+  .small{font-size:12px}
+  .tiny{font-size:11px}
+
+  .drop{
+    border:1.5px dashed var(--border-strong);border-radius:var(--r-lg);background:var(--surface-2);
+    padding:22px;text-align:center;color:var(--muted);cursor:pointer;
+  }
+  .drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+  .drop b{display:block;color:var(--ink);font-size:13.5px;margin-bottom:3px}
+  .drop .ico{width:34px;height:34px;margin:0 auto 8px;border-radius:10px;background:var(--accent-soft);
+    display:grid;place-items:center;color:var(--accent-ink)}
+  .drop .ico svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+  .field{margin-top:14px}
+  .field > label:not(.toggle){display:block;font-size:11.5px;font-weight:650;color:var(--ink-2);margin-bottom:5px}
+  .field input,.field select,.field textarea{
+    width:100%;border:1px solid var(--border-strong);border-radius:var(--r-md);padding:9px 11px;
+    font:inherit;font-size:13px;background:var(--surface);color:var(--ink);
+  }
+  .field textarea{min-height:74px;resize:vertical}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-ring)}
+  .hint{font-size:11.5px;color:var(--faint);margin-top:5px}
+
+  .code{
+    background:#0c2426;color:#cfe6e4;border-radius:var(--r-md);padding:12px 14px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+    font-size:11.5px;line-height:1.55;overflow:auto;white-space:pre;
+  }
+  .code .k{color:#7fd6c9}.code .s{color:#e6c07a}.code .c{color:#6f8f8d}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border-strong);background:var(--surface);
+    border-radius:var(--r-pill);padding:6px 12px;font-size:12.5px;color:var(--ink-2);cursor:pointer;font:inherit;
+  }
+  .chip:hover{border-color:var(--faint)}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .chip .x{font-size:10px;opacity:.7}
+
+  .funnel{display:flex;flex-direction:column;gap:7px;margin:18px 0}
+  .fstep{display:grid;grid-template-columns:150px 1fr 64px;align-items:center;gap:12px;font-size:12.5px}
+  .fstep .lbl{color:var(--ink-2)}
+  .fstep .bar{height:22px;border-radius:6px;background:var(--accent);opacity:.9;min-width:2px}
+  .fstep .bar.b2{background:#2f6f6d}.fstep .bar.b3{background:#5a9490}.fstep .bar.b4{background:#8fb8b4}.fstep .bar.b5{background:#c3d8d5}
+  .fstep .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:650;color:var(--ink)}
+
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 15px}
+  .stat .n{font-family:var(--serif);font-size:26px;font-weight:600;line-height:1;letter-spacing:-.02em}
+  .stat .l{font-size:11.5px;color:var(--muted);margin-top:5px}
+
+  .group{border:1px solid var(--border);border-radius:var(--r-lg);background:var(--surface);overflow:hidden;margin-bottom:10px}
+  .group .gh{display:flex;align-items:center;gap:10px;padding:12px 15px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+  .group .gh b{font-size:13px}
+  .group .gh .cnt{margin-left:auto;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .group .gb{padding:10px 15px;display:flex;flex-wrap:wrap;gap:7px}
+  .tag{font-size:11.5px;color:var(--ink-2);background:var(--surface-3);border:1px solid var(--border);border-radius:var(--r-pill);padding:4px 9px}
+  .tag.hot{background:var(--warn-soft);border-color:#ecd9b0;color:var(--warn)}
+
+  .pick{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+  .pick label{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--border);border-radius:var(--r-md);
+    padding:11px 13px;background:var(--surface);cursor:pointer}
+  .pick label:hover{border-color:var(--border-strong)}
+  .pick input{margin-top:2px;accent-color:var(--accent)}
+  .pick b{font-size:13px;display:block}
+  .pick small{color:var(--muted);font-size:12px}
+
+  .notice{display:flex;gap:10px;border-radius:var(--r-md);padding:11px 13px;font-size:12.5px;line-height:1.45}
+  .notice svg{width:17px;height:17px;flex:0 0 auto;margin-top:1px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .notice.warn{background:var(--warn-soft);color:var(--warn);border:1px solid #ecd9b0}
+  .notice.info{background:var(--info-soft);color:var(--accent-ink);border:1px solid #d5e4e2}
+  .notice.ok{background:var(--ok-soft);color:var(--ok);border:1px solid #c6e8d7}
+  .notice.bad{background:var(--bad-soft);color:var(--bad);border:1px solid #f3c9c5}
+
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);
+    font-weight:650;padding:8px 10px;border-bottom:1px solid var(--border)}
+  td{padding:11px 10px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle}
+  tr:last-child td{border-bottom:0}
+  td .sub{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;border-radius:var(--r-pill);padding:3px 9px;font-size:11px;font-weight:600;white-space:nowrap}
+  .pill.ok{background:var(--ok-soft);color:var(--ok)}
+  .pill.warn{background:var(--warn-soft);color:var(--warn)}
+  .pill.bad{background:var(--bad-soft);color:var(--bad)}
+  .pill.info{background:var(--accent-soft);color:var(--accent-ink)}
+  .pill.gray{background:var(--surface-3);color:var(--muted)}
+
+  .progress{height:7px;border-radius:var(--r-pill);background:var(--surface-3);overflow:hidden;margin:10px 0 4px}
+  .progress i{display:block;height:100%;background:var(--accent);border-radius:inherit;transition:width .3s}
+
+  /* ---------- apply console ---------- */
+  .console{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;align-items:start}
+  .queue{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+  .queue .qh{display:flex;align-items:center;gap:10px;padding:13px 15px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+  .queue .qh b{font-size:13px}
+  .queue .qh .cnt{margin-left:auto;font-size:11.5px;color:var(--muted)}
+  .job{display:grid;grid-template-columns:26px 1fr auto;gap:10px;padding:12px 15px;border-bottom:1px solid var(--line);align-items:start}
+  .job:last-child{border-bottom:0}
+  .job .st{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;flex:0 0 auto}
+  .job .st.ok{background:var(--ok-soft);color:var(--ok)}
+  .job .st.now{background:var(--warn-soft);color:var(--warn);box-shadow:0 0 0 3px rgba(180,118,31,.12)}
+  .job .st.wait{background:var(--surface-3);color:var(--faint)}
+  .job .st.bad{background:var(--bad-soft);color:var(--bad)}
+  .job b{font-size:12.8px;display:block}
+  .job .co{font-size:11.5px;color:var(--muted);display:block;margin-top:1px}
+  .job .steps{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+  .step{font-size:10.5px;color:var(--muted);background:var(--surface-3);border-radius:var(--r-pill);padding:2px 7px}
+  .step.done{color:var(--ok);background:var(--ok-soft)}
+  .step.now{color:var(--warn);background:var(--warn-soft)}
+
+  .gate{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--sh-2);overflow:hidden}
+  .gate .gh{padding:13px 15px;border-bottom:1px solid var(--line);background:var(--warn-soft);display:flex;align-items:center;gap:9px}
+  .gate .gh .ic{width:24px;height:24px;border-radius:50%;background:#fff;display:grid;place-items:center;color:var(--warn)}
+  .gate .gh b{font-size:12.5px;color:var(--warn)}
+  .gate .gb{padding:15px}
+  .gate h3{font-family:var(--serif);font-size:17px;margin:0 0 4px;font-weight:600}
+  .gate p{margin:0 0 12px;color:var(--muted);font-size:12.5px}
+  .gate .actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .otp{
+    width:100%;border:1px solid var(--border-strong);border-radius:var(--r-md);padding:12px 14px;
+    font:inherit;font-size:22px;letter-spacing:.42em;font-variant-numeric:tabular-nums;text-align:center;
+    background:var(--surface);color:var(--ink);
+  }
+  .otp:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-ring)}
+  .learned{display:flex;align-items:center;gap:7px;margin-top:12px;padding-top:11px;border-top:1px solid var(--line);
+    font-size:11.5px;color:var(--muted)}
+  .learned .b{color:var(--ok);font-weight:600}
+
+  .why{margin-top:14px;font-size:11.5px;color:var(--faint);line-height:1.5}
+  .why b{color:var(--muted)}
+
+  .toggle{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-2);cursor:pointer}
+  .toggle .sw{width:34px;height:20px;border-radius:var(--r-pill);background:var(--surface-3);position:relative;flex:0 0 auto;transition:background .2s}
+  .toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:var(--sh-1);transition:left .2s}
+  .toggle.on .sw{background:var(--accent)}
+  .toggle.on .sw::after{left:16px}
+
+  .footer-note{margin-top:22px;font-size:11.5px;color:var(--faint);border-top:1px solid var(--border);padding-top:12px}
+
+  .spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--border-strong);border-top-color:var(--accent);animation:sp .7s linear infinite;display:inline-block}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.spin{animation:none}}
+
+  .toast-wrap{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:60;max-width:360px}
+  .toast{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--r-md);box-shadow:var(--sh-3);padding:11px 13px;font-size:12.5px;color:var(--ink-2)}
+  .toast b{display:block;color:var(--ink);font-size:12.5px;margin-bottom:2px}
+  .toast.ok{border-left-color:var(--ok)}.toast.bad{border-left-color:var(--bad)}.toast.warn{border-left-color:var(--warn)}
+
+  @media (max-width:900px){
+    .app{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+    .rail{flex-direction:row;overflow-x:auto;padding:10px;gap:4px;align-items:center}
+    .brand,.rail .foot,.rail .spacer{display:none}
+    .rail button{white-space:nowrap;width:auto}
+    .rail button .t small{display:none}
+    .scroll{padding:18px 16px 30px}
+    h1{font-size:27px}
+    .grid2,.grid3,.console{grid-template-columns:1fr}
+    .fstep{grid-template-columns:110px 1fr 50px}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="rail" aria-label="Apply steps">
+    <div class="brand">
+      <div class="mark">c</div>
+      <div><b>career ops india</b><span>apply console</span></div>
+    </div>
+    <button type="button" data-go="1"><span class="n">1</span><span class="t">Connect<small>Resume and role</small></span><span class="tick">✓</span></button>
+    <button type="button" data-go="2"><span class="n">2</span><span class="t">Market<small>Where, and how many</small></span><span class="tick">✓</span></button>
+    <button type="button" data-go="3"><span class="n">3</span><span class="t">Pick<small>10, not 400</small></span><span class="tick">✓</span></button>
+    <button type="button" data-go="4"><span class="n">4</span><span class="t">Tailor<small>One per job</small></span><span class="tick">✓</span></button>
+    <button type="button" data-go="5"><span class="n">5</span><span class="t">Apply<small>You answer, it fills</small></span><span class="tick">✓</span></button>
+    <button type="button" data-go="6"><span class="n">6</span><span class="t">Learn<small>Every form</small></span><span class="tick">✓</span></button>
+    <button type="button" data-go="7"><span class="n">7</span><span class="t">Overview<small>What happened</small></span><span class="tick">✓</span></button>
+
+    <div class="spacer"></div>
+    <div class="foot">
+      <a href="#" id="agentLive"><span class="dot off" id="agentDot"></span> <span id="agentText">Agent idle</span></a>
+      <a href="settings.html">Settings</a>
+      <a href="workspace.html">Workspace</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="live"><span class="dot off" id="liveDot"></span> <span id="liveText">No jobs loaded</span></div>
+      <div class="grow"></div>
+      <button class="btn btn--sm" type="button" id="btnBrowser">Browser</button>
+      <div class="who"><span class="av" id="whoAv">You</span> <span id="whoName">You</span></div>
+    </div>
+
+    <div class="scroll">
+
+      <!-- ============ 1 CONNECT ============ -->
+      <section class="screen" data-step="1">
+        <div class="eyebrow">Step 1 · Connect</div>
+        <h1>Your agent, or ours.</h1>
+        <p class="lede">Upload the master resume once. Then either use the built-in agent, or hand the same tools to <b>Claude, ChatGPT or Codex</b> through MCP or a Skill.</p>
+
+        <div class="grid2">
+          <div class="card">
+            <h3>Use this app</h3>
+            <p>No account. The resume stays on this machine.</p>
+
+            <div class="drop" id="drop" style="margin-top:14px" role="button" tabindex="0">
+              <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></div>
+              <b id="dropTitle">Drop your resume</b>
+              <span id="dropSub">PDF or DOCX · read locally</span>
+            </div>
+            <input type="file" id="file" accept=".pdf,.docx,.txt,.md" hidden>
+
+            <div class="field">
+              <label for="role">What role are you looking for?</label>
+              <input id="role" placeholder="Product Manager" autocomplete="off">
+              <div class="hint">We read your experience from the resume. You confirm it.</div>
+            </div>
+
+            <div class="field">
+              <label for="years">Years of experience</label>
+              <input id="years" inputmode="decimal" placeholder="Read from the resume">
+            </div>
+
+            <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn--primary" type="button" id="btnRead">Read my resume</button>
+              <button class="btn" type="button" id="btnDetails">Contact details</button>
+            </div>
+            <div id="readOut" style="margin-top:12px"></div>
+          </div>
+
+          <div class="card">
+            <h3>Bring your own agent</h3>
+            <p>Claude, ChatGPT or Codex can run the same flow. They get the tools, not your password.</p>
+            <div class="code" style="margin-top:12px"><span class="c">// MCP — one line in the client config</span>
+{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"career-ops-india"</span>: {
+      <span class="k">"command"</span>: <span class="s">"node"</span>,
+      <span class="k">"args"</span>: [<span class="s">"--import"</span>, <span class="s">"tsx"</span>, <span class="s">"server/mcp.ts"</span>]
+    }
+  }
+}</div>
+            <div class="code" style="margin-top:8px"><span class="c"># or install the Skill</span>
+npx skills add career-ops-india/apply</div>
+            <div class="notice info" style="margin-top:12px">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
+              <span>The agent asks for an email or OTP in its own chat. It never asks for a password.</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:18px"><button class="btn btn--primary" type="button" data-go="2">Next: the market</button></div>
+        <div class="footer-note">The master resume is stored in this browser and in <code>data/resume.json</code>. Tailored PDFs are written to <code>data/tailored/</code>.</div>
+      </section>
+
+      <!-- ============ 2 MARKET ============ -->
+      <section class="screen" data-step="2">
+        <div class="eyebrow">Step 2 · The market</div>
+        <h1 id="mktH1">Where should we look?</h1>
+        <p class="lede" id="mktLede">We read your experience from the resume. Pick a geography, then see how the numbers narrow.</p>
+
+        <div class="chips" id="mktChips">
+          <button class="chip on" type="button" data-geo="india">India</button>
+          <button class="chip" type="button" data-geo="remote">Remote</button>
+          <button class="chip" type="button" data-geo="state">+ State</button>
+          <button class="chip" type="button" data-geo="city">+ City</button>
+        </div>
+
+        <div class="grid2" style="margin-top:6px">
+          <div class="field" id="stateWrap" hidden>
+            <label for="state">State</label>
+            <select id="state"></select>
+          </div>
+          <div class="field" id="cityWrap" hidden>
+            <label for="city">City</label>
+            <input id="city" placeholder="Chennai" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="funnel" id="funnel"></div>
+        <div class="grid3" id="mktStats"></div>
+
+        <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn--primary" type="button" id="btnFind">Find live jobs</button>
+          <button class="btn" type="button" data-go="3">See the shortlist</button>
+        </div>
+        <div id="findOut" style="margin-top:12px"></div>
+        <div class="footer-note">Counts come from the postings the feeds returned. Nothing is estimated.</div>
+      </section>
+
+      <!-- ============ 3 PICK ============ -->
+      <section class="screen" data-step="3">
+        <div class="eyebrow">Step 3 · Choose</div>
+        <h1>Pick 10. Not 400.</h1>
+        <p class="lede">A batch of 10 is enough to see what works. Every application spends model tokens and your attention.</p>
+
+        <div id="families"></div>
+
+        <div class="pick" id="pickModes">
+          <label><input type="radio" name="pick" value="top10" checked><span><b>Top 10 by match</b><small>Best fit first. Recommended.</small></span></label>
+          <label><input type="radio" name="pick" value="manual"><span><b>Choose manually</b><small>Pick from the shortlist.</small></span></label>
+          <label><input type="radio" name="pick" value="all"><span><b>Apply all <span id="allCount"></span></b><small>Not recommended.</small></span></label>
+        </div>
+
+        <div class="notice warn" style="margin-top:12px">
+          <svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 9v4M12 16.5v.5"/></svg>
+          <span><b>Apply all spends tokens on every tailoring and application.</b> Start with 10, see the result, then run more.</span>
+        </div>
+
+        <div id="manualWrap" hidden style="margin-top:14px"></div>
+
+        <div class="card" style="margin-top:14px" id="gapCard" hidden>
+          <h3>Before you apply</h3>
+          <p id="gapLine"></p>
+          <div class="chips" id="gapChips"></div>
+        </div>
+
+        <div style="margin-top:18px"><button class="btn btn--primary" type="button" id="btnTailor">Tailor these</button></div>
+        <div class="footer-note">Tailoring reorders what your resume already says. Nothing is invented.</div>
+      </section>
+
+      <!-- ============ 4 TAILOR ============ -->
+      <section class="screen" data-step="4">
+        <div class="eyebrow">Step 4 · Tailor</div>
+        <h1 id="tailorH1">One resume per job.</h1>
+        <p class="lede">Each one reorders what your resume already says. <b>Nothing is invented.</b> Gaps stay gaps.</p>
+
+        <div class="progress"><i id="tailorBar" style="width:0%"></i></div>
+        <div class="small muted" id="tailorCount" style="margin-bottom:14px">Nothing tailored yet.</div>
+
+        <div class="card" style="padding:0;overflow:hidden">
+          <table>
+            <thead><tr><th>Job</th><th>Match</th><th>Gaps</th><th>Status</th></tr></thead>
+            <tbody id="tailorRows"></tbody>
+          </table>
+        </div>
+
+        <div class="notice info" style="margin-top:14px">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
+          <span>Each tailored PDF is saved with a hash. Auto apply attaches the exact file you reviewed.</span>
+        </div>
+
+        <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn--primary" type="button" id="btnTailorRun">Tailor all</button>
+          <button class="btn" type="button" data-go="5">Start applying</button>
+        </div>
+        <div id="tailorOut" style="margin-top:12px"></div>
+      </section>
+
+      <!-- ============ 5 APPLY ============ -->
+      <section class="screen" data-step="5">
+        <div class="eyebrow">Step 5 · Apply</div>
+        <h1>Applying, with you in the loop.</h1>
+        <p class="lede">No browser tab to babysit. Email, OTP and unknown fields are asked <b>here</b>. The browser opens only for a captcha or a password.</p>
+
+        <div class="console">
+          <div class="queue">
+            <div class="qh"><b>Queue</b><span class="cnt" id="queueCnt">Not started</span></div>
+            <div id="queueRows"><div class="job"><div class="st wait">·</div><div><b>Nothing queued</b><span class="co">Tailor a batch, then start applying.</span></div></div></div>
+          </div>
+
+          <div>
+            <div id="askHost"></div>
+            <div class="card" style="margin-top:12px">
+              <h3>Run</h3>
+              <p id="runLine">Nothing is running.</p>
+              <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn--primary btn--sm" type="button" id="btnStart">Start applying</button>
+                <button class="btn btn--sm" type="button" id="btnStop" disabled>Stop</button>
+                <button class="btn btn--sm" type="button" id="btnRetry" disabled>Retry parked</button>
+              </div>
+              <div style="margin-top:14px">
+                <label class="toggle" id="submitToggle"><span class="sw"></span> <span>Submit automatically</span></label>
+                <div class="hint">Off means the form is filled and left for you to press Submit.</div>
+              </div>
+            </div>
+
+            <div class="why">
+              <b>Why no browser panel?</b> The old panel was a live browser you had to drive. This queue asks only when it must: an email, a code, a field it cannot answer, or a captcha. Everything else runs in the background.
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-note">Progress is saved per job. Stop and continue later without losing a submission.</div>
+      </section>
+
+      <!-- ============ 6 LEARN ============ -->
+      <section class="screen" data-step="6">
+        <div class="eyebrow">Step 6 · Learn</div>
+        <h1>Every form teaches the next one.</h1>
+        <p class="lede">The agent keeps the shape of each site and the answers you gave. Edit or forget any of it.</p>
+
+        <div class="card" style="padding:0;overflow:hidden">
+          <table>
+            <thead><tr><th>Site</th><th>Flow</th><th>Fields</th><th>Last used</th><th></th></tr></thead>
+            <tbody id="siteRows"><tr><td colspan="5" class="muted">No site learned yet.</td></tr></tbody>
+          </table>
+        </div>
+
+        <div class="grid2" style="margin-top:14px">
+          <div class="card">
+            <h3>Answers you taught</h3>
+            <p>Only what you typed. Never guessed.</p>
+            <div class="chips" id="answerChips"></div>
+          </div>
+          <div class="card">
+            <h3>Reuse on new forms</h3>
+            <p>When a new site asks the same question, the saved answer is offered, not filled silently.</p>
+            <div class="toggle on" id="reuseToggle" style="margin-top:14px"><span class="sw"></span> Reuse answers on new forms</div>
+          </div>
+        </div>
+
+        <div class="footer-note">A password is never stored here. Email and OTP are used once and not kept.</div>
+      </section>
+
+      <!-- ============ 7 OVERVIEW ============ -->
+      <section class="screen" data-step="7">
+        <div class="eyebrow">Step 7 · Overview</div>
+        <h1 id="ovH1">Nothing applied yet.</h1>
+        <p class="lede">Confirmations are saved with the exact text the site showed. Nothing is marked applied on a click alone.</p>
+
+        <div class="grid3" id="ovStats"></div>
+
+        <div class="card" style="margin-top:14px">
+          <h3>What to learn before the next batch</h3>
+          <p id="ovGapLine">Tailor a batch to see the gaps.</p>
+          <div class="chips" id="ovGaps"></div>
+        </div>
+
+        <div class="card" style="margin-top:14px;padding:0;overflow:hidden">
+          <table>
+            <thead><tr><th>Job</th><th>Status</th><th>Confirmation</th></tr></thead>
+            <tbody id="ovRows"><tr><td colspan="3" class="muted">No applications in this run.</td></tr></tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn--primary" type="button" data-go="3">Apply 10 more</button>
+          <a class="btn" href="workspace.html">Open Track</a>
+          <button class="btn" type="button" id="btnExport">Export</button>
+        </div>
+        <div class="footer-note">Nothing is marked applied without a confirmation on the page.</div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="vendor/pdf.min.js"></script>
+<script src="vendor/mammoth.browser.min.js"></script>
+<script src="resume.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------- tiny helpers ---------------- */
+
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => [...(r || document).querySelectorAll(s)];
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  function toast(msg, opts) {
+    const o = opts || {};
+    let wrap = $(".toast-wrap");
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.className = "toast-wrap";
+      wrap.setAttribute("role", "status");
+      wrap.setAttribute("aria-live", "polite");
+      document.body.appendChild(wrap);
+    }
+    const el = document.createElement("div");
+    el.className = "toast " + (o.kind || "");
+    el.innerHTML = (o.title ? `<b>${esc(o.title)}</b>` : "") + esc(msg);
+    wrap.appendChild(el);
+    setTimeout(() => el.remove(), o.ms || 5200);
+  }
+
+  async function api(path, body, method) {
+    const r = await fetch(path, {
+      method: method || (body === undefined ? "GET" : "POST"),
+      headers: body === undefined ? undefined : { "content-type": "application/json" },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+    let d = null;
+    try { d = await r.json(); } catch { d = { ok: false, error: "The server sent no JSON." }; }
+    if (!r.ok && d && d.ok === undefined) d.ok = false;
+    return d;
+  }
+
+  const ls = {
+    get(k, fb) { try { const v = localStorage.getItem(k); return v === null ? fb : JSON.parse(v); } catch { return fb; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+    raw(k, fb) { try { return localStorage.getItem(k) ?? fb; } catch { return fb; } },
+    setRaw(k, v) { try { localStorage.setItem(k, v); } catch {} },
+  };
+
+  /* ---------------- state ---------------- */
+
+  const S = {
+    step: ls.get("co.console.step", 1),
+    role: ls.raw("co.role", "") || "",
+    years: ls.get("co.console.years", ""),
+    resume: ls.raw("co.masterResume", "") || "",
+    file: ls.raw("co.masterFile", "") || "",
+    details: ls.get("co.console.details", {}),
+    geo: ls.get("co.console.geo", { india: true, remote: false, state: "", city: "" }),
+    jobs: ls.get("co.console.jobs", []),
+    summary: ls.get("co.console.summary", null),
+    picks: ls.get("co.console.picks", []),
+    pickMode: ls.get("co.console.pickMode", "top10"),
+    submit: ls.get("co.console.submit", true),
+    tailored: new Set(ls.get("co.tailoredIds", [])),
+    queue: null,
+    sites: [],
+    es: null,
+  };
+
+  const save = () => {
+    ls.set("co.console.step", S.step);
+    ls.set("co.console.years", S.years);
+    ls.set("co.console.details", S.details);
+    ls.set("co.console.geo", S.geo);
+    ls.set("co.console.jobs", S.jobs);
+    ls.set("co.console.summary", S.summary);
+    ls.set("co.console.picks", S.picks);
+    ls.set("co.console.pickMode", S.pickMode);
+    ls.set("co.console.submit", S.submit);
+    ls.set("co.tailoredIds", [...S.tailored]);
+    ls.setRaw("co.role", S.role);
+  };
+
+  /* The server keeps the same resume and role, so an MCP client and this page
+     never disagree. Local storage is the fast path; the file is the truth. */
+  async function pushProfile() {
+    try {
+      await api("/api/profile", { role: S.role, years: S.years, details: S.details });
+    } catch {}
+  }
+  async function pushResume() {
+    if (!S.resume || S.resume.trim().length < 60) return;
+    try {
+      await api("/api/resume", { text: S.resume, file: S.file });
+    } catch {}
+  }
+
+  /* ---------------- steps ---------------- */
+
+  function go(n) {
+    n = Math.max(1, Math.min(7, Number(n) || 1));
+    S.step = n;
+    save();
+    $$(".screen").forEach((el) => el.classList.toggle("on", Number(el.dataset.step) === n));
+    $$(".rail button[data-go]").forEach((b) => {
+      const k = Number(b.dataset.go);
+      b.classList.toggle("on", k === n);
+      b.classList.toggle("done", k < n);
+      if (k === n) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+    });
+    $(".scroll").scrollTop = 0;
+    if (n === 2) renderMarket();
+    if (n === 3) renderPick();
+    if (n === 4) renderTailor();
+    if (n === 5) { renderQueue(); refreshSites(); }
+    if (n === 6) refreshSites();
+    if (n === 7) renderOverview();
+  }
+
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-go]");
+    if (b) { e.preventDefault(); go(b.dataset.go); }
+  });
+
+  /* ---------------- step 1: resume ---------------- */
+
+  const SKILL_WORDS = [
+    "product management","roadmap","backlog","user stories","stakeholder","discovery","a/b test","experimentation",
+    "analytics","sql","python","excel","tableau","power bi","looker","mixpanel","amplitude","figma","jira","confluence",
+    "agile","scrum","kanban","okr","kpi","pricing","go-to-market","gtm","saas","b2b","b2c","api","platform","mobile",
+    "growth","retention","activation","conversion","funnel","segmentation","crm","salesforce","hubspot","ai","ml","llm",
+    "genai","prompt","data","dashboard","forecasting","budget","p&l","vendor","hiring","mentoring","leadership",
+  ];
+
+  function inferYears(text) {
+    const t = String(text || "");
+    const explicit = [...t.matchAll(/(\d{1,2})\s*\+?\s*(?:years?|yrs?)\b/gi)]
+      .map((m) => Number(m[1]))
+      .filter((n) => n > 0 && n < 45);
+    if (explicit.length) return Math.max(...explicit);
+    const years = [...t.matchAll(/\b(19|20)\d{2}\b/g)].map((m) => Number(m[0])).filter((y) => y >= 1985 && y <= new Date().getFullYear());
+    if (years.length >= 2) {
+      const span = new Date().getFullYear() - Math.min(...years);
+      if (span > 0 && span < 45) return span;
+    }
+    return "";
+  }
+
+  function inferSkills(text) {
+    const t = String(text || "").toLowerCase();
+    return SKILL_WORDS.filter((w) => t.includes(w)).slice(0, 24);
+  }
+
+  function inferDetails(text) {
+    const t = String(text || "");
+    const email = (t.match(/[\w.+-]+@[\w-]+\.[\w.]+/) || [""])[0];
+    const phone = (t.match(/(?:\+91[\s-]?)?[6-9]\d{9}\b/) || [""])[0];
+    const linkedin = (t.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[\w-]+/i) || [""])[0];
+    const name = (t.split(/\r?\n/).map((l) => l.trim()).find((l) => l && l.length < 48 && /^[A-Za-z][A-Za-z .'-]+$/.test(l) && !/resume|curriculum|vitae/i.test(l))) || "";
+    return { name, email, phone, linkedin };
+  }
+
+  async function extractFile(file) {
+    const buf = await file.arrayBuffer();
+    const name = file.name.toLowerCase();
+    if (name.endsWith(".pdf")) {
+      if (!window.pdfjsLib) throw new Error("The PDF reader did not load.");
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = "vendor/pdf.worker.min.js";
+      const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
+      let out = "";
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        out += content.items.map((it) => it.str).join(" ") + "\n";
+      }
+      return out;
+    }
+    if (name.endsWith(".docx")) {
+      if (!window.mammoth) throw new Error("The DOCX reader did not load.");
+      const r = await window.mammoth.extractRawText({ arrayBuffer: buf });
+      return r.value || "";
+    }
+    return new TextDecoder().decode(buf);
+  }
+
+  async function takeFile(file) {
+    if (!file) return;
+    $("#dropTitle").textContent = "Reading " + file.name + "…";
+    $("#dropSub").textContent = "This stays on your machine.";
+    try {
+      const text = await extractFile(file);
+      if (!text || text.trim().length < 60) throw new Error("That file had almost no text. Is it a scan?");
+      S.resume = text.slice(0, 60000);
+      S.file = file.name;
+      ls.setRaw("co.masterResume", S.resume);
+      ls.setRaw("co.masterFile", S.file);
+      pushResume();
+      $("#dropTitle").textContent = file.name;
+      $("#dropSub").textContent = `${Math.round(S.resume.length / 1000)}k characters read · click to replace`;
+      readResume();
+    } catch (err) {
+      $("#dropTitle").textContent = "Drop your resume";
+      $("#dropSub").textContent = "PDF or DOCX · read locally";
+      toast(err.message || "Could not read that file.", { kind: "bad", title: "Resume" });
+    }
+  }
+
+  function readResume() {
+    if (!S.resume) {
+      $("#readOut").innerHTML = `<div class="notice warn"><svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 9v4M12 16.5v.5"/></svg><span>Upload a resume first, or paste one in Contact details.</span></div>`;
+      return;
+    }
+    const years = inferYears(S.resume);
+    const skills = inferSkills(S.resume);
+    const det = inferDetails(S.resume);
+    S.details = { ...det, ...S.details, ...(det.name ? { name: det.name } : {}) };
+    if (years && !$("#years").value) { S.years = years; $("#years").value = years; }
+    if (!$("#role").value) $("#role").value = S.role || "Product Manager";
+    S.role = $("#role").value.trim();
+    save();
+    $("#whoName").textContent = S.details.name || "You";
+    $("#whoAv").textContent = (S.details.name || "You").split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+    $("#readOut").innerHTML = `
+      <div class="notice ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+        <span><b>${esc(S.file || "Resume")}</b> read. ${years ? `About <b>${esc(years)} years</b> of experience.` : "Confirm the years below."} ${skills.length ? `${skills.length} skills found.` : ""}</span>
+      </div>
+      ${skills.length ? `<div class="chips">${skills.slice(0, 14).map((s) => `<span class="chip">${esc(s)}</span>`).join("")}</div>` : ""}
+      <div class="hint">Confirm the role and years, then continue. Nothing is sent anywhere.</div>`;
+  }
+
+  $("#drop").addEventListener("click", () => $("#file").click());
+  $("#drop").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("#file").click(); } });
+  $("#file").addEventListener("change", (e) => takeFile(e.target.files && e.target.files[0]));
+  ["dragenter", "dragover"].forEach((ev) => $("#drop").addEventListener(ev, (e) => { e.preventDefault(); $("#drop").classList.add("over"); }));
+  ["dragleave", "drop"].forEach((ev) => $("#drop").addEventListener(ev, (e) => { e.preventDefault(); $("#drop").classList.remove("over"); }));
+  $("#drop").addEventListener("drop", (e) => takeFile(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]));
+
+  $("#btnRead").addEventListener("click", () => { S.role = $("#role").value.trim(); S.years = $("#years").value.trim(); save(); pushProfile(); readResume(); });
+  $("#role").addEventListener("change", () => { S.role = $("#role").value.trim(); save(); pushProfile(); });
+  $("#years").addEventListener("change", () => { S.years = $("#years").value.trim(); save(); pushProfile(); });
+
+  $("#btnDetails").addEventListener("click", () => {
+    const d = S.details || {};
+    $("#readOut").innerHTML = `
+      <div class="card" style="margin-top:0">
+        <h3>Contact details</h3>
+        <p>These go into application forms. They are not sent anywhere else.</p>
+        <div class="field"><label for="dName">Full name</label><input id="dName" value="${esc(d.name || "")}"></div>
+        <div class="field"><label for="dEmail">Email</label><input id="dEmail" type="email" value="${esc(d.email || "")}"></div>
+        <div class="field"><label for="dPhone">Phone</label><input id="dPhone" type="tel" value="${esc(d.phone || "")}"></div>
+        <div class="field"><label for="dCity">City</label><input id="dCity" value="${esc(d.city || "")}"></div>
+        <div class="field"><label for="dCompany">Current company</label><input id="dCompany" value="${esc(d.currentCompany || "")}"></div>
+        <div class="field"><label for="dTitle">Current title</label><input id="dTitle" value="${esc(d.currentTitle || "")}"></div>
+        <div class="field"><label for="dLinked">LinkedIn</label><input id="dLinked" value="${esc(d.linkedin || "")}"></div>
+        <div class="field"><label for="dPaste">Or paste the resume text</label><textarea id="dPaste" placeholder="Paste here if the file would not read"></textarea></div>
+        <div style="margin-top:12px"><button class="btn btn--primary btn--sm" type="button" id="dSave">Save details</button></div>
+      </div>`;
+    $("#dSave").addEventListener("click", () => {
+      S.details = {
+        name: $("#dName").value.trim(),
+        email: $("#dEmail").value.trim(),
+        phone: $("#dPhone").value.trim(),
+        city: $("#dCity").value.trim(),
+        currentCompany: $("#dCompany").value.trim(),
+        currentTitle: $("#dTitle").value.trim(),
+        linkedin: $("#dLinked").value.trim(),
+      };
+      const pasted = $("#dPaste").value.trim();
+      if (pasted.length > 80) {
+        S.resume = pasted.slice(0, 60000);
+        ls.setRaw("co.masterResume", S.resume);
+        pushResume();
+      }
+      save();
+      pushProfile();
+      $("#whoName").textContent = S.details.name || "You";
+      $("#whoAv").textContent = (S.details.name || "You").split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+      toast("Details saved.", { kind: "ok" });
+      readResume();
+    });
+  });
+
+  /* ---------------- step 2: market ---------------- */
+
+  const STATES = [
+    "tamil nadu","karnataka","telangana","andhra pradesh","maharashtra","haryana","uttar pradesh","delhi ncr",
+    "west bengal","gujarat","kerala","rajasthan","madhya pradesh","punjab","chandigarh","odisha","assam",
+    "uttarakhand","goa","bihar","jharkhand","chhattisgarh","himachal pradesh","jammu and kashmir",
+  ];
+
+  (function fillStates() {
+    $("#state").innerHTML = `<option value="">Any state</option>` + STATES.map((s) => `<option value="${s}">${s.replace(/\b\w/g, (c) => c.toUpperCase())}</option>`).join("");
+    $("#state").value = S.geo.state || "";
+    $("#city").value = S.geo.city || "";
+  })();
+
+  function geoActive() {
+    return { india: true, remote: Boolean(S.geo.remote), state: S.geo.state || "", city: S.geo.city || "" };
+  }
+
+  function renderMarket() {
+    const g = geoActive();
+    $$("#mktChips .chip").forEach((c) => {
+      const k = c.dataset.geo;
+      const on = k === "india" ? true : k === "remote" ? g.remote : k === "state" ? Boolean(g.state) : Boolean(g.city);
+      c.classList.toggle("on", on);
+    });
+    $("#stateWrap").hidden = !g.state;
+    $("#cityWrap").hidden = !g.city;
+
+    const sum = S.summary;
+    if (!sum) {
+      $("#mktH1").textContent = "Where should we look?";
+      $("#funnel").innerHTML = `<div class="fstep"><span class="lbl">No jobs yet</span><span class="bar b5" style="width:2%"></span><span class="num">0</span></div>`;
+      $("#mktStats").innerHTML = "";
+      return;
+    }
+    $("#mktH1").textContent = `${sum.counts.india.toLocaleString("en-IN")} active jobs in India.`;
+    $("#mktLede").innerHTML = `We read <b>${esc(S.years || "your")} years</b> of experience from your resume. Where should we look?`;
+
+    const max = Math.max(1, sum.counts.india);
+    const bar = (n, cls) => Math.max(1.5, Math.round((n / max) * 100));
+    const titleCase = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
+    const rows = [["All India", sum.counts.india, ""]];
+    if (g.remote) rows.push(["Remote", sum.counts.remote, "b2"]);
+    if (g.state) rows.push([titleCase(g.state), sum.counts.state, "b2"]);
+    if (g.city) rows.push([titleCase(g.city), sum.counts.city, "b3"]);
+    rows.push(["Posted in 7 days", sum.counts.posted7d, "b4"]);
+    rows.push(["Your batch", Math.min(10, sum.shortlist.length), "b5"]);
+    $("#funnel").innerHTML = rows.map(([lbl, n, cls]) => `
+      <div class="fstep"><span class="lbl">${esc(lbl)}</span><span class="bar ${cls}" style="width:${bar(n)}%"></span><span class="num">${Number(n).toLocaleString("en-IN")}</span></div>`).join("");
+
+    const fam = (k) => (sum.families.find((f) => f.key === k) || {}).count || 0;
+    const trending = sum.trending.reduce((a, t) => a + t.count, 0);
+    $("#mktStats").innerHTML = `
+      <div class="stat"><div class="n">${sum.counts.posted7d}</div><div class="l">posted in 7 days</div></div>
+      <div class="stat"><div class="n">${fam("progression")}</div><div class="l">one step up or down</div></div>
+      <div class="stat"><div class="n">${fam("adjacent") + fam("specialisation")}</div><div class="l">alternative paths</div></div>
+      <div class="stat"><div class="n">${trending}</div><div class="l">AI and 0&rarr;1 roles</div></div>
+      <div class="stat"><div class="n">${sum.counts.city || sum.counts.state || sum.counts.india}</div><div class="l">in your geography</div></div>
+      <div class="stat"><div class="n">${sum.matched}</div><div class="l">match &ldquo;${esc(sum.role || S.role)}&rdquo;</div></div>`;
+  }
+
+  $$("#mktChips .chip").forEach((c) => c.addEventListener("click", () => {
+    const k = c.dataset.geo;
+    if (k === "remote") S.geo.remote = !S.geo.remote;
+    if (k === "state") { S.geo.state = S.geo.state ? "" : ($("#state").value || "tamil nadu"); $("#state").value = S.geo.state; }
+    if (k === "city") { S.geo.city = S.geo.city ? "" : ($("#city").value || ""); $("#city").value = S.geo.city; }
+    save();
+    renderMarket();
+    if (S.jobs.length) refreshSummary();
+  }));
+
+  $("#state").addEventListener("change", () => { S.geo.state = $("#state").value; save(); renderMarket(); if (S.jobs.length) refreshSummary(); });
+  $("#city").addEventListener("change", () => { S.geo.city = $("#city").value.trim(); save(); renderMarket(); if (S.jobs.length) refreshSummary(); });
+
+  async function refreshSummary() {
+    if (!S.jobs.length) return;
+    const d = await api("/api/market/summary", {
+      role: S.role,
+      state: S.geo.state || undefined,
+      city: S.geo.city || undefined,
+      remote: Boolean(S.geo.remote),
+      limit: 40,
+      jobs: S.jobs,
+    });
+    if (d && d.ok) {
+      S.summary = d;
+      save();
+      renderMarket();
+      /* The summary can arrive after the user is already on step 3 (a reload
+         lands there), so the shortlist has to be rebuilt too. */
+      if (S.step === 3) renderPick();
+      if (S.step === 4) renderTailor();
+    }
+  }
+
+  $("#btnFind").addEventListener("click", async () => {
+    const btn = $("#btnFind");
+    S.role = $("#role").value.trim() || S.role;
+    if (!S.role) { toast("Enter the role you want first.", { kind: "warn" }); go(1); return; }
+    btn.disabled = true;
+    const t0 = Date.now();
+    const tick = setInterval(() => {
+      $("#findOut").innerHTML = `<div class="notice info"><span class="spin"></span><span>Reading live feeds… ${Math.round((Date.now() - t0) / 1000)}s. A cold browser start is slow.</span></div>`;
+    }, 500);
+    try {
+      const years = Number(String(S.years).replace(/[^0-9.]/g, ""));
+      const d = await api("/api/jobs", {
+        role: S.role,
+        cities: S.geo.city ? [S.geo.city] : [],
+        modes: S.geo.remote ? ["remote"] : [],
+        years: Number.isFinite(years) && years > 0 ? years : undefined,
+        skills: inferSkills(S.resume),
+        responsibilities: [],
+        sources: ["public", "naukri", "indeed"],
+      });
+      clearInterval(tick);
+      if (!d || !d.ok || !Array.isArray(d.jobs)) {
+        $("#findOut").innerHTML = `<div class="notice bad"><span>${esc((d && d.error) || "The feeds returned nothing.")}</span></div>`;
+        return;
+      }
+      S.jobs = d.jobs;
+      save();
+      $("#liveText").innerHTML = `<b>${d.jobs.length}</b> jobs`;
+      $("#liveDot").classList.remove("off");
+      $("#findOut").innerHTML = `<div class="notice ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span><b>${d.jobs.length}</b> postings, <b>${d.matched || 0}</b> match “${esc(S.role)}”.</span></div>`;
+      await refreshSummary();
+      const needs = (d.connectors || []).filter((c) => c.needsHuman);
+      if (needs.length) {
+        toast(`${needs.map((c) => c.id).join(" and ")} needs a one-time sign-in. The session is remembered after that.`, { kind: "warn", title: "Sign in once", ms: 12000 });
+      }
+    } catch (err) {
+      clearInterval(tick);
+      $("#findOut").innerHTML = `<div class="notice bad"><span>${esc(err.message || "Could not reach the server.")}</span></div>`;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  /* ---------------- step 3: pick ---------------- */
+
+  function shortlist() {
+    return (S.summary && S.summary.shortlist) || [];
+  }
+
+  /* The shortlist is a slice of the jobs; after a reload the summary may not
+     be back yet. Fall back to the full scored list so a saved pick still
+     resolves instead of silently disappearing. */
+  function ranked() {
+    const list = shortlist();
+    if (list.length) return list;
+    return [...S.jobs].sort((a, b) => (b.score || 0) - (a.score || 0));
+  }
+
+  function renderPick() {
+    const sum = S.summary;
+    const list = ranked();
+    $("#allCount").textContent = list.length ? `(${list.length})` : "";
+
+    if (!sum && !list.length) {
+      $("#families").innerHTML = `<div class="notice info"><span>Run “Find live jobs” in step 2 first.</span></div>`;
+      $("#gapCard").hidden = true;
+      return;
+    }
+
+    $("#families").innerHTML = sum
+      ? sum.families.map((f) => `
+      <div class="group">
+        <div class="gh"><b>${esc(f.label)}</b><span class="cnt">${f.count}</span></div>
+        <div class="gb">${f.titles.map((t) => `<span class="tag">${esc(t)}</span>`).join("") || `<span class="tag">—</span>`}</div>
+      </div>`).join("") + (sum.trending.length ? `
+      <div class="group">
+        <div class="gh"><b>Trending</b><span class="cnt">${sum.trending.reduce((a, t) => a + t.count, 0)}</span></div>
+        <div class="gb">${sum.trending.map((t) => `<span class="tag hot">${esc(t.title)}</span>`).join("")}</div>
+      </div>` : "")
+      : `<div class="notice info"><span>Building the funnel. The shortlist below is already usable.</span></div>`;
+
+    const mode = S.pickMode;
+    $$('input[name="pick"]').forEach((r) => { r.checked = r.value === mode; });
+    $("#manualWrap").hidden = mode !== "manual";
+    if (mode === "manual") {
+      $("#manualWrap").innerHTML = `<div class="card" style="padding:0;overflow:hidden"><table><thead><tr><th></th><th>Job</th><th>Match</th><th>Family</th></tr></thead><tbody>${
+        list.map((j) => `<tr><td><input type="checkbox" data-pick="${esc(j.id)}" ${S.picks.includes(j.id) ? "checked" : ""} style="accent-color:var(--accent)"></td>
+          <td><b>${esc(j.title)}</b><span class="sub">${esc(j.company)} · ${esc(j.location || j.workMode || "")}</span></td>
+          <td>${Number(j.score || 0).toFixed(1)}</td><td><span class="pill gray">${esc(j.family || j.relationship || "")}</span></td></tr>`).join("")
+      }</tbody></table></div>`;
+      $$("[data-pick]").forEach((cb) => cb.addEventListener("change", () => {
+        const id = cb.dataset.pick;
+        S.picks = cb.checked ? [...new Set([...S.picks, id])] : S.picks.filter((x) => x !== id);
+        save();
+      }));
+    }
+
+    /* Skill gap across the chosen set. */
+    const chosen = chosenJobs();
+    const miss = {};
+    for (const j of chosen) for (const m of j.miss || []) miss[m] = (miss[m] || 0) + 1;
+    const gaps = Object.entries(miss).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    $("#gapCard").hidden = !gaps.length;
+    if (gaps.length) {
+      $("#gapLine").innerHTML = `${gaps.length} skills appear across these ${chosen.length} jobs. Mark what you already have.`;
+      $("#gapChips").innerHTML = gaps.map(([g, n]) => `<button class="chip" type="button" data-gap="${esc(g)}">${esc(g)} · ${n}</button>`).join("");
+      $$("[data-gap]").forEach((c) => c.addEventListener("click", () => c.classList.toggle("on")));
+    }
+  }
+
+  function chosenJobs() {
+    const list = ranked();
+    if (S.pickMode === "all") return list;
+    if (S.pickMode === "manual") return pickedJobs();
+    return list.slice(0, 10);
+  }
+
+  $$('input[name="pick"]').forEach((r) => r.addEventListener("change", () => {
+    S.pickMode = r.value;
+    save();
+    renderPick();
+  }));
+
+  $("#btnTailor").addEventListener("click", () => {
+    const chosen = chosenJobs();
+    if (!chosen.length) { toast("Pick at least one job.", { kind: "warn" }); return; }
+    if (S.pickMode === "all" && chosen.length > 10) {
+      toast(`That is ${chosen.length} jobs. Start with 10 — you can run more after.`, { kind: "warn", title: "Apply all", ms: 9000 });
+    }
+    S.picks = chosen.map((j) => j.id);
+    save();
+    go(4);
+  });
+
+  /* ---------------- step 4: tailor ---------------- */
+
+  function profileFor() {
+    const d = S.details || {};
+    const years = Number(String(S.years).replace(/[^0-9.]/g, ""));
+    return {
+      name: d.name || "",
+      email: d.email || "",
+      phone: d.phone || "",
+      location: d.city || S.geo.city || "",
+      linkedin: d.linkedin || "",
+      website: "",
+      title: d.currentTitle || "",
+      company: d.currentCompany || "",
+      years: Number.isFinite(years) && years > 0 ? years : undefined,
+    };
+  }
+
+  function pickedJobs() {
+    const byId = new Map();
+    for (const j of S.jobs) byId.set(j.id, j);
+    for (const j of shortlist()) byId.set(j.id, j);
+    return S.picks.map((id) => byId.get(id)).filter(Boolean);
+  }
+
+  function renderTailor() {
+    const jobs = pickedJobs();
+    const done = jobs.filter((j) => S.tailored.has(j.id)).length;
+    $("#tailorH1").textContent = `${jobs.length || 0} ${jobs.length === 1 ? "resume" : "resumes"}, one per job.`;
+    $("#tailorBar").style.width = jobs.length ? `${Math.round((done / jobs.length) * 100)}%` : "0%";
+    $("#tailorCount").textContent = jobs.length ? `${done} of ${jobs.length} tailored${done < jobs.length ? ` · ${jobs.length - done} to go` : ""}` : "Nothing picked yet.";
+    $("#tailorRows").innerHTML = jobs.length ? jobs.map((j) => {
+      const ok = S.tailored.has(j.id);
+      return `<tr data-row="${esc(j.id)}">
+        <td><b>${esc(j.title)}</b><span class="sub">${esc(j.company)} · ${esc(j.location || j.workMode || "")}</span></td>
+        <td>${Number(j.score || 0).toFixed(1)}</td>
+        <td>${(j.miss || []).slice(0, 2).map((m) => `<span class="pill gray">${esc(m)}</span>`).join(" ") || "—"}</td>
+        <td>${ok ? `<span class="pill ok">Tailored</span>` : `<span class="pill gray">Queued</span>`}</td>
+      </tr>`;
+    }).join("") : `<tr><td colspan="4" class="muted">Pick jobs in step 3 first.</td></tr>`;
+  }
+
+  function setRow(id, html) {
+    const tr = $(`[data-row="${CSS.escape(String(id))}"]`);
+    if (tr) tr.lastElementChild.innerHTML = html;
+  }
+
+  async function tailorOne(job) {
+    setRow(job.id, `<span class="pill warn">Tailoring…</span>`);
+    const d = await api("/api/tailor", {
+      job: { title: job.title, company: job.company, description: job.jd || "", location: job.location },
+      profile: profileFor(),
+      resumeText: S.resume,
+    });
+    if (!d || !d.ok) {
+      const why = d && d.reason === "no-key"
+        ? "Sarvam is not connected. Add your key in Settings."
+        : d && d.reason === "no-resume"
+          ? "Upload the master resume in step 1."
+          : (d && d.error) || "The model did not answer.";
+      setRow(job.id, `<span class="pill bad">Failed</span>`);
+      return { ok: false, error: why, fatal: d && (d.reason === "no-key" || d.reason === "no-resume") };
+    }
+    const html = window.CO && window.CO.resumeHtml
+      ? window.CO.resumeHtml({ title: job.title, company: job.company }, d, {
+          name: profileFor().name,
+          years: S.years,
+          contact: [profileFor().email, profileFor().phone, profileFor().location, profileFor().linkedin].filter(Boolean),
+        })
+      : "";
+    const saved = await api("/api/tailored/save", { jobId: job.id, data: d, html });
+    if (!saved || !saved.ok) {
+      setRow(job.id, `<span class="pill bad">PDF failed</span>`);
+      return { ok: false, error: (saved && saved.error) || "Could not save the PDF." };
+    }
+    S.tailored.add(job.id);
+    save();
+    setRow(job.id, `<span class="pill ok">Tailored</span>`);
+    return { ok: true };
+  }
+
+  let tailoring = false;
+  async function tailorAll() {
+    if (tailoring) return;
+    const jobs = pickedJobs().filter((j) => !S.tailored.has(j.id));
+    if (!jobs.length) { toast("Everything picked is already tailored.", { kind: "info" }); return; }
+    tailoring = true;
+    $("#btnTailorRun").disabled = true;
+    let failed = 0;
+    for (const job of jobs) {
+      const r = await tailorOne(job);
+      if (!r.ok) {
+        failed++;
+        if (r.fatal) {
+          $("#tailorOut").innerHTML = `<div class="notice bad"><span>${esc(r.error)}</span></div>`;
+          break;
+        }
+      }
+      renderTailor();
+    }
+    tailoring = false;
+    $("#btnTailorRun").disabled = false;
+    renderTailor();
+    if (!failed) {
+      $("#tailorOut").innerHTML = `<div class="notice ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span>All ${jobs.length} tailored. The PDFs are saved with a hash.</span></div>`;
+      toast("Tailored. Ready to apply.", { kind: "ok" });
+    } else if (!$("#tailorOut").innerHTML) {
+      $("#tailorOut").innerHTML = `<div class="notice warn"><span>${failed} of ${jobs.length} did not tailor. Try again, or tailor them one at a time.</span></div>`;
+    }
+  }
+
+  $("#btnTailorRun").addEventListener("click", tailorAll);
+
+  /* ---------------- step 5: apply ---------------- */
+
+  function aaJob(j) {
+    return { id: j.id, title: j.title, company: j.company, source: j.source, applyUrl: j.applyUrl || "", sourceUrl: j.sourceUrl || "", score: j.score };
+  }
+
+  const STATUS = {
+    queued: ["wait", "Queued", "gray"],
+    filling: ["now", "Working", "warn"],
+    filled: ["ok", "Filled", "info"],
+    needs: ["now", "Needs you", "warn"],
+    submitted: ["ok", "Done", "ok"],
+    failed: ["bad", "Failed", "bad"],
+    skipped: ["wait", "Skipped", "gray"],
+  };
+
+  function renderQueue() {
+    const st = S.queue;
+    const items = (st && st.items) || [];
+    const done = items.filter((i) => i.status === "submitted").length;
+    const needs = items.filter((i) => i.status === "needs").length;
+    $("#queueCnt").textContent = items.length
+      ? `${done + needs + items.filter((i) => ["failed", "skipped", "filled"].includes(i.status)).length} of ${items.length} · ${done} submitted${needs ? ` · ${needs} needs you` : ""}`
+      : "Not started";
+
+    $("#queueRows").innerHTML = items.length ? items.map((it, i) => {
+      const [cls, label, pill] = STATUS[it.status] || STATUS.queued;
+      const steps = [`<span class="step ${it.status !== "queued" ? "done" : ""}">Reached</span>`];
+      if (it.filled) steps.push(`<span class="step done">${it.filled} fields</span>`);
+      if (it.status === "submitted") steps.push(`<span class="step done">Submitted</span>`);
+      else if (it.status === "needs") steps.push(`<span class="step now">${esc(it.needs || "Needs you")}</span>`);
+      else if (it.status === "filling") steps.push(`<span class="step now">Working</span>`);
+      return `<div class="job">
+        <div class="st ${cls}">${it.status === "submitted" ? "✓" : it.status === "failed" ? "!" : i + 1}</div>
+        <div><b>${esc(it.title)}</b><span class="co">${esc(it.company)} · ${esc(sourceName(it.source))}</span>
+          <div class="steps">${steps.join("")}</div></div>
+        <span class="pill ${pill}">${esc(label)}</span>
+      </div>`;
+    }).join("") : `<div class="job"><div class="st wait">·</div><div><b>Nothing queued</b><span class="co">Tailor a batch, then start applying.</span></div></div>`;
+
+    const running = Boolean(st && st.running);
+    $("#btnStart").disabled = running;
+    $("#btnStop").disabled = !running;
+    $("#btnRetry").disabled = !needs;
+    $("#runLine").textContent = running
+      ? `Running${st.current ? ` · ${esc((items.find((i) => i.id === st.current) || {}).title || "")}` : ""}`
+      : st && st.finishedAt
+        ? `Finished · ${done} submitted${needs ? `, ${needs} parked` : ""}.`
+        : "Nothing is running.";
+    $("#agentDot").classList.toggle("off", !running);
+    $("#agentText").textContent = running ? "Agent live" : "Agent idle";
+
+    renderAsk(st && st.ask);
+  }
+
+  function sourceName(s) {
+    const k = String(s || "").toLowerCase();
+    if (k.includes("indeed")) return "Indeed";
+    if (k.includes("naukri")) return "Naukri";
+    if (k.includes("linkedin")) return "LinkedIn";
+    if (k.includes("greenhouse")) return "Greenhouse";
+    if (k.includes("lever")) return "Lever";
+    if (k.includes("ashby")) return "Ashby";
+    if (k.includes("smartrecruiters")) return "SmartRecruiters";
+    return s || "Company site";
+  }
+
+  function renderAsk(ask) {
+    if (!ask) { $("#askHost").innerHTML = ""; return; }
+    const site = ask.site || "The site";
+    const learned = S.sites.find((s) => s.host === ask.site);
+    const learnedLine = learned
+      ? `<div class="learned"><span class="b">Learned</span> ${esc(learned.host)} · ${esc(flowLabel(learned.flow))} · ${learned.fields.length} fields</div>`
+      : "";
+
+    const head = (icon, title) => `
+      <div class="gh"><span class="ic">${icon}</span><b>${esc(title)}</b></div>`;
+
+    let body = "";
+    if (ask.kind === "captcha") {
+      body = `
+        <h3>Clear the bot check</h3>
+        <p>${esc(site)} is showing a bot check. We never solve it for you. Open the page, clear it, then press Done.</p>
+        <div class="actions">
+          <button class="btn btn--primary btn--sm" type="button" data-ask-done>Done, continue</button>
+          <a class="btn btn--sm" href="browser.html" target="_blank" rel="noopener">Open in browser</a>
+        </div>`;
+    } else if (ask.kind === "login") {
+      body = `
+        <h3>Sign in, then press Done</h3>
+        <p>${esc(site)} wants a password. Sign in yourself; we never see or store it.</p>
+        <div class="actions">
+          <button class="btn btn--primary btn--sm" type="button" data-ask-done>Done, continue</button>
+          <a class="btn btn--sm" href="browser.html" target="_blank" rel="noopener">Open in browser</a>
+        </div>`;
+    } else if (ask.kind === "otp") {
+      body = `
+        <h3>${esc(ask.label || "Enter the one-time code")}</h3>
+        <p>${esc(ask.detail || `${site} sent a code. Paste it here and the run continues.`)}</p>
+        <input class="otp" id="askInput" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••" aria-label="One-time code">
+        <div class="actions">
+          <button class="btn btn--primary btn--sm" type="button" data-ask-send>Continue</button>
+        </div>`;
+    } else {
+      const type = ask.inputType === "email" ? "email" : ask.inputType === "tel" ? "tel" : "text";
+      const choices = ask.inputType === "select" && Array.isArray(ask.options) ? ask.options : null;
+      body = `
+        <h3>${esc(ask.label || "One more answer")}</h3>
+        <p>${esc(ask.detail || `${site} requires this. It is saved to your answers and reused.`)}</p>
+        ${choices
+          ? `<select class="otp" id="askInput" style="font-size:15px;letter-spacing:0;text-align:left" aria-label="${esc(ask.label || "Answer")}">${choices.map((o) => `<option value="${esc(o)}">${esc(o)}</option>`).join("")}</select>`
+          : ask.inputType === "textarea"
+            ? `<textarea class="otp" id="askInput" style="font-size:13px;letter-spacing:0;text-align:left;min-height:80px" aria-label="${esc(ask.label || "Answer")}"></textarea>`
+            : `<input class="otp" id="askInput" type="${type}" style="font-size:15px;letter-spacing:0;text-align:left" aria-label="${esc(ask.label || "Answer")}">`}
+        <div class="actions">
+          <button class="btn btn--primary btn--sm" type="button" data-ask-send>Save and continue</button>
+        </div>`;
+    }
+
+    $("#askHost").innerHTML = `<div class="gate">${head(
+      `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>`,
+      `${site} asks for ${ask.kind === "otp" ? "a code" : ask.kind === "captcha" ? "a bot check" : ask.kind === "login" ? "a sign-in" : "an answer"}`
+    )}<div class="gb">${body}${learnedLine}</div></div>`;
+
+    const input = $("#askInput");
+    if (input) setTimeout(() => input.focus(), 40);
+
+    const send = async (value) => {
+      const r = await api("/api/autoapply/answer", { id: ask.id, value });
+      if (!r || !r.ok) { toast((r && r.error) || "That question expired.", { kind: "bad" }); }
+      if (r && r.state) { S.queue = r.state; renderQueue(); }
+    };
+    const done = $("[data-ask-done]");
+    if (done) done.addEventListener("click", () => send("done"));
+    const btn = $("[data-ask-send]");
+    if (btn) {
+      const go2 = () => {
+        const v = (input && input.value || "").trim();
+        if (!v) { toast("Type the answer first.", { kind: "warn" }); return; }
+        send(v);
+      };
+      btn.addEventListener("click", go2);
+      if (input) input.addEventListener("keydown", (e) => { if (e.key === "Enter" && ask.inputType !== "textarea") { e.preventDefault(); go2(); } });
+    }
+  }
+
+  function flowLabel(f) {
+    return { "email-otp": "Email + OTP", "mobile-otp": "Mobile + OTP", none: "No login", login: "Login", unknown: "Unknown" }[f] || f;
+  }
+
+  function connectEvents() {
+    if (S.es) return;
+    try {
+      S.es = new EventSource("/api/autoapply/events");
+      S.es.onmessage = (e) => {
+        try {
+          const st = JSON.parse(e.data);
+          S.queue = st;
+          renderQueue();
+          if (S.step === 7) renderOverview();
+        } catch {}
+      };
+      S.es.onerror = () => { /* EventSource retries on its own */ };
+    } catch {}
+  }
+
+  $("#btnStart").addEventListener("click", async () => {
+    const jobs = pickedJobs().filter((j) => S.tailored.has(j.id));
+    const untailored = pickedJobs().length - jobs.length;
+    if (!jobs.length) {
+      toast("Tailor at least one job first.", { kind: "warn" });
+      go(4);
+      return;
+    }
+    if (untailored) toast(`${untailored} untailored job${untailored === 1 ? " is" : "s are"} left out of this batch.`, { kind: "info" });
+    $("#btnStart").disabled = true;
+    const d = await api("/api/autoapply/start", {
+      jobs: jobs.map(aaJob),
+      mode: S.submit ? "submit" : "fill",
+      cap: 10,
+      profile: profileFor(),
+    });
+    if (!d || !d.ok) {
+      $("#btnStart").disabled = false;
+      toast((d && d.error) || "Could not start.", { kind: "bad", title: "Apply" });
+      return;
+    }
+    S.queue = d.state;
+    renderQueue();
+    connectEvents();
+  });
+
+  $("#btnStop").addEventListener("click", async () => {
+    const d = await api("/api/autoapply/stop", {});
+    if (d && d.state) { S.queue = d.state; renderQueue(); }
+  });
+
+  $("#btnRetry").addEventListener("click", async () => {
+    const d = await api("/api/autoapply/retry", {});
+    if (d && d.state) { S.queue = d.state; renderQueue(); }
+    if (!d || !d.ok) toast((d && d.error) || "Nothing to retry.", { kind: "info" });
+  });
+
+  $("#submitToggle").addEventListener("click", () => {
+    S.submit = !S.submit;
+    $("#submitToggle").classList.toggle("on", S.submit);
+    save();
+  });
+  $("#submitToggle").classList.toggle("on", S.submit);
+
+  $("#btnBrowser").addEventListener("click", () => window.open("browser.html", "_blank", "noopener"));
+
+  /* ---------------- step 6: learn ---------------- */
+
+  async function refreshSites() {
+    const d = await api("/api/sites");
+    if (d && d.ok) {
+      S.sites = d.sites || [];
+      renderSites();
+    }
+  }
+
+  function renderSites() {
+    const sites = S.sites;
+    $("#siteRows").innerHTML = sites.length ? sites.map((s) => `
+      <tr>
+        <td><b>${esc(siteLabel(s.host))}</b><span class="sub">${esc(s.host)}</span></td>
+        <td>${esc(flowLabel(s.flow))}</td>
+        <td>${s.fields.length}</td>
+        <td>${esc(ago(s.lastUsed))}</td>
+        <td><button class="btn btn--ghost btn--sm" type="button" data-forget="${esc(s.host)}">Forget</button></td>
+      </tr>`).join("") : `<tr><td colspan="5" class="muted">No site learned yet. Run an application and it appears here.</td></tr>`;
+
+    $$("[data-forget]").forEach((b) => b.addEventListener("click", async () => {
+      const host = b.dataset.forget;
+      if (!confirm(`Forget everything learned about ${host}?`)) return;
+      await api("/api/sites", { host }, "DELETE");
+      toast(`Forgot ${host}.`, { kind: "ok" });
+      refreshSites();
+    }));
+
+    const answers = {};
+    for (const s of sites) for (const [k, v] of Object.entries(s.answers || {})) answers[k] = v;
+    const entries = Object.entries(answers);
+    $("#answerChips").innerHTML = entries.length
+      ? entries.map(([k, v]) => `<span class="chip">${esc(k.replace(/_/g, " "))} · ${esc(String(v).slice(0, 40))}</span>`).join("")
+      : `<span class="muted small">Nothing yet. Answers you type are saved here.</span>`;
+  }
+
+  function siteLabel(host) {
+    const h = String(host || "").toLowerCase();
+    if (h.includes("indeed")) return "Indeed";
+    if (h.includes("naukri")) return "Naukri";
+    if (h.includes("linkedin")) return "LinkedIn";
+    if (h.includes("greenhouse")) return "Greenhouse";
+    if (h.includes("lever")) return "Lever";
+    if (h.includes("ashby")) return "Ashby";
+    if (h.includes("smartrecruiters")) return "SmartRecruiters";
+    return host;
+  }
+
+  function ago(iso) {
+    if (!iso) return "—";
+    const t = Date.parse(iso);
+    if (!Number.isFinite(t)) return "—";
+    const d = Math.round((Date.now() - t) / 86400000);
+    if (d <= 0) return "today";
+    if (d === 1) return "yesterday";
+    return `${d} days ago`;
+  }
+
+  $("#reuseToggle").addEventListener("click", () => $("#reuseToggle").classList.toggle("on"));
+
+  /* ---------------- step 7: overview ---------------- */
+
+  function renderOverview() {
+    const st = S.queue;
+    const items = (st && st.items) || [];
+    const submitted = items.filter((i) => i.status === "submitted").length;
+    const needs = items.filter((i) => i.status === "needs").length;
+    const tailored = pickedJobs().filter((j) => S.tailored.has(j.id)).length;
+
+    $("#ovH1").textContent = submitted || needs
+      ? `${submitted} applied. ${needs} need you.`
+      : "Nothing applied yet.";
+
+    $("#ovStats").innerHTML = `
+      <div class="stat"><div class="n">${tailored}</div><div class="l">resumes tailored</div></div>
+      <div class="stat"><div class="n">${submitted}</div><div class="l">submitted with confirmation</div></div>
+      <div class="stat"><div class="n">${needs}</div><div class="l">waiting on you</div></div>`;
+
+    const chosen = pickedJobs();
+    const miss = {};
+    for (const j of chosen) for (const m of j.miss || []) miss[m] = (miss[m] || 0) + 1;
+    const gaps = Object.entries(miss).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    $("#ovGapLine").textContent = gaps.length
+      ? `${gaps.map(([g, n]) => `${g} in ${n}`).join(", ")}. Mark what you already have.`
+      : "Tailor a batch to see the gaps.";
+    $("#ovGaps").innerHTML = gaps.map(([g, n]) => `<button class="chip" type="button" data-og="${esc(g)}">${esc(g)} · ${n}</button>`).join("");
+    $$("[data-og]").forEach((c) => c.addEventListener("click", () => c.classList.toggle("on")));
+
+    $("#ovRows").innerHTML = items.length ? items.map((it) => `
+      <tr>
+        <td><b>${esc(it.title)}</b><span class="sub">${esc(it.company)} · ${esc(sourceName(it.source))}</span></td>
+        <td><span class="pill ${(STATUS[it.status] || STATUS.queued)[2]}">${esc((STATUS[it.status] || STATUS.queued)[1])}</span></td>
+        <td class="muted">${esc(it.confirmation || it.message || "—")}</td>
+      </tr>`).join("") : `<tr><td colspan="3" class="muted">No applications in this run.</td></tr>`;
+  }
+
+  $("#btnExport").addEventListener("click", () => {
+    const items = (S.queue && S.queue.items) || [];
+    if (!items.length) { toast("Nothing to export yet.", { kind: "info" }); return; }
+    const rows = [["job", "company", "source", "status", "confirmation"]].concat(
+      items.map((i) => [i.title, i.company, i.source, i.status, i.confirmation || ""])
+    );
+    const csv = rows.map((r) => r.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\r\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = "career-ops-applications.csv";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  });
+
+  /* ---------------- boot ---------------- */
+
+  async function boot() {
+    /* Pull the shared copy first: an MCP client may have uploaded the resume
+       and set the role before this page was ever opened. */
+    try {
+      const [res, prof] = await Promise.all([api("/api/resume"), api("/api/profile")]);
+      if (res && res.ok && res.exists && res.text && res.text.length > (S.resume || "").length) {
+        S.resume = res.text;
+        S.file = res.file || S.file;
+        ls.setRaw("co.masterResume", S.resume);
+        if (res.file) ls.setRaw("co.masterFile", res.file);
+      }
+      if (prof && prof.ok) {
+        if (!S.role && prof.role) S.role = prof.role;
+        if (!S.years && prof.years !== undefined && prof.years !== "") S.years = String(prof.years);
+        if (prof.details && Object.keys(prof.details).length) S.details = { ...prof.details, ...S.details };
+      }
+    } catch {}
+
+    $("#role").value = S.role || "";
+    $("#years").value = S.years || "";
+    $("#whoName").textContent = (S.details && S.details.name) || "You";
+    $("#whoAv").textContent = ((S.details && S.details.name) || "You").split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+    if (S.file) {
+      $("#dropTitle").textContent = S.file;
+      $("#dropSub").textContent = `${Math.round(S.resume.length / 1000)}k characters read · click to replace`;
+    }
+    if (S.jobs.length) {
+      $("#liveText").innerHTML = `<b>${S.jobs.length}</b> jobs`;
+      $("#liveDot").classList.remove("off");
+    }
+    go(S.step || 1);
+    connectEvents();
+    /* The job list is persisted, so the funnel and the shortlist must be
+       rebuilt too; otherwise a reload lands on "Run Find live jobs first". */
+    if (S.jobs.length) refreshSummary();
+    api("/api/autoapply/status").then((d) => {
+      if (d && d.ok && d.state) { S.queue = d.state; renderQueue(); if (S.step === 7) renderOverview(); }
+    });
+    refreshSites();
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>

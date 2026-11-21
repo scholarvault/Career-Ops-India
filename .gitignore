@@ -40,3 +40,4 @@ desktop.ini
 # logs
 *.log
 npm-debug.log*
+logs/

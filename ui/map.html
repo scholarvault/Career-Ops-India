@@ -229,11 +229,11 @@
         </button>
       </div>
       <ol class="connect-steps" id="connectSteps" hidden>
-        <li><b>Press Connect Naukri.</b> A real Chrome opens <em>inside Career-Ops</em> — not a separate window — at naukri.com. It runs on this machine, not on a server.</li>
+        <li><b>Press Connect Naukri.</b> A real Chrome opens <em>inside Career-Ops</em> - not a separate window - at naukri.com. You sign in there yourself.</li>
         <li><b>Sign in there yourself</b> — password, Google, or the OTP Naukri sends. This app never sees the password and never stores it.</li>
         <li><b>We keep only the session folder</b> at <code>data/browser-profile</code>. That is what lets the next search run as you without asking again.</li>
         <li><b>Discovery reads the public search pages</b> and stores the posting, its date and the link. Nothing is submitted.</li>
-        <li><b>On a posting, Apply opens the real form.</b> We fill what your profile already answers; you press submit. Many Naukri apply buttons hand off to the company's own ATS (Lever, Greenhouse, Workday) — those we can fill directly.</li>
+        <li><b>On a posting, Apply opens the real form.</b> We fill what your profile already answers; auto apply can submit it, or you press submit. Many Naukri apply buttons hand off to the company's own ATS (Lever, Greenhouse, Workday) — those we can fill and submit directly.</li>
       </ol>
       <div class="connect-actions" id="connectActions" hidden>
         <a class="btn btn-sm btn-primary" href="browser.html?naukri=1">
@@ -382,7 +382,7 @@
     }
 
     const SOURCES = [
-      { n: "Company career pages & ATS feeds", d: "Lever, Greenhouse, Ashby, SmartRecruiters, Workable", tag: "live", cls: "live" },
+      { n: "Company career pages & ATS feeds", d: "Tesla, EPAM, Amazon, Workday, Lever, Greenhouse, Ashby, SmartRecruiters", tag: "live", cls: "live" },
       { n: "Naukri", d: "You search and apply; we prepare the application", tag: "your session", cls: "login" },
       { n: "Indeed India", d: "Live search in a real Chrome profile; apply hands off to the employer", tag: "live", cls: "live" },
       { n: "Instahyre", d: "Sign in with LinkedIn, Google or email", tag: "your session", cls: "login" },

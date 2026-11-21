@@ -23,6 +23,8 @@ export type PlanInput = {
   resumeVersionId: string;
   resumePath: string;
   fields: DetectedField[];
+  /** Set by an auto-apply run the user already approved. Defaults to false. */
+  autoSubmit?: boolean;
 };
 
 type Answer = { value: string; confidence: "exact" | "inferred"; source: string };
@@ -117,7 +119,7 @@ export function planApplication(input: PlanInput): ApplicationPlan {
     fields: planned,
     uploads,
     unanswered,
-    requiresApproval: true,
+    requiresApproval: !input.autoSubmit,
   };
 }
 
