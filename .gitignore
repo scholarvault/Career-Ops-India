@@ -41,3 +41,6 @@ desktop.ini
 *.log
 npm-debug.log*
 logs/
+
+# landing page is deployed to Cloudflare Pages, not tracked here
+frontend/

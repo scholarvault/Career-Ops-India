@@ -32,8 +32,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   tailor, start/stop/answer/resume a batch, and site memory.
 - **Skill** (`.agents/skills/career-ops-apply/SKILL.md`) for agents that do not
   speak MCP.
-- **Landing page** (`frontend/`): a static page with no build step, ready for
-  GitHub Pages.
+- **Landing page**: a static page with no build step, deployed to Cloudflare
+  Pages at career-ops-india.pages.dev. It is not tracked in this repository.
 - **Serve scripts** (`scripts/serve.mjs`, `scripts/stop.mjs`): `pnpm start`
   runs the server detached, `pnpm stop` stops it.
 - **ADR-025** describing the console, asks, site memory and the MCP surface.
