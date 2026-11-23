@@ -104,7 +104,7 @@ const DEFAULT_SETTINGS: Settings = {
 };
 
 const PROVIDERS: Record<string, { label: string; baseUrl: string; model: string; keyUrl: string }> = {
-  sarvam: { label: "Sarvam (included)", baseUrl: "https://api.sarvam.ai/v1", model: "sarvam-105b", keyUrl: "https://dashboard.sarvam.ai" },
+  sarvam: { label: "Sarvam", baseUrl: "https://api.sarvam.ai/v1", model: "sarvam-105b", keyUrl: "https://dashboard.sarvam.ai" },
   openai: { label: "OpenAI", baseUrl: "https://api.openai.com/v1", model: "gpt-4.1-mini", keyUrl: "https://platform.openai.com/api-keys" },
   anthropic: { label: "Anthropic", baseUrl: "https://api.anthropic.com/v1", model: "claude-sonnet-4-5", keyUrl: "https://console.anthropic.com" },
   google: { label: "Google Gemini", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", model: "gemini-2.5-flash", keyUrl: "https://aistudio.google.com/app/apikey" },

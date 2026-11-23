@@ -283,7 +283,7 @@
     <div class="spacer"></div>
     <div class="foot">
       <a href="#" id="agentLive"><span class="dot off" id="agentDot"></span> <span id="agentText">Agent idle</span></a>
-      <a href="settings.html">Settings</a>
+      <a href="settings.html">Connections</a>
       <a href="workspace.html">Workspace</a>
     </div>
   </aside>
@@ -293,6 +293,7 @@
       <div class="live"><span class="dot off" id="liveDot"></span> <span id="liveText">No jobs loaded</span></div>
       <div class="grow"></div>
       <button class="btn btn--sm" type="button" id="btnBrowser">Browser</button>
+      <a class="btn btn--sm" href="settings.html" title="AI provider, keys and job sources">Connections</a>
       <div class="who"><span class="av" id="whoAv">You</span> <span id="whoName">You</span></div>
     </div>
 
@@ -1120,7 +1121,7 @@ npx skills add career-ops-india/apply</div>
     });
     if (!d || !d.ok) {
       const why = d && d.reason === "no-key"
-        ? "Sarvam is not connected. Add your key in Settings."
+        ? "No AI key yet. Add one in Connections - the resume is still read without it."
         : d && d.reason === "no-resume"
           ? "Upload the master resume in step 1."
           : (d && d.error) || "The model did not answer.";

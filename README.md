@@ -48,17 +48,17 @@ STEP 2 - GET THE CODE
 STEP 3 - INSTALL AND START
   pnpm install
   pnpm start
-The app serves http://localhost:4173. Confirm it responds before you continue. If the port is busy: pnpm stop
+The app serves http://localhost:4173 and `pnpm start` opens it in my browser. If it does not open, open the URL yourself. Confirm it responds before you continue. If the port is busy: pnpm stop
 
 STEP 4 - OPEN IT
-Open http://localhost:4173/console.html in my browser.
+Open http://localhost:4173/ in my browser. That is the setup page; finish it and it takes me to the workspace.
 
 STEP 5 - MY FIRST RUN, ONE STEP AT A TIME
 Wait for me at each step.
 1. Ask me to upload my resume (PDF or DOCX) and confirm the role I am targeting.
 2. Show the market counts for my role and my city.
 3. Recommend 10 jobs and explain the top 3 scores in one line each.
-4. Tailor a resume for the job I pick. This needs an AI key; if I do not have one, tell me where to paste it in Settings.
+4. Tailor a resume for the job I pick. This needs an AI key; if I do not have one, tell me where to paste it in Connections - the gear button in the workspace top bar, or Connections at the bottom of the apply console.
 5. Fill one application form. Stop before submit and show me exactly what it filled.
 
 OPTIONAL
@@ -138,12 +138,11 @@ You need Node 22+, pnpm and Chrome.
 
 ```bash
 pnpm install
-pnpm start        # app + API on http://localhost:4173
+pnpm start        # app + API on http://localhost:4173, opens your browser
 pnpm stop         # stop it
 ```
 
-Open **http://localhost:4173/console.html** for the apply console, or
-**http://localhost:4173/** for the seven-step setup.
+`pnpm start` opens **http://localhost:4173/** - the seven-step setup, which ends in the workspace. The apply console is at **http://localhost:4173/console.html**. AI keys and job sources live in **Connections** (the gear in the workspace top bar).
 
 ```bash
 pnpm demo         # discover, score and plan one real posting, no submit
@@ -232,7 +231,7 @@ git config core.hooksPath .githooks
 ## Bring your own key
 
 Nothing is bundled. Without a key the app still discovers, scores and plans;
-tailoring and explanations ask for one. Set it in the app's settings, or set
+tailoring and explanations ask for one. Set it in **Connections**, or set
 `SARVAM_API_KEY` in `.env` for a deploy.
 
 ## Free and open source

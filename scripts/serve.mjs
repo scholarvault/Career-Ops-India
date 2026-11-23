@@ -1,7 +1,7 @@
 // Start Career-Ops India detached, so it keeps running after this shell closes.
 // Usage: node scripts/serve.mjs   (or: pnpm start)
 import { spawn } from 'node:child_process';
-import { mkdirSync, openSync, writeFileSync } from 'node:fs';
+import { mkdirSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -20,8 +20,39 @@ async function up() {
   }
 }
 
+/* Open the app so `pnpm start` ends with a window, not a prompt that looks
+   like nothing happened. NO_OPEN=1 skips it (CI, servers, headless runs). */
+function openBrowser(url) {
+  if (process.env.NO_OPEN) return;
+  const [cmd, args] =
+    process.platform === 'win32'
+      ? ['cmd', ['/c', 'start', '', url]]
+      : process.platform === 'darwin'
+        ? ['open', [url]]
+        : ['xdg-open', [url]];
+  try {
+    spawn(cmd, args, { detached: true, stdio: 'ignore', windowsHide: true }).unref();
+  } catch {
+    console.log(`could not open a browser - open ${url} yourself`);
+  }
+}
+
+/* A first run needs the setup page; a saved profile goes straight to the app. */
+function startUrl() {
+  const base = `http://localhost:${port}`;
+  try {
+    const p = JSON.parse(readFileSync(join(root, 'data', 'profile.json'), 'utf8'));
+    return p && p.role ? `${base}/workspace.html` : `${base}/`;
+  } catch {
+    return `${base}/`;
+  }
+}
+
 if (await up()) {
-  console.log(`already running - http://localhost:${port}`);
+  const url = startUrl();
+  console.log(`already running - ${url}`);
+  console.log('opening it in your browser - it keeps running in the background; pnpm stop to stop it');
+  openBrowser(url);
   process.exit(0);
 }
 
@@ -39,7 +70,11 @@ writeFileSync(pidFile, String(child.pid));
 for (let i = 0; i < 40; i++) {
   await new Promise((r) => setTimeout(r, 500));
   if (await up()) {
-    console.log(`career-ops india on http://localhost:${port} (pid ${child.pid})`);
+    const url = startUrl();
+    console.log(`career-ops india on ${url} (pid ${child.pid})`);
+    console.log('opening it in your browser - if nothing happens, open that URL yourself');
+    console.log('it keeps running in the background - pnpm stop to stop it');
+    openBrowser(url);
     process.exit(0);
   }
 }

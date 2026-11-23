@@ -1,7 +1,7 @@
-﻿{
+{
   "name": "career-ops-india",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "AI job discovery, matching and application operations for the Indian market",
   "packageManager": "pnpm@12.11.2",
   "engines": {

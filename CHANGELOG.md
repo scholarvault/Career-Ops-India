@@ -5,6 +5,29 @@ All notable changes to Career-Ops India are recorded here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-11-23
+
+### Fixed
+
+- `pnpm start` now opens the app in the browser and says the server keeps
+  running in the background. It opens the seven-step setup on a first run and
+  the workspace when a profile already exists. `NO_OPEN=1` skips it.
+- The apply console has a **Connections** button in its top bar, and its footer
+  link is renamed from Settings, so the AI key and job sources are reachable
+  from every surface.
+- The setup prompt in the README and on the landing page opens
+  `http://localhost:4173/` instead of jumping straight to the console, so a new
+  user gets the profile setup before the apply flow.
+- "Sarvam (included)" was misleading: no key ships with the repository. The
+  provider is labelled "Sarvam" and the hint says to paste a key. Without one,
+  scoring still works; only the explanation and tailoring are skipped.
+- `package.json` had a UTF-8 BOM, so `tsx` refused to parse it and `pnpm start`
+  logged "started" and then died.
+
+### Changed
+
+- README quick start and CONTRIBUTING point at Connections, not Settings.
+
 ## [0.2.0] - 2026-11-21
 
 ### Added

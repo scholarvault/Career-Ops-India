@@ -11,7 +11,7 @@ pnpm test:extract
 
 ## Hard rules
 
-1. **Never commit a key.** Bring your own: put it in `.env` as `SARVAM_API_KEY`, or enter it in Settings, which writes `data/secrets.json`. Both are gitignored. `pnpm check:secrets` runs on every commit and in CI.
+1. **Never commit a key.** Bring your own: put it in `.env` as `SARVAM_API_KEY`, or enter it in Connections, which writes `data/secrets.json`. Both are gitignored. `pnpm check:secrets` runs on every commit and in CI.
 2. **Never commit personal data.** No real name, email, phone, handle, resume or screenshot of a real profile in a fixture, demo, comment or doc. Use `example.com` data. The test fixtures are synthetic on purpose.
 3. **Never commit `data/`.** It holds the local profile, browser sessions and CVs.
 4. **Never collect a platform password, and never bypass a bot check.** See `AGENTS.md`.
