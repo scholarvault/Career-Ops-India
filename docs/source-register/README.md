@@ -141,6 +141,61 @@ ADR-013 for the pattern Naukri already uses).
 | **Cutshort** | — | — | — | `/login` returns 404; needs browser pass |
 | **PlacementIndia** | Google | Resume upload | Login-walled | Assessed from login page |
 
+### foundit (user session, ADR-034)
+
+| Source | How | Auth | Wired |
+|---|---|---|---|
+| **foundit** | its search page's own `/middleware/jobsearch` JSON, read in the Career-Ops window | the user's sign-in (OTP, email, Google) | yes |
+
+No public API. `server/connectors/foundit.ts` opens foundit's search page for
+the role and city in the user's signed-in profile and reads the JSON that page
+loads, then up to three more pages through the page's own request, a beat
+apart. Measured 2026-11-28: 70 postings for "product manager" in Chennai, 15 a
+page. `datePosted` is foundit's `createdAt`; postings without a named
+employer are dropped; apply uses the employer's own link when foundit gives
+one. A bot check hands over. Runs only when the user is signed in to foundit.
+
+### Apna (public page, ADR-035)
+
+| Source | How | Auth | Wired |
+|---|---|---|---|
+| **Apna** | its public role-and-city page (`/jobs/product_manager-jobs-in-chennai`), one request with an honest user agent | none to search; the user's OTP sign-in to apply | yes |
+
+Apna renders its search on the server, so the page arrives with the cards in
+it (title, employer, city, salary, work mode, experience). Measured 2026-11-28:
+25 Product Manager vacancies in Chennai. Each job's own page is then read for
+its schema.org JobPosting: address, posted date and description (its PIN code
+is the city's head post office for every job, so it is not used). The
+signed-in page is not used to search: it swaps the query for Apna's own picks,
+and its "Within 10 km" filter returned telecaller and delivery roles for a
+Product Manager search.
+
+### The user's own web search (ADR-035)
+
+Find → Search the web sends the user's words to Firecrawl (`/v2/search`,
+`includeDomains`, optional `tbs`) or TinyFish (`include_domains`,
+`after_date`), limited to employer career sites, the Indian boards, or one
+board. The same keep rules as Live apply, plus: a city, a board name or a
+bracketed note is never taken as the employer.
+
+### Wellfound (user session, ADR-036)
+
+| Source | How | Auth | Wired |
+|---|---|---|---|
+| **Wellfound** | `/role/l/<role>/india` opened in the Career-Ops window; listings read from the page's own data (`__NEXT_DATA__` Apollo state) | the user's sign-in | yes |
+
+Plain requests are blocked. Measured 2026-11-28: 30 Product Manager listings
+with company (from the StartupResult that lists each), locations, remote flag,
+pay, years and `liveStartAt` as the posted date. Its Chennai page ignores the
+city, so India is read and the city is scored. Runs when signed in.
+
+### Indeed: the check is handed to the user mid-search (ADR-036)
+
+When Indeed shows its check during a streamed search, that tab is moved
+on-screen in the Career-Ops window, the page is told, and the search waits up
+to 60 s for the user to pass it, then reads the results. Noticed in about 10 s
+(it took 53 s). Nothing passes the check for the user.
+
 ## Tier 3 — Link-in only (no automation)
 
 | Platform | Why |
@@ -179,6 +234,42 @@ endpoints are live; only the first two are free.
 Adzuna takes `max_days_old=7`, so the seven-day freshness rule would be applied
 at source rather than after download — kept for reference if the paid tier is
 ever enabled.
+
+### Career-site search (user supplies a key)
+
+Most Fortune 500 employers post their India roles on Workday, SuccessFactors,
+Oracle, Taleo, iCIMS, Eightfold or Phenom pages that refuse a plain HTTP call
+and publish no public JSON board. A search API that has already indexed those
+pages is the legal way to reach them (`server/connectors/websearch.ts`).
+
+| Source | Endpoint | Key | Cost | Wired |
+|---|---|---|---|---|
+| **Firecrawl** | `POST api.firecrawl.dev/v2/search` | Bearer `fc-…` | Free plan, 1,000 credits a month, no card | yes |
+| **TinyFish** | `GET api.search.tinyfish.ai/` | `X-API-Key` | Free within a daily allowance | yes |
+
+Endpoints checked against the providers' docs on 2026-11-28. Both are limited
+to `CAREER_HOSTS`. A result is kept only when its URL is a single posting
+and its title or snippet names a place in India. `datePosted` is never set,
+because a search index does not know when the employer posted the role.
+Submission is user-directed. The posting opens on the employer's own site.
+
+#### Indian job boards through the same search (ADR-031)
+
+foundit, Shine, TimesJobs, Instahyre, Cutshort, Hirist, iimjobs, Internshala,
+Apna, Wellfound and Freshersworld are reached only through the search index:
+one more Firecrawl query (about 4 credits) and one more TinyFish page, limited
+to `BOARD_HOSTS`. The app uses the title, snippet and link the engine already
+holds and never opens or crawls a board page to discover. A result is kept
+only when it is a single posting (a listing title such as "1,240 jobs in
+Chennai" is dropped), names a place in India and names an employer. Each job
+carries the board as its source, so Find shows "foundit", not "Firecrawl".
+Applying opens the posting on the board; the user signs in there once from
+Sources (`server/lib/jobsites.ts`). Auto apply runs on these boards with the
+same engine as employer sites (ADR-031, amended): it submits only after a
+confirmation it can store, and stops for an OTP, a captcha, a login or a
+question it cannot answer from the user's own answers. A board's terms may
+limit automated use; the account risk is the user's, and the user turns it
+on. LinkedIn stays fill-only (ADR-015).
 
 ### Paid and not available at any price
 

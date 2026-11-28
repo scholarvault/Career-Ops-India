@@ -20,6 +20,7 @@
 import { chromium, type BrowserContext, type Page } from "playwright-core";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { USER_BROWSER, markOurs, userContext } from "./user-browser";
 
 const CHROME = [
   "C:/Program Files/Google/Chrome/Application/chrome.exe",
@@ -82,7 +83,177 @@ async function retire(key: string): Promise<void> {
   await ctx.close().catch(() => {});
 }
 
+/* ------------------------------------------------------------------ */
+/* window mode                                                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * How the one browser shows itself, per profile.
+ *
+ *   headless  - no window at all. Screenshots and input still work, so the
+ *               in-app panel (ui/browser.html) shows the page and the user can
+ *               clear a captcha or type a password there. Default for the
+ *               main profile: employer ATS forms (Lever, Greenhouse, Ashby,
+ *               SmartRecruiters) and Naukri sign-in do not need a window.
+ *   offscreen - a real window parked off every monitor. For Indeed and
+ *               Workday, which refuse a headless browser. We do not disguise
+ *               headless as headed (ADR-004); we just use a headed browser.
+ *   window    - a normal, visible window. The user's choice when a site
+ *               will not cooperate with either of the above.
+ *
+ * CAREER_OPS_BROWSER_MODE=headless|offscreen|window overrides "auto" for
+ * every profile; setMode() overrides it for one profile at run time.
+ */
+export type BrowserMode = "headless" | "offscreen" | "window";
+const modeOverride = new Map<string, BrowserMode>();
+const launchedMode = new Map<string, BrowserMode>();
+
+export function modeFor(profileDir: string): BrowserMode {
+  const o = modeOverride.get(profileDir);
+  if (o) return o;
+  const env = String(process.env.CAREER_OPS_BROWSER_MODE || "auto").toLowerCase();
+  if (env === "headless" || env === "offscreen" || env === "window") return env;
+  /* ADR-033: a real headed browser, parked off-screen, for every profile.
+     Sites treat it as a browser (foundit, Naukri, Indeed refused headless),
+     and when the user is needed it is moved on-screen as a sharp, native
+     window instead of being streamed as screenshots. */
+  return "offscreen";
+}
+
+/* ------------------------------------------------------------------ */
+/* the window: shown when the user is needed, parked when not           */
+/* ------------------------------------------------------------------ */
+
+async function windowOf(page: Page): Promise<{ s: import("playwright-core").CDPSession; id: number } | null> {
+  try {
+    const s = await page.context().newCDPSession(page);
+    const { windowId } = (await s.send("Browser.getWindowForTarget")) as { windowId: number };
+    return { s, id: windowId };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Bring the app's browser on-screen, centred, at the page the user needs:
+ * a sign-in, an OTP, a captcha, a form to review. It is a real window, so
+ * text is sharp, paste and the keyboard are native, and the user solves a
+ * check themselves (AGENTS.md). Headless has no window; it is relaunched
+ * off-screen first (cookies are on disk, so nothing is lost).
+ */
+export async function showWindow(profileDir?: string): Promise<{ ok: boolean; message?: string; url?: string }> {
+  let page = currentPage();
+  const key = profileDir || visibleKey || "";
+  if (!page && !key) return { ok: false, message: "Nothing is open in the browser yet." };
+  if (key && key !== "@user-browser" && launchedMode.get(key) === "headless") {
+    const r = await setMode(key, "offscreen");
+    if (!r.ok) return { ok: false, message: r.message };
+    page = currentPage();
+  }
+  if (!page) return { ok: false, message: "Nothing is open in the browser yet." };
+  const w = await windowOf(page);
+  if (!w) return { ok: false, message: "This browser has no window to show." };
+  try {
+    const scr = (await page.evaluate("({ w: screen.availWidth, h: screen.availHeight, x: screen.availLeft || 0, y: screen.availTop || 0 })").catch(() => null)) as { w: number; h: number; x: number; y: number } | null;
+    const W = Math.min(1280, Math.max(900, Math.round((scr?.w || 1440) * 0.8)));
+    const H = Math.min(900, Math.max(640, Math.round((scr?.h || 900) * 0.86)));
+    const left = Math.max(0, Math.round((scr?.x || 0) + ((scr?.w || 1440) - W) / 2));
+    const top = Math.max(0, Math.round((scr?.y || 0) + ((scr?.h || 900) - H) / 2));
+    await w.s.send("Browser.setWindowBounds", { windowId: w.id, bounds: { windowState: "normal" } }).catch(() => {});
+    await w.s.send("Browser.setWindowBounds", { windowId: w.id, bounds: { left, top, width: W, height: H } });
+    await page.bringToFront().catch(() => {});
+    shown = true;
+    return { ok: true, url: page.url() };
+  } catch (e) {
+    return { ok: false, message: e instanceof Error ? e.message : String(e) };
+  } finally {
+    await w.s.detach().catch(() => {});
+  }
+}
+
+/**
+ * Show one tab (a connector's own, mid-search) to the user: its window comes
+ * on-screen, centred, and the tab to the front. For a check the user must pass
+ * while a search waits (ADR-036). hidePage() parks it after.
+ */
+export async function showPage(page: Page): Promise<boolean> {
+  const w = await windowOf(page);
+  if (!w) return false;
+  try {
+    const scr = (await page.evaluate("({ w: screen.availWidth, h: screen.availHeight, x: screen.availLeft || 0, y: screen.availTop || 0 })").catch(() => null)) as { w: number; h: number; x: number; y: number } | null;
+    const W = Math.min(1200, Math.round((scr?.w || 1440) * 0.75)), H = Math.min(860, Math.round((scr?.h || 900) * 0.85));
+    await w.s.send("Browser.setWindowBounds", { windowId: w.id, bounds: { windowState: "normal" } }).catch(() => {});
+    await w.s.send("Browser.setWindowBounds", { windowId: w.id, bounds: { left: Math.round((scr?.x || 0) + ((scr?.w || 1440) - W) / 2), top: Math.round((scr?.y || 0) + ((scr?.h || 900) - H) / 2), width: W, height: H } });
+    await page.bringToFront().catch(() => {});
+    shown = true;
+    return true;
+  } catch { return false; } finally { await w.s.detach().catch(() => {}); }
+}
+export async function hidePage(page: Page): Promise<void> {
+  const w = await windowOf(page);
+  if (!w) return;
+  await w.s.send("Browser.setWindowBounds", { windowId: w.id, bounds: { left: -32000, top: -32000 } }).catch(() => {});
+  await w.s.detach().catch(() => {});
+  shown = false;
+}
+
+/** Park the window off-screen again; the page and the session stay. */
+export async function hideWindow(): Promise<{ ok: boolean }> {
+  const page = currentPage();
+  if (!page || visibleKey === "@user-browser") return { ok: true };
+  const w = await windowOf(page);
+  if (!w) return { ok: true };
+  try {
+    await w.s.send("Browser.setWindowBounds", { windowId: w.id, bounds: { left: -32000, top: -32000 } });
+  } catch { /* a closed window is hidden enough */ }
+  await w.s.detach().catch(() => {});
+  shown = false;
+  return { ok: true };
+}
+let shown = false;
+export function windowShown(): boolean { return shown; }
+
+export function currentModes(): Array<{ profile: string; mode: BrowserMode; open: boolean }> {
+  const keys = new Set([...contexts.keys(), ...modeOverride.keys()]);
+  return [...keys].map((k) => ({
+    profile: k.replace(/\\/g, "/").split("/").pop() || k,
+    mode: launchedMode.get(k) ?? modeFor(k),
+    open: contexts.has(k),
+  }));
+}
+
+/**
+ * Switch one profile's mode. The profile directory keeps cookies, so a
+ * relaunch keeps every sign-in; the visible page is reopened at its URL.
+ * Refused while a connector holds a tab, so a run is never cut in half.
+ */
+export async function setMode(
+  profileDir: string,
+  mode: BrowserMode,
+): Promise<{ ok: boolean; mode: BrowserMode; url?: string; message?: string }> {
+  if (busy.has(profileDir)) {
+    return { ok: false, mode: modeFor(profileDir), message: "A run is using this browser. Try again when it pauses." };
+  }
+  modeOverride.set(profileDir, mode);
+  const ctx = contexts.get(profileDir);
+  if (!ctx || launchedMode.get(profileDir) === mode) return { ok: true, mode };
+  const wasVisible = visibleCtx === ctx && visiblePage && !visiblePage.isClosed() ? visiblePage.url() : "";
+  contexts.delete(profileDir);
+  await ctx.close().catch(() => {});
+  if (visibleCtx === ctx) {
+    visiblePage = null;
+    visibleCtx = null;
+  }
+  if (wasVisible && /^https?:/.test(wasVisible)) {
+    const r = await openVisible(profileDir, wasVisible);
+    return { ok: r.ok, mode, ...(r.url ? { url: r.url } : {}), ...(r.message ? { message: r.message } : {}) };
+  }
+  return { ok: true, mode };
+}
+
 export async function getContext(profileDir: string): Promise<BrowserContext> {
+  /* the user's own browser, attached over CDP (user-browser.ts, ADR-032) */
+  if (profileDir === USER_BROWSER) return userContext();
   const key = profileDir;
   const existing = contexts.get(key);
   if (existing) {
@@ -96,16 +267,21 @@ export async function getContext(profileDir: string): Promise<BrowserContext> {
   if (!CHROME) throw new Error("Chrome or Edge was not found on this machine.");
 
   const p = (async () => {
+    const mode = modeFor(profileDir);
     const ctx = await chromium.launchPersistentContext(profileDir, {
       executablePath: CHROME,
-      headless: false,
+      headless: mode === "headless",
       viewport: { width: 1280, height: 800 },
       locale: "en-IN",
       timezoneId: "Asia/Kolkata",
       args: [
-        "--disable-blink-features=AutomationControlled",
-        /* parked off-screen: the user sees this browser inside the app */
-        "--window-position=-32000,-32000",
+        /* No --disable-blink-features=AutomationControlled: it hides
+           navigator.webdriver, which is fingerprint masking (ADR-004,
+           ADR-026). A site that refuses an honest automated browser gets a
+           human hand-off. Removed 2026-11-28. */
+        /* offscreen: parked where no monitor is; the user sees it inside the
+           app. window: a normal window, for a site that needs one. */
+        ...(mode === "offscreen" ? ["--window-position=-32000,-32000"] : []),
         "--window-size=1280,800",
         /* No launch flags beyond these. Measured on this machine: the usual
            "lean" set (--disable-background-networking, --no-first-run,
@@ -116,7 +292,9 @@ export async function getContext(profileDir: string): Promise<BrowserContext> {
       ],
     });
     contexts.set(key, ctx);
+    launchedMode.set(key, mode);
     ctx.on("close", () => {
+      launchedMode.delete(key);
       if (contexts.get(key) === ctx) contexts.delete(key);
       const t = idleTimers.get(key);
       if (t) {
@@ -191,7 +369,8 @@ export async function withPage<T>(profileDir: string, fn: (page: Page) => Promis
   const ctx = await getContext(profileDir);
   busy.add(profileDir);
   const page = await ctx.newPage();
-  await blockThirdPartyScripts(page).catch(() => {});
+  if (profileDir === USER_BROWSER) markOurs(page);
+  else await blockThirdPartyScripts(page).catch(() => {});
   try {
     return await fn(page);
   } finally {
@@ -202,11 +381,12 @@ export async function withPage<T>(profileDir: string, fn: (page: Page) => Promis
 }
 
 export async function openVisible(profileDir: string, url: string): Promise<{ ok: boolean; url?: string; title?: string; message?: string }> {
-  if (!CHROME) return { ok: false, message: "Chrome or Edge was not found on this machine." };
+  if (!CHROME && profileDir !== USER_BROWSER) return { ok: false, message: "Chrome or Edge was not found on this machine." };
   try {
     const ctx = await getContext(profileDir);
     if (!visiblePage || visiblePage.isClosed() || visibleCtx !== ctx) {
       visiblePage = await ctx.newPage();
+      if (profileDir === USER_BROWSER) markOurs(visiblePage);
       visibleCtx = ctx;
       visibleKey = profileDir;
       /* A site that opens a new tab (Naukri's Login does) must take over the
@@ -215,6 +395,7 @@ export async function openVisible(profileDir: string, url: string): Promise<{ ok
          can never steal the panel. */
       visiblePage.on("popup", (p) => {
         visiblePage = p;
+        if (profileDir === USER_BROWSER) markOurs(p);
       });
     }
     await visiblePage.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
@@ -274,9 +455,14 @@ const STATE_JS = `(() => {
   const body = (document.body ? document.body.innerText : "").replace(/\\s+/g, " ").trim();
   const otp = Array.from(document.querySelectorAll('input[autocomplete="one-time-code"], input[name*="otp" i], input[id*="otp" i]')).some(visible);
   const password = Array.from(document.querySelectorAll('input[type="password"]')).some(visible);
-  const frames = Array.from(document.querySelectorAll("iframe")).map((f) => f.src || "");
-  const captcha = frames.some((s) => /recaptcha|hcaptcha|turnstile|arkose|funcaptcha/i.test(s))
-    || /verify you are human|i'm not a robot|complete the captcha/i.test(body);
+  const frameEls = Array.from(document.querySelectorAll("iframe"));
+  const captcha = frameEls.some((f) => {
+    const s = f.src || "";
+    if (!/geo\.captcha-delivery\.com|challenges\.cloudflare\.com|hcaptcha\.com\/captcha|recaptcha\/(?:api2|enterprise)\/bframe|arkose|funcaptcha/i.test(s)) return false;
+    if (/frame=enclave|checkbox-invisible/i.test(s)) return false;
+    const r = f.getBoundingClientRect();
+    return r.width >= 50 && r.height >= 50 && r.left >= 0 && r.top >= 0 && r.top < 3000;
+  }) || /verify you are human|i['’]?m not a robot|i am not a robot|complete the captcha/i.test(body);
   const consent = /accept (all )?cookies|manage (your )?preferences/i.test(body) && body.length < 1200;
   const form = Array.from(document.querySelectorAll("form")).some(visible);
   return { body: body.slice(0, 260), otp, password, captcha, consent, form, url: location.href, title: document.title };
@@ -366,6 +552,9 @@ export type Input =
   | { kind: "click"; x: number; y: number; button?: "left" | "right" }
   | { kind: "move"; x: number; y: number }
   | { kind: "type"; text: string }
+  /* what the user pasted in the app (an email code, a password they copied):
+     inserted into the focused field, never logged or stored */
+  | { kind: "paste"; text: string }
   | { kind: "key"; key: string }
   | { kind: "scroll"; x: number; y: number; dy: number }
   | { kind: "scrollTop" }
@@ -385,6 +574,9 @@ export async function sendInput(input: Input): Promise<{ ok: boolean; message?: 
         break;
       case "type":
         await p.keyboard.type(input.text, { delay: 12 });
+        break;
+      case "paste":
+        await p.keyboard.insertText(String(input.text || "").slice(0, 4000));
         break;
       case "key":
         await p.keyboard.press(input.key);
@@ -408,6 +600,40 @@ export async function sendInput(input: Input): Promise<{ ok: boolean; message?: 
     return { ok: true };
   } catch (e) {
     return { ok: false, message: e instanceof Error ? e.message : String(e) };
+  }
+}
+
+/**
+ * Close any Chrome still holding one of this app's profiles.
+ *
+ * On Windows a stopped server is killed outright, so its Chrome is orphaned:
+ * it keeps running (sometimes as a stray window) and holds the profile lock,
+ * and the next launch dies with exit code 21. Called once at server start,
+ * when no context of ours can exist yet. It matches only the app's own
+ * --user-data-dir under data/, never the user's personal Chrome.
+ */
+export async function reapOrphanBrowsers(dataDir: string): Promise<number> {
+  const { execFileSync } = await import("node:child_process");
+  const needle = join(dataDir, "browser-profile");
+  try {
+    if (process.platform === "win32") {
+      const ps =
+        "$n = $env:CO_NEEDLE; $k = 0; " +
+        "Get-CimInstance Win32_Process -Filter \"Name='chrome.exe' or Name='msedge.exe'\" | " +
+        "Where-Object { $_.CommandLine -and $_.CommandLine.Contains($n) -and $_.CommandLine -notmatch '--type=' } | " +
+        "ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue; $k++ }; $k";
+      const out = execFileSync("powershell", ["-NoProfile", "-Command", ps], {
+        encoding: "utf8",
+        env: { ...process.env, CO_NEEDLE: needle },
+        timeout: 15000,
+        windowsHide: true,
+      });
+      return Number(out.trim()) || 0;
+    }
+    execFileSync("pkill", ["-f", `--user-data-dir=${needle}`], { timeout: 5000 });
+    return 1;
+  } catch {
+    return 0;
   }
 }
 

@@ -21,7 +21,6 @@ import { readCookies as readBrowserCookies } from "../lib/browser";
 
 const BASE = "https://www.naukri.com";
 
-const LOGIN_URL = `${BASE}/central-login-services/v1/login`;
 const OTP_SEND_URL = `${BASE}/central-login-services/v1/otp`;
 const OTP_VERIFY_URL = `${BASE}/central-login-services/v0/otp-login`;
 const SEARCH_URL = `${BASE}/jobapi/v3/search`;
@@ -175,7 +174,7 @@ function readCookies(res: Response): { token?: string; refresh?: string } {
   for (const line of raw) {
     if (!line) continue;
     const m = line.match(/(?:^|,\s*)(nauk_at|nauk_rt)=([^;]+)/);
-    if (!m) continue;
+    if (!m || !m[2]) continue;
     if (m[1] === "nauk_at") token = decodeURIComponent(m[2]);
     if (m[1] === "nauk_rt") refresh = decodeURIComponent(m[2]);
   }
@@ -199,6 +198,12 @@ async function call(
   /* On a login call a 401 means "wrong password", not "session expired", and
      the caller needs the body to say so. Everywhere else it is a dead token. */
   if (!opts.authIsData && (res.status === 401 || res.status === 403)) {
+    /* The OTP endpoint answers 403 with a reCAPTCHA site key (seen
+       2026-11-28). That is a captcha hand-off, not a dead session. */
+    const text = await res.clone().text().catch(() => "");
+    if (/captchaSiteKey|recaptcha/i.test(text)) {
+      throw new NaukriApiError("recaptcha", "Naukri wants a captcha before it sends a code. Sign in once in the browser panel.", res.status);
+    }
     throw new NaukriApiError("auth", "Naukri rejected the session. Sign in again.", res.status);
   }
   if (res.status === 406) {
@@ -222,88 +227,48 @@ async function call(
 export type LoginResult = {
   ok: boolean;
   needsOtp?: boolean;
+  /** Naukri wants a captcha: hand off to the browser panel. */
+  needsBrowser?: boolean;
+  username?: string;
+  isMobile?: boolean;
   message?: string;
 };
 
 /**
- * Password login. Naukri answers with a token cookie on a clean login, and
- * with an OTP challenge when it wants a second factor. We never guess which:
- * no token means an OTP is due.
+ * Email or phone + one-time code. The only in-app sign-in (ADR-003): the user
+ * types an identifier, Naukri sends a code, the user types the code. No
+ * password ever reaches this process. When Naukri wants a captcha before it
+ * will send a code, that is a human hand-off to the browser panel (ADR-004),
+ * signalled with needsBrowser so the UI can open it in one click.
  */
-export async function login(
-  dataDir: string,
-  username: string,
-  password: string,
-): Promise<LoginResult> {
-  const res = await call(
-    LOGIN_URL,
-    {
-      method: "POST",
-      headers: baseHeaders({ appid: "105", systemid: "jobseeker" }),
-      body: JSON.stringify({ username, password }),
-    },
-    { authIsData: true },
-  );
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    /* Naukri answers a bad password with 401 and a field error. Say that,
-       instead of the generic "session rejected" a dead token gets. */
-    if (res.status === 401 || res.status === 400) {
-      const invalid = /invalid credentials/i.test(text);
-      return {
-        ok: false,
-        message: invalid
-          ? "Naukri did not accept that email and password. If you normally sign in with an OTP, use the browser panel once and then “Use the browser session”."
-          : "Naukri did not accept that sign-in. Check the email and password.",
-      };
-    }
-    return {
-      ok: false,
-      message: `Login failed (${res.status}). ${text.slice(0, 120)}`,
-    };
-  }
-
-  const { token, refresh } = readCookies(res);
-  if (token) {
-    await saveSession(dataDir, {
-      token,
-      ...(refresh ? { refresh } : {}),
-      savedAt: new Date().toISOString(),
-    });
-    otpPending = null;
-    return { ok: true };
-  }
-
-  /* No token: Naukri wants an OTP. Ask it to send one now so the user is not
-     left waiting on a screen that says "check your phone" before it did.
-     Naukri usually answers that request with a captcha challenge, and claiming
-     a code was sent when it was not is worse than saying so. */
-  const isMobile = /^\d{10,}$/.test(username.replace(/\D/g, ""));
-  otpPending = { username, isMobile };
+export async function startOtpLogin(username: string): Promise<LoginResult> {
+  const id = username.trim();
+  if (!id) return { ok: false, message: "Enter the email or mobile number on your Naukri account." };
+  const digits = id.replace(/D/g, "");
+  const isMobile = !id.includes("@") && /^(?:91)?d{10}$/.test(digits);
+  const target = isMobile ? digits.slice(-10) : id;
   try {
-    await sendOtp(username, isMobile);
+    await sendOtp(target, isMobile);
   } catch (e) {
-    if (e instanceof NaukriApiError && e.kind === "recaptcha") {
-      otpPending = null;
+    otpPending = null;
+    if (e instanceof NaukriApiError && (e.kind === "recaptcha" || e.kind === "blocked")) {
       return {
         ok: false,
+        needsBrowser: true,
         message:
-          "Naukri wants a captcha before it will send a code. Sign in once in the browser panel, then press “Use the browser session” — no password is needed after that.",
+          "Naukri wants a captcha before it sends a code. Sign in once in the browser panel; the session is reused after that.",
       };
     }
-    otpPending = null;
-    return {
-      ok: false,
-      message: e instanceof Error ? e.message : "Naukri did not send a code.",
-    };
+    return { ok: false, message: e instanceof Error ? e.message : "Naukri did not send a code." };
   }
   return {
     ok: false,
     needsOtp: true,
+    username: target,
+    isMobile,
     message: isMobile
-      ? "Naukri sent a code to your phone. Enter it to finish signing in."
-      : "Naukri sent a code to your email. Enter it to finish signing in.",
+      ? `Naukri sent a code to the phone ending ${target.slice(-4)}.`
+      : "Naukri sent a code to that email. It can take a minute.",
   };
 }
 
@@ -440,6 +405,8 @@ export type NaukriSearchOptions = {
   role: string;
   city?: string;
   limit?: number;
+  /** Years of experience, used instead of defaulting to 0-yr fresher search. */
+  experience?: number;
   /** Days back. Naukri's own filter, 1–30. */
   jobAge?: number;
   page?: number;
@@ -532,14 +499,16 @@ export type NaukriSearchResult = {
 
 export async function searchJobs(opts: NaukriSearchOptions): Promise<NaukriSearchResult> {
   const page = opts.page ?? 1;
+  const exp = typeof opts.experience === "number" && opts.experience >= 0 ? Math.round(opts.experience) : 0;
   const params = new URLSearchParams({
     noOfResults: String(opts.limit ?? 20),
-    urlType: "search_by_keyword",
+    urlType: opts.city ? "search_by_key_loc" : "search_by_keyword",
     searchType: "adv",
     keyword: opts.role,
     k: opts.role,
+    ...(opts.city ? { location: opts.city, l: opts.city } : {}),
     pageNo: String(page),
-    experience: "0",
+    experience: String(exp),
     jobAge: String(opts.jobAge ?? 7),
     nignbevent_src: "jobsearchDeskGNB",
     seoKey: seoKey(opts.role, opts.city, page),
@@ -722,7 +691,7 @@ export const NAUKRI_API_POLICY = {
   tier: 2 as const,
   discovery: "user-session" as const,
   submission: "user-directed" as const,
-  auth: ["password", "otp"] as const,
+  auth: ["otp"] as const,
   notes:
     "Naukri's own internal endpoints. No paid key. Requires the user's account, a home IP, and an OTP on first sign-in. Undocumented, so the browser connector stays as the fallback.",
 };

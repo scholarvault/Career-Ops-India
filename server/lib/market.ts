@@ -44,14 +44,25 @@ export const STATE_KEYS = Object.keys(STATE_ALIASES);
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-export function stateOf(job: Pick<ScoredJob, "location" | "title" | "jd">): string {
-  const loc = String(job.location || "").toLowerCase();
-  if (/\b(remote|work from home|wfh|anywhere)\b/.test(loc)) return "remote";
-  const hay = `${loc} ${String(job.title || "").toLowerCase()} ${String(job.jd || "").toLowerCase()}`;
+/* Bengaluru's Hosur Road is not Hosur, Tamil Nadu. */
+const unroad = (s: string) => s.replace(/\bhosur\s+(main\s+)?road\b/gi, " ");
+
+function stateIn(text: string): string {
   for (const state of STATE_KEYS) {
-    if (STATE_ALIASES[state].some((k) => new RegExp(`\\b${escapeRe(k)}\\b`).test(hay))) return state;
+    if ((STATE_ALIASES[state] ?? []).some((k) => new RegExp(`\\b${escapeRe(k)}\\b`).test(text))) return state;
   }
   return "";
+}
+
+/* The posting's own location decides. The description is read only when the
+   location names no place at all: a Bengaluru role whose description says
+   "we also have offices in Chennai" is not a Chennai role. */
+export function stateOf(job: Pick<ScoredJob, "location" | "title" | "jd">): string {
+  const loc = unroad(String(job.location || "").toLowerCase());
+  if (/\b(remote|work from home|wfh|anywhere)\b/.test(loc)) return "remote";
+  const fromLoc = stateIn(loc);
+  if (fromLoc) return fromLoc;
+  return stateIn(unroad(`${String(job.title || "")} ${String(job.jd || "").slice(0, 1200)}`.toLowerCase()));
 }
 
 export function isRemote(job: Pick<ScoredJob, "location" | "workMode">): boolean {
@@ -59,6 +70,84 @@ export function isRemote(job: Pick<ScoredJob, "location" | "workMode">): boolean
     String(job.workMode || "").toLowerCase() === "remote" ||
     /\b(remote|work from home|wfh|anywhere)\b/i.test(String(job.location || ""))
   );
+}
+
+export type LocalityDef = {
+  id: string;
+  label: string;
+  city: string;
+  state: string;
+  aliases: string[];
+};
+
+/** Indian metro micro-localities, industrial/EV corridors, and PIN-code zones. */
+export const LOCALITY_ALIASES: LocalityDef[] = [
+  // Chennai & Tamil Nadu corridors
+  { id: "chennai-thiruvottiyur", label: "Thiruvottiyur / North Chennai", city: "Chennai", state: "tamil nadu", aliases: ["thiruvottiyur", "tiruvottiyur", "600019", "ennore", "manali", "tondiarpet", "madhavaram", "perambur", "royapuram", "north chennai"] },
+  { id: "chennai-guindy", label: "Guindy / Ekkaduthangal", city: "Chennai", state: "tamil nadu", aliases: ["guindy", "ekkaduthangal", "600032", "alwarpet"] },
+  { id: "chennai-omr-tidel", label: "OMR / Tidel Park / Perungudi", city: "Chennai", state: "tamil nadu", aliases: ["omr", "old mahabalipuram", "tidel park", "taramani", "perungudi", "thoraipakkam", "600096", "600113"] },
+  { id: "chennai-sholinganallur", label: "Sholinganallur / Siruseri (SIPCOT)", city: "Chennai", state: "tamil nadu", aliases: ["sholinganallur", "siruseri", "sipcot", "navalur", "kelambakkam", "600119", "603103"] },
+  { id: "chennai-ambattur", label: "Ambattur Industrial Estate", city: "Chennai", state: "tamil nadu", aliases: ["ambattur", "padi", "korattur", "avadi", "600058", "600053"] },
+  { id: "chennai-sriperumbudur", label: "Sriperumbudur / Oragadam (EV/Auto)", city: "Chennai", state: "tamil nadu", aliases: ["sriperumbudur", "oragadam", "maraimalai nagar", "irungattukottai", "mahindra world city", "chengalpattu", "602105"] },
+  { id: "chennai-central", label: "Adyar / T. Nagar / Nungambakkam", city: "Chennai", state: "tamil nadu", aliases: ["adyar", "t nagar", "t. nagar", "nungambakkam", "velachery", "mylapore", "anna nagar", "600020", "600017", "600034"] },
+  { id: "chennai-porur", label: "Porur / DLF IT Park", city: "Chennai", state: "tamil nadu", aliases: ["porur", "dlf it park", "manapakkam", "600089", "600116"] },
+  { id: "tn-coimbatore", label: "Coimbatore / Hosur", city: "Coimbatore / Hosur", state: "tamil nadu", aliases: ["coimbatore", "saravanampatti", "tidel coimbatore", "hosur", "krishnagiri"] },
+  // Bengaluru
+  { id: "blr-whitefield", label: "Whitefield / ITPL", city: "Bengaluru", state: "karnataka", aliases: ["whitefield", "itpl", "mahadevapura", "hoodi", "560066"] },
+  { id: "blr-koramangala-hsr", label: "Koramangala / HSR Layout", city: "Bengaluru", state: "karnataka", aliases: ["koramangala", "hsr layout", "hsr", "btm", "jayanagar", "560034", "560102"] },
+  { id: "blr-indiranagar", label: "Indiranagar / MG Road / Domlur", city: "Bengaluru", state: "karnataka", aliases: ["indiranagar", "domlur", "mg road", "ulsoor", "egl", "560038"] },
+  { id: "blr-orr", label: "Outer Ring Road / Bellandur", city: "Bengaluru", state: "karnataka", aliases: ["bellandur", "marathahalli", "outer ring road", "sarjapur", "ecospace", "560103"] },
+  { id: "blr-ecity", label: "Electronic City / Peenya (EV)", city: "Bengaluru", state: "karnataka", aliases: ["electronic city", "peenya", "yelahanka", "hebbal", "manyata", "560100"] },
+  // Hyderabad, Mumbai, Pune, NCR
+  { id: "hyd-hitec", label: "HITEC City / Gachibowli", city: "Hyderabad", state: "telangana", aliases: ["hitec", "madhapur", "gachibowli", "kondapur", "financial district", "banjara hills", "jubilee hills", "500081", "500032"] },
+  { id: "mum-bkc-powai", label: "BKC / Lower Parel / Powai", city: "Mumbai", state: "maharashtra", aliases: ["bkc", "bandra kurla", "lower parel", "powai", "andheri", "goregaon", "airoli", "400051", "400076"] },
+  { id: "pune-hinjawadi", label: "Hinjawadi / Baner / Kharadi", city: "Pune", state: "maharashtra", aliases: ["hinjawadi", "hinjewadi", "baner", "kharadi", "magarpatta", "viman nagar", "chakan", "411057"] },
+  { id: "ncr-cybercity", label: "Cyber City / Udyog Vihar / Noida 62", city: "Delhi NCR", state: "haryana", aliases: ["cyber city", "cyber hub", "udyog vihar", "sector 62", "sector 125", "connaught place", "aerocity"] },
+];
+
+const CITY_MATCHERS: Array<{ label: string; state: string; rx: RegExp }> = [
+  { label: "Remote India", state: "remote", rx: /\b(remote|work from home|wfh|anywhere)\b/i },
+  { label: "Chennai", state: "tamil nadu", rx: /\b(chennai|madras|thiruvottiyur|guindy|omr|sholinganallur|siruseri|ambattur|sriperumbudur|oragadam|porur|adyar|600\d{3})\b/i },
+  { label: "Coimbatore / Hosur", state: "tamil nadu", rx: /\b(coimbatore|hosur|madurai|trichy|tiruchirappalli|salem|vellore)\b/i },
+  { label: "Bengaluru", state: "karnataka", rx: /\b(bengaluru|bangalore|whitefield|koramangala|indiranagar|hsr|bellandur|electronic city|560\d{3})\b/i },
+  { label: "Hyderabad", state: "telangana", rx: /\b(hyderabad|secunderabad|gachibowli|madhapur|hitec|500\d{3})\b/i },
+  { label: "Mumbai", state: "maharashtra", rx: /\b(mumbai|navi mumbai|thane|powai|lower parel|bkc|400\d{3})\b/i },
+  { label: "Pune", state: "maharashtra", rx: /\b(pune|hinjawadi|hinjewadi|kharadi|baner|411\d{3})\b/i },
+  { label: "Gurugram", state: "haryana", rx: /\b(gurugram|gurgaon|cyber city|122\d{3})\b/i },
+  { label: "Noida", state: "uttar pradesh", rx: /\b(noida|greater noida|201\d{3})\b/i },
+  { label: "Delhi", state: "delhi ncr", rx: /\b(new delhi|delhi|ncr|110\d{3})\b/i },
+  { label: "Kolkata", state: "west bengal", rx: /\b(kolkata|salt lake|new town|700\d{3})\b/i },
+  { label: "Ahmedabad / GIFT", state: "gujarat", rx: /\b(ahmedabad|gandhinagar|gift city|surat|vadodara)\b/i },
+  { label: "Kochi / Trivandrum", state: "kerala", rx: /\b(kochi|cochin|thiruvananthapuram|trivandrum|technopark|infopark)\b/i },
+];
+
+export function cityOf(job: Pick<ScoredJob, "location" | "workMode" | "title" | "jd">): { label: string; state: string } | null {
+  const loc = unroad(String(job.location || ""));
+  for (const c of CITY_MATCHERS) {
+    if (c.label === "Remote India") continue;
+    if (c.rx.test(loc)) return { label: c.label, state: c.state };
+  }
+  if (isRemote(job)) return { label: "Remote India", state: "remote" };
+  const hay = unroad(`${loc} ${String(job.title || "")} ${String(job.jd || "").slice(0, 600)}`);
+  for (const c of CITY_MATCHERS) {
+    if (c.label === "Remote India") continue;
+    if (c.rx.test(hay)) return { label: c.label, state: c.state };
+  }
+  return null;
+}
+
+export function localityOf(job: Pick<ScoredJob, "location" | "title" | "jd">): LocalityDef | null {
+  const hit = (text: string) =>
+    LOCALITY_ALIASES.find((d) => d.aliases.some((a) => new RegExp(`\\b${escapeRe(a)}\\b`, "i").test(text))) ?? null;
+  const fromLoc = hit(unroad(String(job.location || "").toLowerCase()));
+  if (fromLoc) return fromLoc;
+  /* An office address in the description counts only when it agrees with the
+     posting's own city and state. */
+  const d = hit(unroad(`${String(job.title || "")} ${String(job.jd || "").slice(0, 900)}`.toLowerCase()));
+  if (!d) return null;
+  const c = cityOf({ location: job.location, title: "", jd: "", workMode: "" } as Pick<ScoredJob, "location" | "workMode" | "title" | "jd">);
+  if (c) return c.label === d.city ? d : null;
+  return stateOf({ location: job.location, title: "", jd: "" }) === d.state ? d : null;
 }
 
 export type FamilyGroup = {
@@ -94,19 +183,50 @@ export function familyOf(
   return "separate";
 }
 
+export type GeoBucket = {
+  key: string;
+  label: string;
+  count: number;
+  sharePct: number;
+  state?: string;
+  city?: string;
+};
+
+export type GeoDistribution = {
+  india: number;
+  remote: number;
+  requestedLocality?: {
+    name: string;
+    count: number;
+    nearbyCity: string;
+    nearbyCityCount: number;
+    note: string;
+  };
+  byState: GeoBucket[];
+  byCity: GeoBucket[];
+  byLocality: GeoBucket[];
+  bySource: Array<{ source: string; count: number }>;
+};
+
 export type MarketSummary = {
   role: string;
+  /** Postings for the role (exact title, a step up, or a specialisation). */
   total: number;
+  /** Every posting the sources returned, before the role filter. */
+  scanned: number;
   matched: number;
   counts: {
     india: number;
     remote: number;
     state: number;
     city: number;
+    locality: number;
     posted7d: number;
   };
   state?: string;
   city?: string;
+  locality?: string;
+  geoDistribution: GeoDistribution;
   families: FamilyGroup[];
   trending: Array<{ title: string; count: number }>;
   shortlist: Array<{
@@ -128,18 +248,158 @@ export type MarketSummary = {
 
 const TRENDING = ["ai product manager", "ai pm", "0 to 1", "0-1", "genai", "llm"];
 
+export function buildGeoDistribution(
+  jobs: ScoredJob[],
+  opts: { city?: string; locality?: string } = {}
+): GeoDistribution {
+  const total = Math.max(1, jobs.length);
+  const stateMap = new Map<string, number>();
+  const cityMap = new Map<string, { label: string; state: string; count: number }>();
+  const locMap = new Map<string, { label: string; city: string; state: string; count: number }>();
+  const srcMap = new Map<string, number>();
+  let remote = 0;
+
+  for (const j of jobs) {
+    if (isRemote(j)) remote++;
+    const st = stateOf(j) || (isRemote(j) ? "remote" : "pan-india / unspecified");
+    stateMap.set(st, (stateMap.get(st) || 0) + 1);
+
+    const c = cityOf(j);
+    if (c) {
+      const ck = c.label.toLowerCase();
+      const prev = cityMap.get(ck) ?? { label: c.label, state: c.state, count: 0 };
+      prev.count++;
+      cityMap.set(ck, prev);
+    }
+
+    const loc = localityOf(j);
+    if (loc) {
+      const prev = locMap.get(loc.id) ?? { label: loc.label, city: loc.city, state: loc.state, count: 0 };
+      prev.count++;
+      locMap.set(loc.id, prev);
+    }
+
+    srcMap.set(j.source, (srcMap.get(j.source) || 0) + 1);
+  }
+
+  const titleCase = (s: string) => s.replace(/\b\w/g, (c) => c.toUpperCase());
+  const byState: GeoBucket[] = [...stateMap.entries()]
+    .map(([key, count]) => ({
+      key,
+      label: key === "remote" ? "Remote / WFH" : titleCase(key),
+      count,
+      sharePct: Math.round((count / total) * 1000) / 10,
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  const byCity: GeoBucket[] = [...cityMap.entries()]
+    .map(([key, v]) => ({
+      key,
+      label: v.label,
+      state: v.state,
+      count: v.count,
+      sharePct: Math.round((v.count / total) * 1000) / 10,
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  const byLocality: GeoBucket[] = [...locMap.entries()]
+    .map(([key, v]) => ({
+      key,
+      label: v.label,
+      city: v.city,
+      state: v.state,
+      count: v.count,
+      sharePct: Math.round((v.count / total) * 1000) / 10,
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  const bySource = [...srcMap.entries()]
+    .map(([source, count]) => ({ source, count }))
+    .sort((a, b) => b.count - a.count);
+
+  let requestedLocality: GeoDistribution["requestedLocality"];
+  const reqLocRaw = String(opts.locality || "").trim();
+  if (reqLocRaw) {
+    const reqLoc = reqLocRaw.toLowerCase();
+    const matchedDef = LOCALITY_ALIASES.find(
+      (d) =>
+        d.label.toLowerCase().includes(reqLoc) ||
+        d.aliases.some((a) => a.toLowerCase() === reqLoc || reqLoc.includes(a.toLowerCase()))
+    );
+    const terms = matchedDef ? matchedDef.aliases : [reqLoc];
+    const locCount = jobs.filter((j) => {
+      const hay = `${j.location} ${j.title} ${j.jd}`.toLowerCase();
+      return terms.some((t) => new RegExp(`\\b${escapeRe(t)}\\b`, "i").test(hay));
+    }).length;
+    const nearbyCity = matchedDef?.city || (opts.city ? titleCase(opts.city) : "Chennai");
+    const nearbyCityCount = cityMap.get(nearbyCity.toLowerCase())?.count ?? 0;
+    requestedLocality = {
+      name: reqLocRaw,
+      count: locCount,
+      nearbyCity,
+      nearbyCityCount,
+      note: locCount
+        ? `${locCount} posting(s) explicitly mention ${reqLocRaw} (${nearbyCity} total: ${nearbyCityCount}).`
+        : `0 postings explicitly mention "${reqLocRaw}". ${nearbyCityCount} active posting(s) found across nearby ${nearbyCity} corridors.`,
+    };
+  }
+
+  return {
+    india: jobs.length,
+    remote,
+    ...(requestedLocality ? { requestedLocality } : {}),
+    byState,
+    byCity,
+    byLocality,
+    bySource,
+  };
+}
+
 export function marketSummary(
   jobs: ScoredJob[],
-  opts: { role: string; state?: string; city?: string; remote?: boolean; limit?: number }
+  opts: { role: string; state?: string; city?: string; locality?: string; remote?: boolean; limit?: number; maxAgeDays?: number }
 ): MarketSummary {
   const role = String(opts.role || "").trim();
   const state = String(opts.state || "").toLowerCase().trim();
   const city = String(opts.city || "").toLowerCase().trim();
+  const locality = String(opts.locality || "").toLowerCase().trim();
   const wantRemote = Boolean(opts.remote);
+  const cutoffMs = typeof opts.maxAgeDays === "number" && opts.maxAgeDays > 0 ? Date.now() - opts.maxAgeDays * 86_400_000 : 0;
+
+  const agePool = cutoffMs
+    ? jobs.filter((j) => {
+        if (!j.datePosted) return true;
+        const t = Date.parse(String(j.datePosted));
+        return !Number.isFinite(t) || t >= cutoffMs;
+      })
+    : jobs;
 
   const inState = (j: ScoredJob) => (state ? stateOf(j) === state : true);
-  const inCity = (j: ScoredJob) =>
-    city ? `${j.location} ${j.title}`.toLowerCase().includes(city) : true;
+  const inCity = (j: ScoredJob) => {
+    if (!city) return true;
+    const c = cityOf(j);
+    if (c) return c.label.toLowerCase().includes(city) || city.includes(c.label.toLowerCase());
+    return String(j.location || "").toLowerCase().includes(city);
+  };
+
+  /* The funnel counts the role, not everything the sources returned:
+     the exact title, a step up, or a specialisation. Adjacent roles are
+     listed separately under families. */
+  const ROLE_FAMS = new Set(["core", "progression", "specialisation"]);
+  const rolePool = agePool.filter((j) => j.matched || ROLE_FAMS.has(String(familyOf(role, j.title))));
+  const matchedLocDef = locality
+    ? LOCALITY_ALIASES.find(
+        (d) =>
+          d.label.toLowerCase().includes(locality) ||
+          d.aliases.some((a) => a.toLowerCase() === locality || locality.includes(a.toLowerCase()))
+      )
+    : undefined;
+  const inLocality = (j: ScoredJob) => {
+    if (!locality) return true;
+    const hay = `${j.location} ${j.title} ${j.jd}`.toLowerCase();
+    const terms = matchedLocDef ? matchedLocDef.aliases : [locality];
+    return terms.some((t) => new RegExp(`\\b${escapeRe(t)}\\b`, "i").test(hay));
+  };
 
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const posted7d = (j: ScoredJob) => {
@@ -147,11 +407,20 @@ export function marketSummary(
     return Number.isFinite(t) && t >= sevenDaysAgo;
   };
 
-  const geoFiltered = jobs.filter((j) => {
+  /* Apply state/city/remote directly; apply locality only if at least one posting matched it explicitly,
+     otherwise fall back to metro city/state while keeping requestedLocality honest in geoDistribution. */
+  const locHits = locality ? rolePool.filter(inLocality).length : 0;
+  const geoFiltered = agePool.filter((j) => {
     if (wantRemote && !isRemote(j)) return false;
     if (state && !inState(j)) return false;
     if (city && !inCity(j)) return false;
+    if (locality && locHits > 0 && !inLocality(j)) return false;
     return true;
+  });
+
+  const geoDistribution = buildGeoDistribution(rolePool, {
+    city: opts.city,
+    locality: opts.locality,
   });
 
   const groups = new Map<FamilyGroup["key"], { count: number; titles: Set<string>; roles: Set<string> }>();
@@ -181,7 +450,9 @@ export function marketSummary(
     .filter((g) => g.count > 0);
 
   const trendingMap = new Map<string, number>();
+  const roleIds = new Set(rolePool.map((j) => j.id));
   for (const j of geoFiltered) {
+    if (!roleIds.has(j.id)) continue;
     const t = `${j.title} ${j.jd}`.toLowerCase();
     if (TRENDING.some((k) => t.includes(k))) {
       trendingMap.set(j.title, (trendingMap.get(j.title) || 0) + 1);
@@ -193,10 +464,19 @@ export function marketSummary(
     .slice(0, 6);
 
   const limit = Math.max(1, Math.min(100, Number(opts.limit) || 10));
-  const shortlist = [...geoFiltered]
-    .sort((a, b) => b.score - a.score)
+  const withFam = geoFiltered.map((j) => ({ j, fam: familyOf(role, j.title) }));
+  const careerOnly = withFam.filter((x) => x.j.matched || (x.fam !== null && x.fam !== "separate"));
+  const pool = careerOnly.length > 0 ? careerOnly : withFam;
+  const famRank: Record<string, number> = { core: 4, progression: 3, specialisation: 2, adjacent: 1 };
+  const shortlist = pool
+    .sort(
+      (a, b) =>
+        Number(b.j.matched) - Number(a.j.matched) ||
+        (famRank[b.fam ?? ""] || 0) - (famRank[a.fam ?? ""] || 0) ||
+        b.j.score - a.j.score
+    )
     .slice(0, limit)
-    .map((j) => ({
+    .map(({ j, fam }) => ({
       id: j.id,
       title: j.title,
       company: j.company,
@@ -207,23 +487,32 @@ export function marketSummary(
       applyUrl: j.applyUrl,
       score: j.score,
       relationship: j.relationship,
-      family: familyOf(role, j.title),
+      family: fam,
       datePosted: j.datePosted,
+      matched: j.matched,
+      ...(j.salary ? { salary: j.salary } : {}),
+      ...(j.have ? { have: j.have } : {}),
+      ...(j.miss ? { miss: j.miss } : {}),
+      ...(j.jd ? { jd: j.jd } : {}),
     }));
 
   return {
     role,
-    total: jobs.length,
-    matched: jobs.filter((j) => j.matched).length,
+    total: rolePool.length,
+    scanned: agePool.length,
+    matched: agePool.filter((j) => j.matched).length,
     counts: {
-      india: jobs.length,
-      remote: jobs.filter(isRemote).length,
-      state: state ? jobs.filter(inState).length : jobs.length,
-      city: city ? jobs.filter(inCity).length : jobs.length,
-      posted7d: jobs.filter(posted7d).length,
+      india: rolePool.length,
+      remote: rolePool.filter(isRemote).length,
+      state: state ? rolePool.filter(inState).length : rolePool.length,
+      city: city ? rolePool.filter(inCity).length : state ? rolePool.filter(inState).length : rolePool.length,
+      locality: locality ? locHits : city ? rolePool.filter(inCity).length : state ? rolePool.filter(inState).length : rolePool.length,
+      posted7d: rolePool.filter(posted7d).length,
     },
     ...(state ? { state } : {}),
     ...(city ? { city } : {}),
+    ...(locality ? { locality } : {}),
+    geoDistribution,
     families,
     trending,
     shortlist,

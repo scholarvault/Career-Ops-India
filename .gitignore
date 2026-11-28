@@ -44,3 +44,9 @@ logs/
 
 # landing page is deployed to Cloudflare Pages, not tracked here
 frontend/
+
+# Cloudflare Pages local cache
+.wrangler/
+
+# local agent and preview config
+.claude/

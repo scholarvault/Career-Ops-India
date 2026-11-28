@@ -136,6 +136,9 @@
       .job { flex-wrap: wrap; }
     }
   </style>
+  <link rel="stylesheet" href="fx.css" />
+  <script>try{if(localStorage.getItem("co.theme")==="light")document.documentElement.setAttribute("data-theme","light")}catch(e){}</script>
+  <script src="design.js" defer></script>
 </head>
 <body>
 
@@ -153,7 +156,7 @@
   <p class="sub">
     Naukri's own endpoints, called from this machine with your own account.
     There is no key to buy. The token stays in <code>data/naukri-session.json</code>;
-    your password is never written to disk. If Naukri changes an endpoint, the browser panel is still there.
+    no password is ever asked for or written to disk. If Naukri changes an endpoint, the browser panel is still there.
   </p>
 
   <!-- sign in -->
@@ -161,43 +164,52 @@
     <div class="card-head">
       <div class="grow">
         <h2>Sign in</h2>
-        <p class="hint">The reliable way: sign in to Naukri once in the browser panel, then borrow that session here. No password is typed on this page and no captcha is bypassed.</p>
+        <p class="hint">Type the email or mobile number on your Naukri account. Naukri sends a one-time code; you type it here. No password, ever.</p>
       </div>
     </div>
-
-    <div class="import">
-      <button class="btn btn--primary" id="importBtn" type="button">Use the browser session</button>
-      <span class="hint">Reads the <code>nauk_at</code> token out of the Chrome profile the browser panel already uses.</span>
-    </div>
-
-    <details class="alt">
-      <summary>Or sign in with a password</summary>
-      <p class="hint">Naukri often answers a password login with a captcha-gated one-time code. If that happens, use the browser session above instead.</p>
 
       <form id="loginForm" autocomplete="on">
         <div class="row">
           <div class="field">
-            <label for="username">Email or phone</label>
-            <input class="input" id="username" name="username" type="text" autocomplete="username" required />
+            <label for="username">Email or mobile</label>
+            <input class="input" id="username" name="username" type="text" autocomplete="username" inputmode="email" placeholder="you@example.com or 98XXXXXXXX" required />
           </div>
-          <div class="field">
-            <label for="password">Password</label>
-            <input class="input" id="password" name="password" type="password" autocomplete="current-password" required />
-          </div>
-          <button class="btn btn--secondary" id="loginBtn" type="submit">Sign in</button>
+          <button class="btn btn--primary" id="loginBtn" type="submit">Send code</button>
         </div>
       </form>
 
       <form id="otpForm" hidden autocomplete="one-time-code">
         <div class="row">
-          <div class="field">
-            <label for="otp">One-time code</label>
-            <input class="input" id="otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="6-digit code" />
-          </div>
+          <ui-field class="field">
+            <ui-field-label>One-time code</ui-field-label>
+            <ui-otp-input id="otp" max-length="6" class="code-in">
+              <ui-otp-input-group>
+                <ui-otp-input-slot></ui-otp-input-slot>
+                <ui-otp-input-slot></ui-otp-input-slot>
+                <ui-otp-input-slot></ui-otp-input-slot>
+              </ui-otp-input-group>
+              <ui-otp-input-separator><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></ui-otp-input-separator>
+              <ui-otp-input-group>
+                <ui-otp-input-slot></ui-otp-input-slot>
+                <ui-otp-input-slot></ui-otp-input-slot>
+                <ui-otp-input-slot></ui-otp-input-slot>
+              </ui-otp-input-group>
+            </ui-otp-input>
+            <ui-field-error></ui-field-error>
+          </ui-field>
           <button class="btn btn--primary" id="otpBtn" type="submit">Verify</button>
           <button class="btn btn--secondary" id="resendBtn" type="button">Resend</button>
         </div>
       </form>
+
+    <details class="alt" id="altSignin">
+      <summary>Naukri asked for a captcha, or you sign in with Google?</summary>
+      <p class="hint">Sign in once in the browser panel — you clear the captcha yourself, we never solve it — then borrow that session here.</p>
+      <div class="import">
+        <a class="btn btn--secondary" id="openBrowserBtn" href="/browser.html?url=https%3A%2F%2Fwww.naukri.com%2Fnlogin%2Flogin" target="_blank" rel="noopener">Open the browser panel</a>
+        <button class="btn btn--primary" id="importBtn" type="button">Use the browser session</button>
+      </div>
+      <span class="hint">Reads the <code>nauk_at</code> token out of the Chrome profile the browser panel already uses.</span>
     </details>
 
     <p class="msg" id="loginMsg" hidden></p>
@@ -278,6 +290,7 @@
   let signedIn = false;
   let otpPending = false;
   let pendingUser = "";
+  let pendingMobile = undefined;
 
   function say(el, kind, text) {
     el.hidden = false;
@@ -395,29 +408,33 @@
     e.preventDefault();
     clear(loginMsg);
     const username = $("#username").value.trim();
-    const password = $("#password").value;
-    if (!username || !password) return say(loginMsg, "bad", "Email and password are both required.");
+    if (!username) return say(loginMsg, "bad", "Enter the email or mobile number on your Naukri account.");
     pendingUser = username;
     const btn = $("#loginBtn");
     btn.disabled = true;
-    btn.textContent = "Signing in…";
+    btn.textContent = "Sending code…";
     try {
       const r = await fetch("/api/naukri/login", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username }),
       });
       const d = await r.json();
       if (d.ok) {
-        $("#password").value = "";
         say(loginMsg, "ok", "Signed in. The token is saved on this machine.");
         await loadStatus();
+      } else if (d.needsBrowser) {
+        say(loginMsg, "warn", d.message || "Naukri wants a captcha. Use the browser panel once.");
+        $("#altSignin").open = true;
       } else if (d.needsOtp) {
+        if (d.username) pendingUser = d.username;
+        pendingMobile = Boolean(d.isMobile);
         say(loginMsg, "warn", d.message || "Naukri sent a code. Enter it below.");
         otpPending = true;
         loginForm.hidden = true;
         otpForm.hidden = false;
-        $("#otp").focus();
+        $("#otp").focus?.();
+        window.CO?.ui?.resendTimer($("#resendBtn"), 30);
         paintStatus(false, "Code needed");
       } else {
         say(loginMsg, "bad", d.message || "Sign-in failed.");
@@ -426,9 +443,12 @@
       say(loginMsg, "bad", "Could not reach the local server.");
     } finally {
       btn.disabled = false;
-      btn.textContent = "Sign in";
+      btn.textContent = "Send code";
     }
   });
+
+  /* the code verifies itself the moment the last slot fills */
+  $("#otp").addEventListener("valuecommit", () => otpForm.requestSubmit());
 
   otpForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -438,20 +458,26 @@
     const btn = $("#otpBtn");
     btn.disabled = true;
     btn.textContent = "Verifying…";
+    const UIk = window.CO?.ui;
+    UIk?.codeState($("#otp"), "checking");
     try {
       const r = await fetch("/api/naukri/otp", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ otp, username: pendingUser }),
+        body: JSON.stringify({ otp, username: pendingUser, isMobile: pendingMobile }),
       });
       const d = await r.json();
       if (d.ok) {
+        UIk?.codeState($("#otp"), "verified");
         say(loginMsg, "ok", "Verified. You are signed in.");
+        await new Promise((r) => setTimeout(r, 900));
         await loadStatus();
       } else {
+        UIk?.codeState($("#otp"), "wrong");
         say(loginMsg, "bad", d.message || "That code was not accepted.");
       }
     } catch {
+      UIk?.codeState($("#otp"), "");
       say(loginMsg, "bad", "Could not reach the local server.");
     } finally {
       btn.disabled = false;
@@ -465,10 +491,11 @@
       const r = await fetch("/api/naukri/otp", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ resend: true, username: pendingUser }),
+        body: JSON.stringify({ resend: true, username: pendingUser, isMobile: pendingMobile }),
       });
       const d = await r.json();
       say(loginMsg, d.ok ? "ok" : "bad", d.message || (d.ok ? "A new code was sent." : "Could not resend."));
+      if (d.ok) window.CO?.ui?.resendTimer($("#resendBtn"), 30);
     } catch {
       say(loginMsg, "bad", "Could not reach the local server.");
     }

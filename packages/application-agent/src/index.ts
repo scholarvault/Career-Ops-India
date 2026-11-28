@@ -58,7 +58,7 @@ function answerFor(field: DetectedField, p: Profile): Answer | undefined {
       ? { value: p.links.portfolio, confidence: "exact", source: "profile.links.portfolio" }
       : undefined;
   }
-  if (/\b(city|location|where are you based)\b/.test(l)) {
+  if (field.type !== "radio" && /\b(city|current location|location|where are you based)\b/.test(l) && !/\b(onsite|willing|able to|relocat|commute|preferred location|dropdown|filter)\b/.test(l)) {
     return p.location.city
       ? { value: p.location.city, confidence: "exact", source: "profile.location.city" }
       : undefined;

@@ -417,3 +417,13 @@ export function warmCompanyPortals(): void {
     void runCompanyPortal(p).catch(() => {});
   }
 }
+
+export const COMPANIES_POLICY = {
+  id: "companies",
+  name: "Company Career Portals (Tesla, EPAM, Amazon, Workday)",
+  tier: 1 as const,
+  discovery: "public-feed" as const,
+  submission: "user-directed" as const,
+  auth: [] as const,
+  notes: "Reads official employer career JSON feeds and opens the employer's own application page.",
+};

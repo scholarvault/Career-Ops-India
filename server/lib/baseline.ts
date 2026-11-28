@@ -90,7 +90,7 @@ function splitHeadings(lines: string[]): string[] {
         parts.push(hit);
         i += hit.split(" ").length;
       } else {
-        pending.push(words[i]);
+        pending.push(words[i]!);
         i++;
       }
     }
@@ -142,9 +142,9 @@ function linesOf(text: string): string[] {
 function stripTags(line: string): string {
   const words = line.trim().split(/\s+/);
   let start = words.length;
-  while (start > 0 && /^[A-Z&]+$/.test(words[start - 1])) start--;
+  while (start > 0 && /^[A-Z&]+$/.test(words[start - 1]!)) start--;
   const run = words.length - start;
-  if (run === 2 && start >= 2 && /[a-z]/.test(words[start - 1])) {
+  if (run === 2 && start >= 2 && /[a-z]/.test(words[start - 1]!)) {
     return words.slice(0, start).join(" ");
   }
   return line.trim();
@@ -219,9 +219,10 @@ export function resumeBaseline(text: string): Baseline {
   const rolesEnd = eduAt < 0 ? lines.length : eduAt;
   const roles: BaselineRole[] = [];
   for (let i = 0; i < rolesEnd; i++) {
-    const dates = lines[i].match(DATE_RANGE);
+    const line = lines[i] ?? "";
+    const dates = line.match(DATE_RANGE);
     if (!dates) continue;
-    const before = lines[i].slice(0, dates.index).trim();
+    const before = line.slice(0, dates.index).trim();
     const sameLine = stripTags(before);
     if (sameLine.length >= 6 && !isTag(sameLine) && !/^[|·–—-]+$/.test(sameLine)) {
       roles.push({ line: sameLine, dates: dates[0].replace(/\s+/g, " ").trim() });
@@ -291,4 +292,64 @@ export function appearsIn(haystack: string, phrase: string): boolean {
   if (!tokens.length) return true;
   const hit = tokens.filter((t) => new RegExp(`(^|[^a-z0-9])${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z0-9]|$)`).test(hay)).length;
   return hit / tokens.length >= 0.6;
+}
+
+/**
+ * A number belongs to the job it happened in. Returns the bullets whose
+ * metrics (100,000+, 20%, 12 FTEs, 8 months...) are not in that role's own
+ * section of the master resume, and the lines to keep for each role.
+ *
+ * Why: a tailoring run once moved "100,000+ indexed records" from Technoarete
+ * to ScholarVault. Every employer existed, so the employer check passed, yet
+ * the claim was false.
+ */
+export function checkBulletProvenance(
+  resume: string,
+  roles: BaselineRole[],
+  experience: Array<{ role: string; company: string; lines: string[] }>,
+): { kept: string[][]; dropped: Array<{ company: string; line: string; why: string }> } {
+  const lower = resume.toLowerCase();
+  const squash = (s: string) => s.toLowerCase().replace(/\s+/g, "");
+  const metricsOf = (s: string) =>
+    (s.match(/\d[\d,.]*\s*(?:\+|%|k\b|x\b|ftes?\b|months?\b|years?\b|countries\b|cartels\b)|\b\d{2,}[\d,]*\b/gi) ?? [])
+      .map((m) => m.toLowerCase().replace(/\s+/g, "").replace(/\+$/, ""));
+
+  /* role spans: each role's header up to the next role's header */
+  const starts: Array<{ key: string; at: number }> = [];
+  let cursor = 0;
+  for (const r of roles) {
+    const words = r.line.split(/\s+/).filter((w) => w.length > 3);
+    const key = words.slice(-2).join(" ").toLowerCase();
+    const at = key ? lower.indexOf(key, cursor) : -1;
+    if (at >= 0) {
+      starts.push({ key, at });
+      cursor = at + key.length;
+    }
+  }
+  const spanFor = (company: string): string | null => {
+    const first = company.toLowerCase().split(/\s+/).find((w) => w.length > 2) ?? "";
+    const i = starts.findIndex((s) => first && s.key.includes(first));
+    if (i < 0) return null;
+    return squash(resume.slice(starts[i]!.at, starts[i + 1]?.at ?? lower.length));
+  };
+
+  const whole = squash(resume);
+  const dropped: Array<{ company: string; line: string; why: string }> = [];
+  const kept = experience.map((r) => {
+    const span = spanFor(r.company || r.role);
+    if (!span) return r.lines;
+    return r.lines.filter((line) => {
+      const bad = metricsOf(line).filter((m) => !span.includes(m));
+      if (!bad.length) return true;
+      dropped.push({
+        company: r.company || r.role,
+        line,
+        why: whole.includes(bad[0]!)
+          ? `"${bad[0]}" belongs to another role in the master resume`
+          : `"${bad[0]}" is not in the master resume`,
+      });
+      return false;
+    });
+  });
+  return { kept, dropped };
 }

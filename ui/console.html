@@ -10,8 +10,8 @@
     --bg:#edf0f2; --surface:#fff; --surface-2:#fafbfb; --surface-3:#f1f4f6;
     --ink:#0e1b24; --ink-2:#3a4a55; --muted:#5c6b75; --faint:#8a99a3;
     --border:#e4e9ec; --border-strong:#d2dae0; --line:#edf0f2;
-    --accent:#0e4749; --accent-ink:#0a3537; --accent-soft:#e7f0ef; --accent-ring:rgba(14,71,73,.16);
-    --rail:#0a2e30; --rail-active:#14484a; --amber:#b4761f;
+    --accent:#d9531a; --accent-ink:#9a3412; --accent-soft:#e7f0ef; --accent-ring:rgba(217, 83, 26,.16);
+    --rail:#000000; --rail-active:#1c1c1c; --amber:#b4761f;
     --ok:#0f7b4f; --ok-soft:#e6f5ee; --warn:#8a5a00; --warn-soft:#fbf1dd;
     --bad:#b3261e; --bad-soft:#fdecea; --info-soft:#eaf1f0;
     --r-sm:7px; --r-md:9px; --r-lg:12px; --r-xl:16px; --r-pill:999px;
@@ -30,35 +30,35 @@
   .app{display:grid;grid-template-columns:236px 1fr;height:100vh;overflow:hidden}
 
   /* ---------- rail ---------- */
-  .rail{background:var(--rail);color:#cfe0df;display:flex;flex-direction:column;padding:18px 14px;gap:6px;overflow-y:auto}
+  .rail{background:var(--rail);color:#d6d6d6;display:flex;flex-direction:column;padding:18px 14px;gap:6px;overflow-y:auto}
   .brand{display:flex;align-items:center;gap:9px;padding:4px 8px 18px}
   .brand .mark{width:26px;height:26px;border-radius:8px;background:var(--accent-soft);color:var(--accent-ink);
     display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:15px}
   .brand b{font-family:var(--serif);font-size:15px;font-weight:600;color:#fff;letter-spacing:.01em}
-  .brand span{display:block;font-size:10px;color:#8fb0ae;letter-spacing:.08em;text-transform:uppercase}
+  .brand span{display:block;font-size:10px;color:#ffb07a;letter-spacing:.08em;text-transform:uppercase}
   .rail button{
     display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:var(--r-md);
-    color:#b9d0ce;font:inherit;font-size:13px;cursor:pointer;border:1px solid transparent;
+    color:#c8c8c8;font:inherit;font-size:13px;cursor:pointer;border:1px solid transparent;
     background:transparent;text-align:left;width:100%;
   }
   .rail button:hover{background:rgba(255,255,255,.06);color:#fff}
   .rail button .n{
-    width:22px;height:22px;border-radius:50%;border:1px solid #2f5c5c;display:grid;place-items:center;
-    font-size:11px;font-variant-numeric:tabular-nums;flex:0 0 auto;color:#9fc0be;
+    width:22px;height:22px;border-radius:50%;border:1px solid #2a2a2a;display:grid;place-items:center;
+    font-size:11px;font-variant-numeric:tabular-nums;flex:0 0 auto;color:#aaaaaa;
   }
   .rail button .t{flex:1;min-width:0}
-  .rail button .t small{display:block;font-size:10.5px;color:#7fa3a1;margin-top:1px}
-  .rail button .tick{font-size:11px;color:#6fd0a0;opacity:0}
-  .rail button.on{background:var(--rail-active);color:#fff;border-color:#1f5555}
+  .rail button .t small{display:block;font-size:10.5px;color:#8c8c8c;margin-top:1px}
+  .rail button .tick{font-size:11px;color:#34d399;opacity:0}
+  .rail button.on{background:var(--rail-active);color:#fff;border-color:#2a2a2a}
   .rail button.on .n{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent-soft)}
   .rail button.on .tick{opacity:1}
   .rail button.done .tick{opacity:1}
   .rail .spacer{flex:1}
-  .rail .foot{border-top:1px solid #1d4545;padding-top:12px;display:flex;flex-direction:column;gap:8px}
-  .rail .foot a{color:#9fc0be;font-size:12px;text-decoration:none;display:flex;align-items:center;gap:8px}
+  .rail .foot{border-top:1px solid #222222;padding-top:12px;display:flex;flex-direction:column;gap:8px}
+  .rail .foot a{color:#aaaaaa;font-size:12px;text-decoration:none;display:flex;align-items:center;gap:8px}
   .rail .foot a:hover{color:#fff}
-  .dot{width:7px;height:7px;border-radius:50%;background:#6fd0a0;box-shadow:0 0 0 3px rgba(111,208,160,.15);flex:0 0 auto}
-  .dot.off{background:#7f8f8e;box-shadow:none}
+  .dot{width:7px;height:7px;border-radius:50%;background:#34d399;box-shadow:0 0 0 3px rgba(111,208,160,.15);flex:0 0 auto}
+  .dot.off{background:#707070;box-shadow:none}
 
   /* ---------- main ---------- */
   .main{display:flex;flex-direction:column;min-width:0;overflow:hidden}
@@ -96,8 +96,8 @@
   .lede{font-size:14.5px;color:var(--muted);max-width:640px;margin:0 0 22px}
   .lede b{color:var(--ink-2);font-weight:600}
 
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+  .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
   .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;box-shadow:var(--sh-1)}
   .card h3{font-size:13.5px;margin:0 0 4px;font-weight:650}
   .card p{margin:0;color:var(--muted);font-size:12.5px}
@@ -127,8 +127,8 @@
   .hint{font-size:11.5px;color:var(--faint);margin-top:5px}
 
   .code{
-    background:#0c2426;color:#cfe6e4;border-radius:var(--r-md);padding:12px 14px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
-    font-size:11.5px;line-height:1.55;overflow:auto;white-space:pre;
+    background:#111111;color:#d6d6d6;box-shadow:inset 0 0 0 1px rgba(255,138,61,.25),0 10px 30px -12px rgba(217,83,26,.45);border-radius:var(--r-md);padding:12px 14px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+    font-size:11.5px;line-height:1.55;overflow:auto;white-space:pre;max-width:100%;
   }
   .code .k{color:#7fd6c9}.code .s{color:#e6c07a}.code .c{color:#6f8f8d}
 
@@ -182,6 +182,9 @@
   tr:last-child td{border-bottom:0}
   td .sub{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}
 
+  .plan-seg{display:inline-flex;gap:2px;padding:2px;border-radius:980px;background:var(--fill)}
+  .plan-seg button{border:0;background:transparent;border-radius:980px;padding:4px 11px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+  .plan-note{display:block;margin-top:5px;max-width:280px;white-space:normal}
   .pill{display:inline-flex;align-items:center;gap:5px;border-radius:var(--r-pill);padding:3px 9px;font-size:11px;font-weight:600;white-space:nowrap}
   .pill.ok{background:var(--ok-soft);color:var(--ok)}
   .pill.warn{background:var(--warn-soft);color:var(--warn)}
@@ -207,6 +210,9 @@
   .job .st.bad{background:var(--bad-soft);color:var(--bad)}
   .job b{font-size:12.8px;display:block}
   .job .co{font-size:11.5px;color:var(--muted);display:block;margin-top:1px}
+  .job .msg{font-size:11.5px;color:var(--ink-2);margin-top:4px;line-height:1.4}
+  .job .row-acts{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:4px;font-size:11.5px}
+  .job .row-acts a,.job .row-acts button{border:0;background:none;padding:0;color:var(--accent-ink);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer}
   .job .steps{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
   .step{font-size:10.5px;color:var(--muted);background:var(--surface-3);border-radius:var(--r-pill);padding:2px 7px}
   .step.done{color:var(--ok);background:var(--ok-soft)}
@@ -214,7 +220,7 @@
 
   .gate{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--sh-2);overflow:hidden}
   .gate .gh{padding:13px 15px;border-bottom:1px solid var(--line);background:var(--warn-soft);display:flex;align-items:center;gap:9px}
-  .gate .gh .ic{width:24px;height:24px;border-radius:50%;background:#fff;display:grid;place-items:center;color:var(--warn)}
+  .gate .gh .ic{width:24px;height:24px;border-radius:50%;background:var(--surface);display:grid;place-items:center;color:var(--warn)}
   .gate .gh b{font-size:12.5px;color:var(--warn)}
   .gate .gb{padding:15px}
   .gate h3{font-family:var(--serif);font-size:17px;margin:0 0 4px;font-weight:600}
@@ -235,7 +241,7 @@
 
   .toggle{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-2);cursor:pointer}
   .toggle .sw{width:34px;height:20px;border-radius:var(--r-pill);background:var(--surface-3);position:relative;flex:0 0 auto;transition:background .2s}
-  .toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:var(--sh-1);transition:left .2s}
+  .toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--surface);box-shadow:var(--sh-1);transition:left .2s}
   .toggle.on .sw{background:var(--accent)}
   .toggle.on .sw::after{left:16px}
 
@@ -263,6 +269,9 @@
     .fstep{grid-template-columns:110px 1fr 50px}
   }
 </style>
+  <link rel="stylesheet" href="fx.css" />
+  <script>try{if(localStorage.getItem("co.theme")==="light")document.documentElement.setAttribute("data-theme","light")}catch(e){}</script>
+  <script src="design.js" defer></script>
 </head>
 <body>
 
@@ -299,9 +308,15 @@
 
     <div class="scroll">
 
+      <nav class="sub-steps" id="subSteps" aria-label="Apply steps" hidden>
+        <a href="#step3" data-go="3"><span>1</span>Your list</a>
+        <a href="#step4" data-go="4"><span>2</span>Resumes</a>
+        <a href="#step5" data-go="5"><span>3</span>Apply</a>
+      </nav>
+
       <!-- ============ 1 CONNECT ============ -->
       <section class="screen" data-step="1">
-        <div class="eyebrow">Step 1 · Connect</div>
+        <div class="eyebrow">Connect</div>
         <h1>Your agent, or ours.</h1>
         <p class="lede">Upload the master resume once. Then either use the built-in agent, or hand the same tools to <b>Claude, ChatGPT or Codex</b> through MCP or a Skill.</p>
 
@@ -330,28 +345,38 @@
 
             <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
               <button class="btn btn--primary" type="button" id="btnRead">Read my resume</button>
-              <button class="btn" type="button" id="btnDetails">Contact details</button>
+              <button class="btn" type="button" id="btnDetails">Contact &amp; readiness</button>
             </div>
+            <div id="readinessStrip" class="chips" style="margin-top:10px"></div>
             <div id="readOut" style="margin-top:12px"></div>
           </div>
 
           <div class="card">
-            <h3>Bring your own agent</h3>
-            <p>Claude, ChatGPT or Codex can run the same flow. They get the tools, not your password.</p>
-            <div class="code" style="margin-top:12px"><span class="c">// MCP — one line in the client config</span>
+            <h3>Bring your own agent (Zero extra API key)</h3>
+            <p>Connect your existing <b>Claude Pro / Desktop</b> or <b>ChatGPT Plus / Pro</b> subscription via MCP — your chat subscription supplies the AI brain without separate OpenAI/Sarvam billing.</p>
+            <div class="chips" id="mcpTabs" style="margin-top:10px">
+              <button class="chip on" type="button" data-mcptab="stdio">Claude Desktop (stdio)</button>
+              <button class="chip" type="button" data-mcptab="remote">ChatGPT Dev Mode / Tunnel (HTTPS)</button>
+              <button class="chip" type="button" data-mcptab="api">REST API &amp; Code Mode</button>
+            </div>
+            <div class="code" id="mcpSnippet" style="margin-top:8px"><span class="c">// Claude Desktop / Cursor / Codex — local stdio (set cwd!)</span>
 {
   <span class="k">"mcpServers"</span>: {
     <span class="k">"career-ops-india"</span>: {
       <span class="k">"command"</span>: <span class="s">"node"</span>,
-      <span class="k">"args"</span>: [<span class="s">"--import"</span>, <span class="s">"tsx"</span>, <span class="s">"server/mcp.ts"</span>]
+      <span class="k">"args"</span>: [<span class="s">"node_modules/tsx/dist/cli.mjs"</span>, <span class="s">"server/mcp.ts"</span>],
+      <span class="k">"cwd"</span>: <span class="s">"/path/to/Career-Ops India"</span>
     }
   }
 }</div>
-            <div class="code" style="margin-top:8px"><span class="c"># or install the Skill</span>
-npx skills add career-ops-india/apply</div>
-            <div class="notice info" style="margin-top:12px">
+            <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              <button class="btn btn--sm" type="button" id="btnCopyMcp">Copy snippet</button>
+              <button class="btn btn--sm" type="button" id="btnTestMcp">Test local MCP</button>
+              <span class="tiny muted" id="mcpTestOut"></span>
+            </div>
+            <div class="notice info" style="margin-top:10px">
               <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
-              <span>The agent asks for an email or OTP in its own chat. It never asks for a password.</span>
+              <span>OTP, Notice Period &amp; CAPTCHA handovers pause cleanly in chat (<code>GET /api/challenges</code> + <code>/api/autoapply/answer</code>). Passwords are never stored.</span>
             </div>
           </div>
         </div>
@@ -362,7 +387,7 @@ npx skills add career-ops-india/apply</div>
 
       <!-- ============ 2 MARKET ============ -->
       <section class="screen" data-step="2">
-        <div class="eyebrow">Step 2 · The market</div>
+        <div class="eyebrow">The market</div>
         <h1 id="mktH1">Where should we look?</h1>
         <p class="lede" id="mktLede">We read your experience from the resume. Pick a geography, then see how the numbers narrow.</p>
 
@@ -371,9 +396,10 @@ npx skills add career-ops-india/apply</div>
           <button class="chip" type="button" data-geo="remote">Remote</button>
           <button class="chip" type="button" data-geo="state">+ State</button>
           <button class="chip" type="button" data-geo="city">+ City</button>
+          <button class="chip" type="button" data-geo="locality">+ Locality / PIN</button>
         </div>
 
-        <div class="grid2" style="margin-top:6px">
+        <div class="grid3" style="margin-top:6px">
           <div class="field" id="stateWrap" hidden>
             <label for="state">State</label>
             <select id="state"></select>
@@ -382,10 +408,30 @@ npx skills add career-ops-india/apply</div>
             <label for="city">City</label>
             <input id="city" placeholder="Chennai" autocomplete="off">
           </div>
+          <div class="field" id="localityWrap" hidden>
+            <label for="locality">Locality / Corridor / PIN</label>
+            <input id="locality" placeholder="e.g. Velachery, Guindy, OMR, 600042" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="field" style="max-width:260px;margin-top:10px">
+          <label for="maxAgeDays">Posting freshness cutoff</label>
+          <select id="maxAgeDays">
+            <option value="7">Last 7 days (Hyper-fresh)</option>
+            <option value="14" selected>Last 14 days (Recommended)</option>
+            <option value="30">Last 30 days</option>
+            <option value="0">Any age (includes older ATS boards)</option>
+          </select>
         </div>
 
         <div class="funnel" id="funnel"></div>
         <div class="grid3" id="mktStats"></div>
+        <div class="card" id="geoHeatCard" style="margin-top:14px" hidden>
+          <h3>Geography Heatmap · India &rarr; State &rarr; City &rarr; Locality</h3>
+          <p id="geoHeatNote" class="hint" style="margin-top:2px"></p>
+          <div id="geoHeatBars" class="funnel" style="margin:12px 0 6px"></div>
+          <div id="geoHeatLocalities" class="chips"></div>
+        </div>
 
         <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn btn--primary" type="button" id="btnFind">Find live jobs</button>
@@ -397,24 +443,11 @@ npx skills add career-ops-india/apply</div>
 
       <!-- ============ 3 PICK ============ -->
       <section class="screen" data-step="3">
-        <div class="eyebrow">Step 3 · Choose</div>
-        <h1>Pick 10. Not 400.</h1>
-        <p class="lede">A batch of 10 is enough to see what works. Every application spends model tokens and your attention.</p>
+        <div class="eyebrow">Your queue</div>
+        <h1 id="listH1">The jobs you chose.</h1>
+        <p class="lede">Add jobs from <a href="workspace.html#jobs">Find</a>. Each one gets its own resume, then the form is filled with you in the loop.</p>
 
-        <div id="families"></div>
-
-        <div class="pick" id="pickModes">
-          <label><input type="radio" name="pick" value="top10" checked><span><b>Top 10 by match</b><small>Best fit first. Recommended.</small></span></label>
-          <label><input type="radio" name="pick" value="manual"><span><b>Choose manually</b><small>Pick from the shortlist.</small></span></label>
-          <label><input type="radio" name="pick" value="all"><span><b>Apply all <span id="allCount"></span></b><small>Not recommended.</small></span></label>
-        </div>
-
-        <div class="notice warn" style="margin-top:12px">
-          <svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 9v4M12 16.5v.5"/></svg>
-          <span><b>Apply all spends tokens on every tailoring and application.</b> Start with 10, see the result, then run more.</span>
-        </div>
-
-        <div id="manualWrap" hidden style="margin-top:14px"></div>
+        <div id="pickList"></div>
 
         <div class="card" style="margin-top:14px" id="gapCard" hidden>
           <h3>Before you apply</h3>
@@ -422,33 +455,38 @@ npx skills add career-ops-india/apply</div>
           <div class="chips" id="gapChips"></div>
         </div>
 
-        <div style="margin-top:18px"><button class="btn btn--primary" type="button" id="btnTailor">Tailor these</button></div>
-        <div class="footer-note">Tailoring reorders what your resume already says. Nothing is invented.</div>
+        <div style="margin-top:18px;display:none;gap:8px;flex-wrap:wrap" id="listActions">
+          <button class="btn btn--primary" type="button" id="btnTailor">Make the resumes</button>
+          <a class="btn" href="workspace.html#jobs">Add more jobs</a>
+        </div>
+        <div class="footer-note"><b>Master</b> sends your master resume as it is, with no AI call. <b>Tailor</b> reorders what it already says toward the posting. Nothing is invented either way.</div>
       </section>
 
       <!-- ============ 4 TAILOR ============ -->
       <section class="screen" data-step="4">
-        <div class="eyebrow">Step 4 · Tailor</div>
+        <div class="eyebrow">Tailor</div>
         <h1 id="tailorH1">One resume per job.</h1>
         <p class="lede">Each one reorders what your resume already says. <b>Nothing is invented.</b> Gaps stay gaps.</p>
 
         <div class="progress"><i id="tailorBar" style="width:0%"></i></div>
         <div class="small muted" id="tailorCount" style="margin-bottom:14px">Nothing tailored yet.</div>
+        <div id="tailorThink" hidden style="margin:-4px 0 14px"></div>
 
         <div class="card" style="padding:0;overflow:hidden">
           <table>
-            <thead><tr><th>Job</th><th>Match</th><th>Gaps</th><th>Status</th></tr></thead>
+            <thead><tr><th>Job</th><th>Match</th><th>Experience / Fit</th><th>Gaps</th><th>Status</th></tr></thead>
             <tbody id="tailorRows"></tbody>
           </table>
         </div>
 
         <div class="notice info" style="margin-top:14px">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
-          <span>Each tailored PDF is saved with a hash. Auto apply attaches the exact file you reviewed.</span>
+          <span>Each resume PDF is saved with a SHA-256 hash. Use <b>Tailor all</b> (needs AI key) or <b>Use original PDF</b> (₹0 API key — attaches your master resume directly).</span>
         </div>
 
         <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn btn--primary" type="button" id="btnTailorRun">Tailor all</button>
+          <button class="btn" type="button" id="btnOriginalRun">Use original PDF (₹0 key)</button>
           <button class="btn" type="button" data-go="5">Start applying</button>
         </div>
         <div id="tailorOut" style="margin-top:12px"></div>
@@ -456,13 +494,14 @@ npx skills add career-ops-india/apply</div>
 
       <!-- ============ 5 APPLY ============ -->
       <section class="screen" data-step="5">
-        <div class="eyebrow">Step 5 · Apply</div>
+        <div class="eyebrow">Apply</div>
         <h1>Applying, with you in the loop.</h1>
         <p class="lede">No browser tab to babysit. Email, OTP and unknown fields are asked <b>here</b>. The browser opens only for a captcha or a password.</p>
 
         <div class="console">
           <div class="queue">
             <div class="qh"><b>Queue</b><span class="cnt" id="queueCnt">Not started</span></div>
+            <div class="jq-lane" id="queueLane" aria-hidden="true"></div>
             <div id="queueRows"><div class="job"><div class="st wait">·</div><div><b>Nothing queued</b><span class="co">Tailor a batch, then start applying.</span></div></div></div>
           </div>
 
@@ -480,6 +519,10 @@ npx skills add career-ops-india/apply</div>
                 <label class="toggle" id="submitToggle"><span class="sw"></span> <span>Submit automatically</span></label>
                 <div class="hint">Off means the form is filled and left for you to press Submit.</div>
               </div>
+              <div style="margin-top:10px">
+                <label class="toggle on" id="deferToggle"><span class="sw"></span> <span>Apply ready jobs first (park blockers)</span></label>
+                <div class="hint">On skips past a captcha or missing question onto later queued jobs, then lets you Retry parked interactively.</div>
+              </div>
             </div>
 
             <div class="why">
@@ -493,7 +536,7 @@ npx skills add career-ops-india/apply</div>
 
       <!-- ============ 6 LEARN ============ -->
       <section class="screen" data-step="6">
-        <div class="eyebrow">Step 6 · Learn</div>
+        <div class="eyebrow">Learn</div>
         <h1>Every form teaches the next one.</h1>
         <p class="lede">The agent keeps the shape of each site and the answers you gave. Edit or forget any of it.</p>
 
@@ -522,7 +565,7 @@ npx skills add career-ops-india/apply</div>
 
       <!-- ============ 7 OVERVIEW ============ -->
       <section class="screen" data-step="7">
-        <div class="eyebrow">Step 7 · Overview</div>
+        <div class="eyebrow">Overview</div>
         <h1 id="ovH1">Nothing applied yet.</h1>
         <p class="lede">Confirmations are saved with the exact text the site showed. Nothing is marked applied on a click alone.</p>
 
@@ -536,14 +579,14 @@ npx skills add career-ops-india/apply</div>
 
         <div class="card" style="margin-top:14px;padding:0;overflow:hidden">
           <table>
-            <thead><tr><th>Job</th><th>Status</th><th>Confirmation</th></tr></thead>
-            <tbody id="ovRows"><tr><td colspan="3" class="muted">No applications in this run.</td></tr></tbody>
+            <thead><tr><th>Job &amp; Role</th><th>Channel</th><th>Exp asked</th><th>Skills to learn</th><th>Status &amp; confirmation</th></tr></thead>
+            <tbody id="ovRows"><tr><td colspan="5" class="muted">No applications in this run.</td></tr></tbody>
           </table>
         </div>
 
         <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn--primary" type="button" data-go="3">Apply 10 more</button>
-          <a class="btn" href="workspace.html">Open Track</a>
+          <a class="btn btn--primary" href="workspace.html#jobs">Find more jobs</a>
+          <a class="btn" href="workspace.html#track">Open Results</a>
           <button class="btn" type="button" id="btnExport">Export</button>
         </div>
         <div class="footer-note">Nothing is marked applied without a confirmation on the page.</div>
@@ -565,6 +608,7 @@ npx skills add career-ops-india/apply</div>
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => [...(r || document).querySelectorAll(s)];
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const fmtLoc = (s) => String(s ?? "").replace(/\s*,\s*,+\s*/g, ", ").replace(/^[\s,]+|[\s,]+$/g, "");
 
   function toast(msg, opts) {
     const o = opts || {};
@@ -578,7 +622,7 @@ npx skills add career-ops-india/apply</div>
     }
     const el = document.createElement("div");
     el.className = "toast " + (o.kind || "");
-    el.innerHTML = (o.title ? `<b>${esc(o.title)}</b>` : "") + esc(msg);
+    el.innerHTML = (o.title ? `<b>${esc(o.title)}</b> ` : "") + `<span>${esc(msg)}</span>`;
     wrap.appendChild(el);
     setTimeout(() => el.remove(), o.ms || 5200);
   }
@@ -611,16 +655,23 @@ npx skills add career-ops-india/apply</div>
     resume: ls.raw("co.masterResume", "") || "",
     file: ls.raw("co.masterFile", "") || "",
     details: ls.get("co.console.details", {}),
-    geo: ls.get("co.console.geo", { india: true, remote: false, state: "", city: "" }),
+    geo: ls.get("co.console.geo", { india: true, remote: false, state: "", city: "", locality: "", maxAgeDays: 14 }),
+    localityOpen: false,
     jobs: ls.get("co.console.jobs", []),
     summary: ls.get("co.console.summary", null),
     picks: ls.get("co.console.picks", []),
     pickMode: ls.get("co.console.pickMode", "top10"),
-    submit: ls.get("co.console.submit", true),
+    submit: ls.get("co.console.submit", false),
+    deferBlocked: ls.get("co.console.deferBlocked", true),
     tailored: new Set(ls.get("co.tailoredIds", [])),
+    tailorModes: ls.get("co.tailorModes", {}),
+    /* per job: "master" (send the master resume) or "tailor" (rewrite first) */
+    plan: ls.get("co.resumePlan", {}),
+    knownGaps: new Set(ls.get("co.knownGaps", [])),
     queue: null,
     sites: [],
     es: null,
+    pdfBase64: "",
   };
 
   const save = () => {
@@ -633,7 +684,11 @@ npx skills add career-ops-india/apply</div>
     ls.set("co.console.picks", S.picks);
     ls.set("co.console.pickMode", S.pickMode);
     ls.set("co.console.submit", S.submit);
+    ls.set("co.console.deferBlocked", S.deferBlocked);
     ls.set("co.tailoredIds", [...S.tailored]);
+    ls.set("co.tailorModes", S.tailorModes);
+    ls.set("co.resumePlan", S.plan);
+    ls.set("co.knownGaps", [...S.knownGaps]);
     ls.setRaw("co.role", S.role);
   };
 
@@ -644,10 +699,14 @@ npx skills add career-ops-india/apply</div>
       await api("/api/profile", { role: S.role, years: S.years, details: S.details });
     } catch {}
   }
-  async function pushResume() {
+  async function pushResume(pdfBase64) {
     if (!S.resume || S.resume.trim().length < 60) return;
     try {
-      await api("/api/resume", { text: S.resume, file: S.file });
+      await api("/api/resume", {
+        text: S.resume,
+        file: S.file,
+        ...(pdfBase64 ? { pdfBase64 } : {}),
+      });
     } catch {}
   }
 
@@ -665,6 +724,19 @@ npx skills add career-ops-india/apply</div>
       if (k === n) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
     });
     $(".scroll").scrollTop = 0;
+    const sub = $("#subSteps");
+    if (sub) {
+      sub.hidden = n < 3 || n > 5;
+      sub.querySelectorAll("[data-go]").forEach((a) => {
+        const k = Number(a.dataset.go);
+        a.classList.toggle("on", k === n);
+        a.classList.toggle("done", k < n);
+        if (k === n) a.setAttribute("aria-current", "step"); else a.removeAttribute("aria-current");
+      });
+    }
+    /* the shared step bar (design.js) reads the hash */
+    try { history.replaceState(null, "", "#step" + n); } catch {}
+    dispatchEvent(new Event("co:step"));
     if (n === 2) renderMarket();
     if (n === 3) renderPick();
     if (n === 4) renderTailor();
@@ -681,12 +753,68 @@ npx skills add career-ops-india/apply</div>
   /* ---------------- step 1: resume ---------------- */
 
   const SKILL_WORDS = [
-    "product management","roadmap","backlog","user stories","stakeholder","discovery","a/b test","experimentation",
-    "analytics","sql","python","excel","tableau","power bi","looker","mixpanel","amplitude","figma","jira","confluence",
-    "agile","scrum","kanban","okr","kpi","pricing","go-to-market","gtm","saas","b2b","b2c","api","platform","mobile",
-    "growth","retention","activation","conversion","funnel","segmentation","crm","salesforce","hubspot","ai","ml","llm",
-    "genai","prompt","data","dashboard","forecasting","budget","p&l","vendor","hiring","mentoring","leadership",
+    "product management","product strategy","product ops","product operations","product lifecycle",
+    "roadmap","backlog","user stories","prd","requirements","user research","customer discovery",
+    "wireframing","prototyping","prioritisation","stakeholder management","stakeholder","discovery",
+    "a/b test","a/b testing","experimentation","analytics","sql","python","excel","tableau",
+    "power bi","looker","metabase","mixpanel","amplitude","figma","jira","confluence","agile",
+    "scrum","kanban","okr","okrs","kpi","kpis","metrics","pricing","positioning","go-to-market",
+    "gtm","saas","b2b","b2c","enterprise","api","platform","mobile","growth","retention",
+    "activation","conversion","funnel","launch","cross-functional","design thinking","market research",
+    "competitive analysis","unit economics","segmentation","crm","salesforce","hubspot","ai",
+    "machine learning","ml","llm","genai","prompt","data","data platform","etl","dashboard",
+    "forecasting","budget","p&l","vendor management","vendor","hiring","mentoring","leadership",
+    "fintech","payments","ecommerce","marketplace","automotive","mobility","ev"
   ];
+
+  const EXTRACT_CITIES = [
+    "Chennai","Bengaluru","Bangalore","Hyderabad","Mumbai","Pune","New Delhi","Delhi","Noida",
+    "Gurugram","Gurgaon","Kolkata","Ahmedabad","Coimbatore","Kochi","Thiruvananthapuram","Jaipur"
+  ];
+  const LINKEDIN_STOP = new Set([
+    "out","around","between","general","particular","order","addition","terms","case","place","line",
+    "house","store","progress","practice","fact","short","total","full","part","response","return",
+    "turn","time","front","back","depth","detail","brief","summary","writing","person","team","teams",
+    "hand","hands","stock","demand","charge","common","contrast","essence","favor","favour","light",
+    "love","memory","mind","need","public","reality","respect","search","service","sight","spite",
+    "touch","trouble","truth","vain","view","work","works"
+  ]);
+  const FREE_MAIL_HOST = /^(gmail|googlemail|yahoo|outlook|hotmail|live|icloud|proton|protonmail|aol|zoho|rediffmail|ymail)\./i;
+  const NAME_STOP_RX = /^(curriculum vitae|resume|biodata|cv|profile|contact|personal details|references?|executive summary|professional summary)$/i;
+
+  function cleanNameWords(text) {
+    const cleaned = String(text || "").trim().replace(/,\s*[A-Z][A-Za-z.&]{1,10}(?:\s+[A-Z][A-Za-z.&]{1,10}){0,2}\s*$/, "");
+    const words = cleaned.trim().split(/\s+/);
+    if (words.length < 2 || words.length > 5) return null;
+    if (!words.every((w) => /^[A-Za-z][A-Za-z.'\u2019-]*$/.test(w))) return null;
+    if (words.some((w) => w.length > 20)) return null;
+    return words.join(" ");
+  }
+
+  function namePrefix(text) {
+    const words = String(text || "").trim().split(/\s+/);
+    for (let n = Math.min(4, words.length); n >= 2; n--) {
+      const cand = cleanNameWords(words.slice(0, n).join(" "));
+      if (cand) return cand;
+    }
+    return null;
+  }
+
+  function segmentsOf(line) {
+    const items = (line.items || []).slice().sort((a, b) => a.x - b.x);
+    const out = [];
+    let cur = null;
+    for (const it of items) {
+      const h = Math.round(it.h || 0);
+      if (!cur) { cur = { h, items: [it] }; continue; }
+      const prev = cur.items[cur.items.length - 1];
+      const gap = it.x - (prev.x + (prev.w || 0));
+      if (Math.abs(h - cur.h) <= 1 && gap < 14) cur.items.push(it);
+      else { out.push(cur); cur = { h, items: [it] }; }
+    }
+    if (cur) out.push(cur);
+    return out.map((s) => ({ h: s.h, x: s.items[0].x, text: s.items.map((i) => i.s).join(" ").replace(/\s+/g, " ").trim() })).filter((s) => s.text);
+  }
 
   function inferYears(text) {
     const t = String(text || "");
@@ -704,16 +832,93 @@ npx skills add career-ops-india/apply</div>
 
   function inferSkills(text) {
     const t = String(text || "").toLowerCase();
-    return SKILL_WORDS.filter((w) => t.includes(w)).slice(0, 24);
+    return SKILL_WORDS.filter((w) => {
+      const e = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return /^[a-z0-9]+$/i.test(w) ? new RegExp(`\\b${e}\\b`, "i").test(t) : t.includes(w);
+    }).slice(0, 32);
   }
 
-  function inferDetails(text) {
+  function inferDetails(text, layout) {
     const t = String(text || "");
-    const email = (t.match(/[\w.+-]+@[\w-]+\.[\w.]+/) || [""])[0];
-    const phone = (t.match(/(?:\+91[\s-]?)?[6-9]\d{9}\b/) || [""])[0];
-    const linkedin = (t.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[\w-]+/i) || [""])[0];
-    const name = (t.split(/\r?\n/).map((l) => l.trim()).find((l) => l && l.length < 48 && /^[A-Za-z][A-Za-z .'-]+$/.test(l) && !/resume|curriculum|vitae/i.test(l))) || "";
-    return { name, email, phone, linkedin };
+    const lines = t.split(/\r?\n|\t/).map((l) => l.replace(/\s+/g, " ").trim()).filter(Boolean);
+    const email = (t.match(/[\w.+-]+@[\w-]+\.[\w.]{2,}/) || [""])[0];
+    const phone = (t.match(/(?:\+?91[\s.-]?)?[6-9]\d{4}[\s.-]?\d{5}\b/) || [""])[0].trim();
+
+    let linkedin = "";
+    const fullLi = t.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/(?:in|pub)\/[\w-]+/i);
+    if (fullLi) {
+      linkedin = fullLi[0].replace(/^https?:\/\/(www\.)?/i, "");
+    } else {
+      const shortLi = t.match(/(?:^|[\s|·•(])in\/([a-z0-9][a-z0-9-]{3,})\b/i);
+      if (shortLi && !LINKEDIN_STOP.has(shortLi[1].toLowerCase())) {
+        linkedin = `linkedin.com/in/${shortLi[1].toLowerCase()}`;
+      }
+    }
+
+    let website = "";
+    const mailHosts = new Set((t.match(/[\w.+-]+@[\w-]+\.[\w.]{2,}/g) || []).map((e) => e.split("@")[1].toLowerCase()));
+    const siteRe = /\b((?:https?:\/\/)?(?:www\.)?[a-z0-9][a-z0-9-]{1,}\.(?:com|in|io|dev|me|co|net|org|ai|app|xyz|tech|site|online)(?:\/[^\s|,;)]*)?)\b/gi;
+    for (const m of t.matchAll(siteRe)) {
+      const raw = m[1];
+      const host = raw.replace(/^https?:\/\/(www\.)?/i, "").split("/")[0].toLowerCase();
+      if (mailHosts.has(host) || FREE_MAIL_HOST.test(host) || /linkedin\.com$/i.test(host)) continue;
+      website = raw.replace(/^https?:\/\/(www\.)?/i, "");
+      break;
+    }
+
+    let city = "";
+    for (const line of lines.slice(0, 20)) {
+      const hit = EXTRACT_CITIES.find((c) => new RegExp(`\\b${c}\\b`, "i").test(line));
+      if (hit) { city = hit === "Bangalore" ? "Bengaluru" : hit; break; }
+    }
+
+    let postalCode = "";
+    for (const line of lines.slice(0, 25)) {
+      const pm = line.match(/\b(?:pin\s*(?:code)?|postal\s*(?:code)?|zip(?:\s*code)?)\s*[:\-]?\s*([1-8]\d{5})\b/i)
+        || (/[,·|]|\b(?:india|tamil\s*nadu|chennai|bengaluru|bangalore|hyderabad|mumbai|pune|delhi|noida|gurugram|kolkata)\b/i.test(line)
+            ? line.match(/(?<![\d+])([1-8]\d{5})(?!\d)/)
+            : null);
+      if (pm) { postalCode = pm[1]; break; }
+    }
+
+    let name = "";
+    const page0 = layout && layout[0];
+    if (page0 && page0.lines && page0.lines.length) {
+      const top = page0.lines.slice(0, 12);
+      let maxH = 0;
+      for (const line of top) for (const s of segmentsOf(line)) maxH = Math.max(maxH, s.h);
+      const floor = Math.max(10, maxH * 0.6);
+      let best = null;
+      for (const line of top) {
+        for (const s of segmentsOf(line)) {
+          if (s.h < floor) continue;
+          const cand = cleanNameWords(s.text) || namePrefix(s.text);
+          if (!cand || NAME_STOP_RX.test(cand)) continue;
+          if (!best || s.h > best.h) best = { v: cand, h: s.h };
+        }
+      }
+      if (best) name = best.v;
+    }
+    if (!name) {
+      for (const line of lines.slice(0, 5)) {
+        if (!line || line.length > 96 || /@/.test(line)) continue;
+        const cand = cleanNameWords(line) || namePrefix(line);
+        if (cand && !NAME_STOP_RX.test(cand)) { name = cand; break; }
+      }
+    }
+
+    let currentTitle = "";
+    let currentCompany = "";
+    for (const line of lines.slice(0, 10)) {
+      const hm = line.match(/^(.{3,60}?)\s*[·|]\s*(.{2,60})$/);
+      if (hm && /\b(founder|product|manager|lead|head|director|engineer|analyst|consultant|designer|vp)\b/i.test(hm[1]) && !/\d{4}|@/.test(hm[2])) {
+        currentTitle = hm[1].trim();
+        currentCompany = hm[2].trim();
+        break;
+      }
+    }
+
+    return { name, email, phone, linkedin, website, city, postalCode, currentTitle, currentCompany };
   }
 
   async function extractFile(file) {
@@ -722,21 +927,52 @@ npx skills add career-ops-india/apply</div>
     if (name.endsWith(".pdf")) {
       if (!window.pdfjsLib) throw new Error("The PDF reader did not load.");
       window.pdfjsLib.GlobalWorkerOptions.workerSrc = "vendor/pdf.worker.min.js";
+      const bytes = new Uint8Array(buf);
+      let bin = "";
+      for (let k = 0; k < bytes.length; k += 8192) {
+        bin += String.fromCharCode(...bytes.subarray(k, Math.min(k + 8192, bytes.length)));
+      }
+      const pdfBase64 = bytes.length <= 5 * 1024 * 1024 ? btoa(bin) : "";
       const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
-      let out = "";
+      const pages = [];
+      const layout = [];
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
-        out += content.items.map((it) => it.str).join(" ") + "\n";
+        const rows = new Map();
+        for (const it of content.items || []) {
+          if (!it.str || !it.str.trim()) continue;
+          const y = Math.round((it.transform && it.transform[5]) || 0);
+          if (!rows.has(y)) rows.set(y, []);
+          rows.get(y).push({ x: (it.transform && it.transform[4]) || 0, w: it.width || 0, h: it.height || 0, s: it.str });
+        }
+        const sortedY = [...rows.keys()].sort((a, b) => b - a);
+        const lines = [];
+        for (const y of sortedY) {
+          const items = rows.get(y).sort((a, b) => a.x - b.x);
+          let lineText = "";
+          for (let idx = 0; idx < items.length; idx++) {
+            const o = items[idx];
+            if (idx === 0) { lineText = o.s; continue; }
+            const prev = items[idx - 1];
+            const gap = o.x - (prev.x + (prev.w || 0));
+            const h = Math.max(o.h || 0, prev.h || 0);
+            lineText += (gap > Math.max(6, h * 0.7) ? "\t" : " ") + o.s;
+          }
+          lineText = lineText.replace(/[^\S\t]+/g, " ").trim();
+          if (lineText) lines.push({ y, x: items[0].x, items, text: lineText });
+        }
+        layout.push({ lines });
+        pages.push(lines.map((l) => l.text).join("\n"));
       }
-      return out;
+      return { text: pages.join("\n"), layout, pdfBase64 };
     }
     if (name.endsWith(".docx")) {
       if (!window.mammoth) throw new Error("The DOCX reader did not load.");
       const r = await window.mammoth.extractRawText({ arrayBuffer: buf });
-      return r.value || "";
+      return { text: r.value || "", layout: null, pdfBase64: "" };
     }
-    return new TextDecoder().decode(buf);
+    return { text: new TextDecoder().decode(buf), layout: null, pdfBase64: "" };
   }
 
   async function takeFile(file) {
@@ -744,16 +980,19 @@ npx skills add career-ops-india/apply</div>
     $("#dropTitle").textContent = "Reading " + file.name + "…";
     $("#dropSub").textContent = "This stays on your machine.";
     try {
-      const text = await extractFile(file);
+      const parsed = await extractFile(file);
+      const text = parsed.text || "";
       if (!text || text.trim().length < 60) throw new Error("That file had almost no text. Is it a scan?");
       S.resume = text.slice(0, 60000);
       S.file = file.name;
+      S.pdfBase64 = parsed.pdfBase64 || "";
+      S.layout = parsed.layout || null;
       ls.setRaw("co.masterResume", S.resume);
       ls.setRaw("co.masterFile", S.file);
-      pushResume();
+      pushResume(S.pdfBase64);
       $("#dropTitle").textContent = file.name;
       $("#dropSub").textContent = `${Math.round(S.resume.length / 1000)}k characters read · click to replace`;
-      readResume();
+      readResume(true);
     } catch (err) {
       $("#dropTitle").textContent = "Drop your resume";
       $("#dropSub").textContent = "PDF or DOCX · read locally";
@@ -761,26 +1000,52 @@ npx skills add career-ops-india/apply</div>
     }
   }
 
-  function readResume() {
+  function readResume(isNewUpload) {
     if (!S.resume) {
       $("#readOut").innerHTML = `<div class="notice warn"><svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 9v4M12 16.5v.5"/></svg><span>Upload a resume first, or paste one in Contact details.</span></div>`;
       return;
     }
     const years = inferYears(S.resume);
     const skills = inferSkills(S.resume);
-    const det = inferDetails(S.resume);
-    S.details = { ...det, ...S.details, ...(det.name ? { name: det.name } : {}) };
-    if (years && !$("#years").value) { S.years = years; $("#years").value = years; }
+    const det = inferDetails(S.resume, S.layout);
+    const prev = S.details || {};
+    const isDemo = Boolean((prev.email && prev.email.includes("@example.")) || prev.name === "Ananya Iyer");
+    if (isNewUpload || isDemo) {
+      S.details = {
+        ...prev,
+        ...(det.name ? { name: det.name } : isDemo ? { name: "" } : {}),
+        ...(det.email ? { email: det.email } : isDemo ? { email: "" } : {}),
+        ...(det.phone ? { phone: det.phone } : isDemo ? { phone: "" } : {}),
+        ...(det.linkedin ? { linkedin: det.linkedin } : isDemo ? { linkedin: "" } : {}),
+        ...(det.website ? { website: det.website } : isDemo ? { website: "" } : {}),
+        ...(det.city && (isDemo || !prev.city) ? { city: det.city } : {}),
+        ...(det.currentTitle ? { currentTitle: det.currentTitle } : isDemo ? { currentTitle: "" } : {}),
+        ...(det.currentCompany ? { currentCompany: det.currentCompany } : isDemo ? { currentCompany: "" } : {}),
+      };
+    } else {
+      S.details = {
+        ...det,
+        ...prev,
+        ...(!prev.name && det.name ? { name: det.name } : {}),
+        ...(!prev.linkedin && det.linkedin ? { linkedin: det.linkedin } : {}),
+        ...(!prev.website && det.website ? { website: det.website } : {}),
+        ...(!prev.currentTitle && det.currentTitle ? { currentTitle: det.currentTitle } : {}),
+        ...(!prev.currentCompany && det.currentCompany ? { currentCompany: det.currentCompany } : {}),
+      };
+    }
+    if (years && (isNewUpload || !$("#years").value)) { S.years = years; $("#years").value = years; }
     if (!$("#role").value) $("#role").value = S.role || "Product Manager";
     S.role = $("#role").value.trim();
     save();
+    if (isNewUpload) pushProfile();
+    renderReadinessStrip();
     $("#whoName").textContent = S.details.name || "You";
     $("#whoAv").textContent = (S.details.name || "You").split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
     $("#readOut").innerHTML = `
       <div class="notice ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
-        <span><b>${esc(S.file || "Resume")}</b> read. ${years ? `About <b>${esc(years)} years</b> of experience.` : "Confirm the years below."} ${skills.length ? `${skills.length} skills found.` : ""}</span>
+        <span><b>${esc(S.file || "Resume")}</b> read${S.details.name ? ` · ${esc(S.details.name)}` : ""}. ${years ? `About <b>${esc(years)} years</b> of experience.` : "Confirm the years below."} ${skills.length ? `${skills.length} skills found.` : ""}</span>
       </div>
-      ${skills.length ? `<div class="chips">${skills.slice(0, 14).map((s) => `<span class="chip">${esc(s)}</span>`).join("")}</div>` : ""}
+      ${skills.length ? `<div class="chips">${skills.map((s) => `<span class="chip">${esc(s)}</span>`).join("")}</div>` : ""}
       <div class="hint">Confirm the role and years, then continue. Nothing is sent anywhere.</div>`;
   }
 
@@ -791,48 +1056,168 @@ npx skills add career-ops-india/apply</div>
   ["dragleave", "drop"].forEach((ev) => $("#drop").addEventListener(ev, (e) => { e.preventDefault(); $("#drop").classList.remove("over"); }));
   $("#drop").addEventListener("drop", (e) => takeFile(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]));
 
-  $("#btnRead").addEventListener("click", () => { S.role = $("#role").value.trim(); S.years = $("#years").value.trim(); save(); pushProfile(); readResume(); });
+  $("#btnRead").addEventListener("click", () => { S.role = $("#role").value.trim(); readResume(true); });
   $("#role").addEventListener("change", () => { S.role = $("#role").value.trim(); save(); pushProfile(); });
   $("#years").addEventListener("change", () => { S.years = $("#years").value.trim(); save(); pushProfile(); });
 
-  $("#btnDetails").addEventListener("click", () => {
+  function renderReadinessStrip() {
     const d = S.details || {};
+    const host = $("#readinessStrip");
+    if (!host) return;
+    const pills = [
+      ["Notice", d.noticePeriod || "Ask upfront"],
+      ["Current CTC", d.currentCtc || "Not set"],
+      ["Expected CTC", d.expectedCtc || "Not set"],
+      ["Work mode", d.preferredWorkMode || "Any"],
+      ["Locality", d.preferredLocality || d.city || S.geo.city || "Chennai"],
+    ];
+    host.innerHTML = pills
+      .map(([k, v]) => `<span class="chip ${v === "Ask upfront" || v === "Not set" ? "" : "on"}" style="cursor:default">${esc(k)}: <b>${esc(v)}</b></span>`)
+      .join("");
+  }
+
+  $$("#mcpTabs .chip").forEach((b) => b.addEventListener("click", () => {
+    $$("#mcpTabs .chip").forEach((c) => c.classList.toggle("on", c === b));
+    const tab = b.dataset.mcptab;
+    const origin = location.origin;
+    if (tab === "stdio") {
+      $("#mcpSnippet").textContent = JSON.stringify({
+        mcpServers: {
+          "career-ops-india": {
+            command: "node",
+            args: ["node_modules/tsx/dist/cli.mjs", "server/mcp.ts"],
+            cwd: "<path to Career-Ops India>",
+          },
+        },
+      }, null, 2);
+    } else if (tab === "remote") {
+      $("#mcpSnippet").textContent =
+`# ChatGPT Developer Mode / Claude Remote Custom Connector (no developer API key needed!)
+# 1. Start tunnel: cloudflared tunnel --url ${origin}
+# 2. Set optional Bearer token (mcpToken) in data/secrets.json if exposed beyond localhost
+# 3. Connect MCP URL: https://<your-tunnel>.trycloudflare.com/api/mcp`;
+    } else {
+      $("#mcpSnippet").textContent =
+`# OpenAPI & Challenge Endpoints (for Agent SDKs / Cloudflare Code Mode)
+GET  ${origin}/api/openapi.json
+GET  ${origin}/api/geo/heatmap?role=Product+Manager&city=Chennai&locality=Velachery&maxAgeDays=14
+GET  ${origin}/api/challenges   -> returns CAPTCHA_GATE / OTP_REQUIRED / SCREENING_QUESTION
+POST ${origin}/api/mcp          -> Streamable HTTP JSON-RPC 2.0`;
+    }
+  }));
+
+  $("#btnCopyMcp")?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText($("#mcpSnippet").textContent || "");
+      toast("MCP snippet copied.", { kind: "ok" });
+    } catch {
+      toast("Select the code box to copy.", { kind: "info" });
+    }
+  });
+
+  $("#btnTestMcp")?.addEventListener("click", async () => {
+    const out = $("#mcpTestOut");
+    if (out) out.textContent = "Checking…";
+    try {
+      const r = await api("/api/mcp", { jsonrpc: "2.0", id: 1, method: "tools/list", params: {} });
+      const n = Array.isArray(r?.result?.tools) ? r.result.tools.length : 0;
+      if (n > 0) {
+        if (out) out.textContent = `✓ ${n} MCP tools live`;
+        toast(`Local MCP endpoint verified (${n} tools).`, { kind: "ok" });
+      } else {
+        if (out) out.textContent = "Unexpected response";
+      }
+    } catch {
+      if (out) out.textContent = "Server offline";
+    }
+  });
+
+  $("#btnDetails").addEventListener("click", () => {
+    if ($("#dSave")) {
+      readResume();
+      return;
+    }
+    const d = S.details || {};
+    const noticeVal = d.noticePeriod || "";
     $("#readOut").innerHTML = `
       <div class="card" style="margin-top:0">
-        <h3>Contact details</h3>
-        <p>These go into application forms. They are not sent anywhere else.</p>
-        <div class="field"><label for="dName">Full name</label><input id="dName" value="${esc(d.name || "")}"></div>
-        <div class="field"><label for="dEmail">Email</label><input id="dEmail" type="email" value="${esc(d.email || "")}"></div>
-        <div class="field"><label for="dPhone">Phone</label><input id="dPhone" type="tel" value="${esc(d.phone || "")}"></div>
-        <div class="field"><label for="dCity">City</label><input id="dCity" value="${esc(d.city || "")}"></div>
-        <div class="field"><label for="dCompany">Current company</label><input id="dCompany" value="${esc(d.currentCompany || "")}"></div>
-        <div class="field"><label for="dTitle">Current title</label><input id="dTitle" value="${esc(d.currentTitle || "")}"></div>
+        <h3>Contact &amp; Pre-Apply Readiness</h3>
+        <p>Captured once before batch apply so forms never guess Notice Period, CTC, or relocation.</p>
+        <div class="grid2">
+          <div class="field"><label for="dName">Full name</label><input id="dName" value="${esc(d.name || "")}"></div>
+          <div class="field"><label for="dEmail">Email</label><input id="dEmail" type="email" value="${esc(d.email || "")}"></div>
+          <div class="field"><label for="dPhone">Phone</label><input id="dPhone" type="tel" value="${esc(d.phone || "")}"></div>
+          <div class="field"><label for="dCity">City</label><input id="dCity" value="${esc(d.city || "Chennai")}"></div>
+          <div class="field"><label for="dPostal">PIN / Postal code</label><input id="dPostal" placeholder="e.g. 600042" value="${esc(d.postalCode || "")}"></div>
+          <div class="field"><label for="dLocality">Locality / Corridor</label><input id="dLocality" placeholder="e.g. Velachery, Guindy, OMR" value="${esc(d.preferredLocality || "")}"></div>
+          <div class="field"><label for="dNotice">Notice Period</label>
+            <select id="dNotice">
+              <option value="" ${!noticeVal ? "selected" : ""}>Select notice period...</option>
+              <option value="Immediate" ${noticeVal === "Immediate" ? "selected" : ""}>Immediate (0 days)</option>
+              <option value="15 days" ${noticeVal === "15 days" ? "selected" : ""}>15 days</option>
+              <option value="30 days" ${noticeVal === "30 days" ? "selected" : ""}>30 days</option>
+              <option value="60 days" ${noticeVal === "60 days" ? "selected" : ""}>60 days</option>
+              <option value="90 days" ${noticeVal === "90 days" ? "selected" : ""}>90 days</option>
+            </select>
+          </div>
+          <div class="field"><label for="dCurrentCtc">Current CTC</label><input id="dCurrentCtc" placeholder="10 LPA" value="${esc(d.currentCtc || "")}"></div>
+          <div class="field"><label for="dExpectedCtc">Expected CTC</label><input id="dExpectedCtc" placeholder="15 LPA" value="${esc(d.expectedCtc || "")}"></div>
+          <div class="field"><label for="dWorkMode">Preferred Work Mode</label>
+            <select id="dWorkMode">
+              <option value="Any" ${(d.preferredWorkMode || "Any") === "Any" ? "selected" : ""}>Any (Remote / Hybrid / Onsite)</option>
+              <option value="Remote" ${d.preferredWorkMode === "Remote" ? "selected" : ""}>Remote</option>
+              <option value="Hybrid" ${d.preferredWorkMode === "Hybrid" ? "selected" : ""}>Hybrid</option>
+              <option value="Onsite" ${d.preferredWorkMode === "Onsite" ? "selected" : ""}>Onsite</option>
+            </select>
+          </div>
+          <div class="field"><label for="dRelocate">Willing to Relocate</label>
+            <select id="dRelocate">
+              <option value="Yes" ${(d.willingToRelocate || "Yes") === "Yes" ? "selected" : ""}>Yes</option>
+              <option value="No" ${d.willingToRelocate === "No" ? "selected" : ""}>No</option>
+            </select>
+          </div>
+          <div class="field"><label for="dCompany">Current company</label><input id="dCompany" value="${esc(d.currentCompany || "")}"></div>
+          <div class="field"><label for="dTitle">Current title</label><input id="dTitle" value="${esc(d.currentTitle || "")}"></div>
+        </div>
         <div class="field"><label for="dLinked">LinkedIn</label><input id="dLinked" value="${esc(d.linkedin || "")}"></div>
+        <div class="field"><label for="dWebsite">Portfolio / GitHub URL</label><input id="dWebsite" value="${esc(d.website || "")}"></div>
         <div class="field"><label for="dPaste">Or paste the resume text</label><textarea id="dPaste" placeholder="Paste here if the file would not read"></textarea></div>
-        <div style="margin-top:12px"><button class="btn btn--primary btn--sm" type="button" id="dSave">Save details</button></div>
+        <div style="margin-top:12px"><button class="btn btn--primary btn--sm" type="button" id="dSave">Save readiness &amp; details</button></div>
       </div>`;
     $("#dSave").addEventListener("click", () => {
       S.details = {
+        ...S.details,
         name: $("#dName").value.trim(),
         email: $("#dEmail").value.trim(),
         phone: $("#dPhone").value.trim(),
         city: $("#dCity").value.trim(),
+        postalCode: $("#dPostal").value.trim(),
+        preferredLocality: $("#dLocality").value.trim(),
+        noticePeriod: $("#dNotice").value.trim(),
+        currentCtc: $("#dCurrentCtc").value.trim(),
+        expectedCtc: $("#dExpectedCtc").value.trim(),
+        preferredWorkMode: $("#dWorkMode").value,
+        willingToRelocate: $("#dRelocate").value,
+        workAuthorization: (S.details && S.details.workAuthorization) || "Authorized to work in India",
         currentCompany: $("#dCompany").value.trim(),
         currentTitle: $("#dTitle").value.trim(),
         linkedin: $("#dLinked").value.trim(),
+        website: $("#dWebsite").value.trim(),
       };
       const pasted = $("#dPaste").value.trim();
       if (pasted.length > 80) {
         S.resume = pasted.slice(0, 60000);
+        S.layout = null;
         ls.setRaw("co.masterResume", S.resume);
         pushResume();
       }
       save();
       pushProfile();
+      renderReadinessStrip();
       $("#whoName").textContent = S.details.name || "You";
       $("#whoAv").textContent = (S.details.name || "You").split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
-      toast("Details saved.", { kind: "ok" });
-      readResume();
+      toast("Readiness & contact details saved.", { kind: "ok" });
+      readResume(pasted.length > 80);
     });
   });
 
@@ -848,39 +1233,54 @@ npx skills add career-ops-india/apply</div>
     $("#state").innerHTML = `<option value="">Any state</option>` + STATES.map((s) => `<option value="${s}">${s.replace(/\b\w/g, (c) => c.toUpperCase())}</option>`).join("");
     $("#state").value = S.geo.state || "";
     $("#city").value = S.geo.city || "";
+    if ($("#locality")) $("#locality").value = S.geo.locality || "";
+    if ($("#maxAgeDays")) $("#maxAgeDays").value = String(S.geo.maxAgeDays ?? 14);
   })();
 
   function geoActive() {
-    return { india: true, remote: Boolean(S.geo.remote), state: S.geo.state || "", city: S.geo.city || "" };
+    return {
+      india: true,
+      remote: Boolean(S.geo.remote),
+      state: S.geo.state || "",
+      city: S.geo.city || "",
+      locality: S.geo.locality || "",
+      maxAgeDays: S.geo.maxAgeDays !== undefined ? Number(S.geo.maxAgeDays) : 14,
+    };
   }
 
   function renderMarket() {
     const g = geoActive();
     $$("#mktChips .chip").forEach((c) => {
       const k = c.dataset.geo;
-      const on = k === "india" ? true : k === "remote" ? g.remote : k === "state" ? Boolean(g.state) : Boolean(g.city);
+      const on = k === "india" ? true : k === "remote" ? g.remote : k === "state" ? Boolean(g.state) : k === "city" ? Boolean(g.city) : Boolean(g.locality || S.localityOpen);
       c.classList.toggle("on", on);
     });
     $("#stateWrap").hidden = !g.state;
     $("#cityWrap").hidden = !g.city;
+    if ($("#localityWrap")) $("#localityWrap").hidden = !g.locality && !S.localityOpen;
 
     const sum = S.summary;
     if (!sum) {
       $("#mktH1").textContent = "Where should we look?";
       $("#funnel").innerHTML = `<div class="fstep"><span class="lbl">No jobs yet</span><span class="bar b5" style="width:2%"></span><span class="num">0</span></div>`;
       $("#mktStats").innerHTML = "";
+      if ($("#geoHeatCard")) $("#geoHeatCard").hidden = true;
       return;
     }
+    const roleChanged = S.role && sum.role && sum.role.toLowerCase() !== S.role.toLowerCase();
     $("#mktH1").textContent = `${sum.counts.india.toLocaleString("en-IN")} active jobs in India.`;
-    $("#mktLede").innerHTML = `We read <b>${esc(S.years || "your")} years</b> of experience from your resume. Where should we look?`;
+    $("#mktLede").innerHTML = roleChanged
+      ? `Target role changed to <b>${esc(S.role)}</b> (feed below was scored for ${esc(sum.role)}). Click <b>Find live jobs</b> to refresh.`
+      : `We read <b>${esc(S.years || "your")} years</b> of experience from your resume. Where should we look?`;
 
     const max = Math.max(1, sum.counts.india);
-    const bar = (n, cls) => Math.max(1.5, Math.round((n / max) * 100));
+    const bar = (n) => Math.max(1.5, Math.round((n / max) * 100));
     const titleCase = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
     const rows = [["All India", sum.counts.india, ""]];
     if (g.remote) rows.push(["Remote", sum.counts.remote, "b2"]);
     if (g.state) rows.push([titleCase(g.state), sum.counts.state, "b2"]);
     if (g.city) rows.push([titleCase(g.city), sum.counts.city, "b3"]);
+    if (g.locality) rows.push([titleCase(g.locality), sum.counts.locality ?? 0, "b4"]);
     rows.push(["Posted in 7 days", sum.counts.posted7d, "b4"]);
     rows.push(["Your batch", Math.min(10, sum.shortlist.length), "b5"]);
     $("#funnel").innerHTML = rows.map(([lbl, n, cls]) => `
@@ -888,20 +1288,47 @@ npx skills add career-ops-india/apply</div>
 
     const fam = (k) => (sum.families.find((f) => f.key === k) || {}).count || 0;
     const trending = sum.trending.reduce((a, t) => a + t.count, 0);
+    const geoCount = g.locality ? (sum.counts.locality ?? 0) : g.city ? (sum.counts.city ?? 0) : g.state ? (sum.counts.state ?? 0) : g.remote ? (sum.counts.remote ?? 0) : sum.counts.india;
     $("#mktStats").innerHTML = `
       <div class="stat"><div class="n">${sum.counts.posted7d}</div><div class="l">posted in 7 days</div></div>
       <div class="stat"><div class="n">${fam("progression")}</div><div class="l">one step up or down</div></div>
       <div class="stat"><div class="n">${fam("adjacent") + fam("specialisation")}</div><div class="l">alternative paths</div></div>
       <div class="stat"><div class="n">${trending}</div><div class="l">AI and 0&rarr;1 roles</div></div>
-      <div class="stat"><div class="n">${sum.counts.city || sum.counts.state || sum.counts.india}</div><div class="l">in your geography</div></div>
+      <div class="stat"><div class="n">${geoCount}</div><div class="l">in your geography</div></div>
       <div class="stat"><div class="n">${sum.matched}</div><div class="l">match &ldquo;${esc(sum.role || S.role)}&rdquo;</div></div>`;
+
+    const gd = sum.geoDistribution;
+    if (gd && $("#geoHeatCard")) {
+      $("#geoHeatCard").hidden = false;
+      $("#geoHeatNote").textContent = (gd.requestedLocality && gd.requestedLocality.note) || `Top hubs across ${(gd.byState || []).length} state groups & ${(gd.byCity || []).length} cities (real counts only).`;
+      const topCities = (gd.byCity || []).slice(0, 8);
+      const cityMax = Math.max(1, topCities[0] ? topCities[0].count : 1);
+      $("#geoHeatBars").innerHTML = topCities
+        .map((c, idx) => `<div class="fstep"><span class="lbl">${esc(c.label)}</span><span class="bar b${Math.min(5, idx + 1)}" style="width:${Math.max(2, Math.round((c.count / cityMax) * 100))}%"></span><span class="num">${c.count} (${c.sharePct}%)</span></div>`)
+        .join("");
+      $("#geoHeatLocalities").innerHTML = (gd.byLocality || [])
+        .slice(0, 10)
+        .map((l) => `<span class="chip">${esc(l.label)}: <b>${l.count}</b></span>`)
+        .join("") || `<span class="muted small">Micro-locality tags appear when JDs name specific neighborhoods or PIN zones (e.g. OMR, Guindy, Whitefield, Velachery).</span>`;
+    }
   }
 
   $$("#mktChips .chip").forEach((c) => c.addEventListener("click", () => {
     const k = c.dataset.geo;
     if (k === "remote") S.geo.remote = !S.geo.remote;
     if (k === "state") { S.geo.state = S.geo.state ? "" : ($("#state").value || "tamil nadu"); $("#state").value = S.geo.state; }
-    if (k === "city") { S.geo.city = S.geo.city ? "" : ($("#city").value || ""); $("#city").value = S.geo.city; }
+    if (k === "city") { S.geo.city = S.geo.city ? "" : ($("#city").value || "Chennai"); $("#city").value = S.geo.city; }
+    if (k === "locality") {
+      if (S.geo.locality || S.localityOpen) {
+        S.geo.locality = "";
+        S.localityOpen = false;
+        if ($("#locality")) $("#locality").value = "";
+      } else {
+        S.localityOpen = true;
+        S.geo.locality = ($("#locality") && $("#locality").value.trim()) || (S.details && S.details.preferredLocality) || "";
+        if ($("#locality")) { $("#locality").value = S.geo.locality; setTimeout(() => $("#locality")?.focus(), 20); }
+      }
+    }
     save();
     renderMarket();
     if (S.jobs.length) refreshSummary();
@@ -909,15 +1336,20 @@ npx skills add career-ops-india/apply</div>
 
   $("#state").addEventListener("change", () => { S.geo.state = $("#state").value; save(); renderMarket(); if (S.jobs.length) refreshSummary(); });
   $("#city").addEventListener("change", () => { S.geo.city = $("#city").value.trim(); save(); renderMarket(); if (S.jobs.length) refreshSummary(); });
+  if ($("#locality")) $("#locality").addEventListener("change", () => { S.geo.locality = $("#locality").value.trim(); save(); renderMarket(); if (S.jobs.length) refreshSummary(); });
+  if ($("#maxAgeDays")) $("#maxAgeDays").addEventListener("change", () => { S.geo.maxAgeDays = Number($("#maxAgeDays").value); save(); renderMarket(); if (S.jobs.length) refreshSummary(); });
 
   async function refreshSummary() {
     if (!S.jobs.length) return;
+    const age = Number(S.geo.maxAgeDays ?? 14);
     const d = await api("/api/market/summary", {
       role: S.role,
       state: S.geo.state || undefined,
       city: S.geo.city || undefined,
+      locality: S.geo.locality || undefined,
       remote: Boolean(S.geo.remote),
-      limit: 40,
+      ...(age > 0 ? { maxAgeDays: age } : {}),
+      limit: 50,
       jobs: S.jobs,
     });
     if (d && d.ok) {
@@ -942,11 +1374,15 @@ npx skills add career-ops-india/apply</div>
     }, 500);
     try {
       const years = Number(String(S.years).replace(/[^0-9.]/g, ""));
+      const minSal = Number(String((S.details && S.details.expectedCtc) || "").replace(/[^0-9.]/g, ""));
+      const age = Number(S.geo.maxAgeDays ?? 14);
       const d = await api("/api/jobs", {
         role: S.role,
         cities: S.geo.city ? [S.geo.city] : [],
         modes: S.geo.remote ? ["remote"] : [],
         years: Number.isFinite(years) && years > 0 ? years : undefined,
+        ...(Number.isFinite(minSal) && minSal > 0 ? { minSalaryLpa: minSal } : {}),
+        ...(age > 0 ? { maxAgeDays: age } : {}),
         skills: inferSkills(S.resume),
         responsibilities: [],
         sources: ["public", "naukri", "indeed"],
@@ -957,6 +1393,7 @@ npx skills add career-ops-india/apply</div>
         return;
       }
       S.jobs = d.jobs;
+      S.picks = [];
       save();
       $("#liveText").innerHTML = `<b>${d.jobs.length}</b> jobs`;
       $("#liveDot").classList.remove("off");
@@ -964,7 +1401,8 @@ npx skills add career-ops-india/apply</div>
       await refreshSummary();
       const needs = (d.connectors || []).filter((c) => c.needsHuman);
       if (needs.length) {
-        toast(`${needs.map((c) => c.id).join(" and ")} needs a one-time sign-in. The session is remembered after that.`, { kind: "warn", title: "Sign in once", ms: 12000 });
+        const names = needs.map((c) => sourceName(c.id)).join(" and ");
+        toast(`${names} ${needs.length === 1 ? "needs" : "need"} a one-time sign-in. The session is remembered after that.`, { kind: "warn", title: "Sign in once", ms: 12000 });
       }
     } catch (err) {
       clearInterval(tick);
@@ -989,45 +1427,84 @@ npx skills add career-ops-india/apply</div>
     return [...S.jobs].sort((a, b) => (b.score || 0) - (a.score || 0));
   }
 
-  function renderPick() {
-    const sum = S.summary;
-    const list = ranked();
-    $("#allCount").textContent = list.length ? `(${list.length})` : "";
+  /* ---------- master or tailor, per job ----------
+     The posting's terms (j.have, j.miss) are compared with the master resume
+     when the job is scored. If the master already shows 85% of them, sending
+     it as it is loses little and costs no AI call; below that, tailoring
+     reorders the resume toward the posting. Tailoring never adds a term the
+     resume lacks: a missing term stays missing either way (AGENTS.md). */
+  const MASTER_AT = 0.85;
+  function coverage(j) {
+    const h = (j.have || []).length, m = (j.miss || []).length;
+    return h + m ? h / (h + m) : null;
+  }
+  function recommendPlan(j) { const c = coverage(j); return c !== null && c >= MASTER_AT ? "master" : "tailor"; }
+  function planOf(j) { return S.plan[j.id] || recommendPlan(j); }
+  function planNote(j) {
+    const h = (j.have || []).length, m = (j.miss || []).length;
+    if (!h && !m) return "No terms to compare, so tailoring reads the posting.";
+    const miss = (j.miss || []).slice(0, 2).join(", ");
+    const why = planOf(j) === "master"
+      ? `Your master resume shows ${h} of ${h + m} terms.`
+      : `${m} of ${h + m} terms not up front${miss ? ": " + miss : ""}.`;
+    return why + (S.plan[j.id] && S.plan[j.id] !== recommendPlan(j) ? " Your choice." : " Suggested.");
+  }
+  function readyAs(j) {
+    if (!S.tailored.has(j.id)) return "";
+    return (S.tailorModes && S.tailorModes[j.id]) === "original" ? "master" : "tailor";
+  }
+  function paintPrepare() {
+    const list = pickedJobs();
+    const todo = list.filter((j) => readyAs(j) !== planOf(j));
+    const b = $("#btnTailor");
+    if (!b) return;
+    const t = todo.filter((j) => planOf(j) === "tailor").length, m = todo.length - t;
+    b.textContent = !todo.length ? "Start applying" : !t ? `Use the master resume for ${m}` : !m ? `Tailor ${t} resume${t === 1 ? "" : "s"}` : `Prepare ${todo.length} resumes`;
+    b.dataset.mode = todo.length ? "prepare" : "apply";
+  }
 
-    if (!sum && !list.length) {
-      $("#families").innerHTML = `<div class="notice info"><span>Run “Find live jobs” in step 2 first.</span></div>`;
+  function renderPick() {
+    const list = pickedJobs();
+    $("#listH1").textContent = list.length ? `${list.length} job${list.length === 1 ? "" : "s"} on your list.` : "Nothing on your list yet.";
+    $("#listActions").style.display = list.length ? "flex" : "none";
+    if (!list.length) {
+      $("#pickList").innerHTML = `<div class="empty"><h3>Choose the jobs worth a resume</h3>
+        <p>Open Find, read why each posting scored what it did, and tick the ones you want, or press <b>Add to queue</b>.</p>
+        <div class="e-actions"><a class="btn btn--primary" href="workspace.html#jobs">Open Find</a></div></div>`;
       $("#gapCard").hidden = true;
       return;
     }
+    $("#pickList").innerHTML = `<div class="card" style="padding:0;overflow:hidden"><table class="plan-table"><thead><tr><th>Job</th><th>Match</th><th>Resume</th><th>Status</th><th></th></tr></thead><tbody>${
+      list.map((j) => {
+        const p = planOf(j), ready = readyAs(j);
+        return `<tr>
+        <td><b>${esc(j.title)}</b><span class="sub">${esc(j.company)}${j.location ? " · " + esc(fmtLoc(j.location) || "") : ""}</span></td>
+        <td>${Number(j.score || 0).toFixed(1)}</td>
+        <td><div class="seg plan-seg" role="radiogroup" aria-label="Resume for ${esc(j.title)}">
+            <button type="button" role="radio" aria-pressed="${p === "master"}" aria-checked="${p === "master"}" data-plan="master" data-id="${esc(j.id)}">Master</button>
+            <button type="button" role="radio" aria-pressed="${p === "tailor"}" aria-checked="${p === "tailor"}" data-plan="tailor" data-id="${esc(j.id)}">Tailor</button>
+          </div><span class="sub plan-note">${esc(planNote(j))}</span></td>
+        <td>${ready === p ? `<span class="pill ok">Ready</span>` : ready ? `<span class="pill warn">Ready as ${ready}</span>` : `<span class="pill gray">Not yet</span>`}</td>
+        <td style="text-align:right"><button class="btn btn--sm btn--ghost" type="button" data-unpick="${esc(j.id)}">Remove</button></td>
+      </tr>`;
+      }).join("")
+    }</tbody></table></div>`;
+    $$("[data-plan]").forEach((b) => b.addEventListener("click", () => {
+      S.plan[b.dataset.id] = b.dataset.plan;
+      save();
+      renderPick();
+    }));
+    paintPrepare();
+    $$("[data-unpick]").forEach((b) => b.addEventListener("click", () => {
+      S.picks = S.picks.filter((x) => x !== b.dataset.unpick);
+      save();
+      dispatchEvent(new Event("co:applylist"));
+      renderPick();
+    }));
+    renderGapCard();
+  }
 
-    $("#families").innerHTML = sum
-      ? sum.families.map((f) => `
-      <div class="group">
-        <div class="gh"><b>${esc(f.label)}</b><span class="cnt">${f.count}</span></div>
-        <div class="gb">${f.titles.map((t) => `<span class="tag">${esc(t)}</span>`).join("") || `<span class="tag">—</span>`}</div>
-      </div>`).join("") + (sum.trending.length ? `
-      <div class="group">
-        <div class="gh"><b>Trending</b><span class="cnt">${sum.trending.reduce((a, t) => a + t.count, 0)}</span></div>
-        <div class="gb">${sum.trending.map((t) => `<span class="tag hot">${esc(t.title)}</span>`).join("")}</div>
-      </div>` : "")
-      : `<div class="notice info"><span>Building the funnel. The shortlist below is already usable.</span></div>`;
-
-    const mode = S.pickMode;
-    $$('input[name="pick"]').forEach((r) => { r.checked = r.value === mode; });
-    $("#manualWrap").hidden = mode !== "manual";
-    if (mode === "manual") {
-      $("#manualWrap").innerHTML = `<div class="card" style="padding:0;overflow:hidden"><table><thead><tr><th></th><th>Job</th><th>Match</th><th>Family</th></tr></thead><tbody>${
-        list.map((j) => `<tr><td><input type="checkbox" data-pick="${esc(j.id)}" ${S.picks.includes(j.id) ? "checked" : ""} style="accent-color:var(--accent)"></td>
-          <td><b>${esc(j.title)}</b><span class="sub">${esc(j.company)} · ${esc(j.location || j.workMode || "")}</span></td>
-          <td>${Number(j.score || 0).toFixed(1)}</td><td><span class="pill gray">${esc(j.family || j.relationship || "")}</span></td></tr>`).join("")
-      }</tbody></table></div>`;
-      $$("[data-pick]").forEach((cb) => cb.addEventListener("change", () => {
-        const id = cb.dataset.pick;
-        S.picks = cb.checked ? [...new Set([...S.picks, id])] : S.picks.filter((x) => x !== id);
-        save();
-      }));
-    }
-
+  function renderGapCard() {
     /* Skill gap across the chosen set. */
     const chosen = chosenJobs();
     const miss = {};
@@ -1035,34 +1512,35 @@ npx skills add career-ops-india/apply</div>
     const gaps = Object.entries(miss).sort((a, b) => b[1] - a[1]).slice(0, 8);
     $("#gapCard").hidden = !gaps.length;
     if (gaps.length) {
-      $("#gapLine").innerHTML = `${gaps.length} skills appear across these ${chosen.length} jobs. Mark what you already have.`;
-      $("#gapChips").innerHTML = gaps.map(([g, n]) => `<button class="chip" type="button" data-gap="${esc(g)}">${esc(g)} · ${n}</button>`).join("");
-      $$("[data-gap]").forEach((c) => c.addEventListener("click", () => c.classList.toggle("on")));
+      $("#gapLine").innerHTML = `${gaps.length} skill${gaps.length === 1 ? "" : "s"} the posting${chosen.length === 1 ? " asks" : "s ask"} for that your resume does not show. Mark what you already have (saved for interview prep).`;
+      $("#gapChips").innerHTML = gaps.map(([g, n]) => `<button class="chip ${S.knownGaps.has(g) ? "on" : ""}" type="button" data-gap="${esc(g)}">${esc(g)} · ${n}</button>`).join("");
+      $$("[data-gap]").forEach((c) => c.addEventListener("click", () => {
+        const k = c.dataset.gap;
+        if (S.knownGaps.has(k)) S.knownGaps.delete(k); else S.knownGaps.add(k);
+        c.classList.toggle("on", S.knownGaps.has(k));
+        save();
+      }));
     }
   }
 
   function chosenJobs() {
-    const list = ranked();
-    if (S.pickMode === "all") return list;
-    if (S.pickMode === "manual") return pickedJobs();
-    return list.slice(0, 10);
+    return pickedJobs();
   }
 
-  $$('input[name="pick"]').forEach((r) => r.addEventListener("change", () => {
-    S.pickMode = r.value;
-    save();
-    renderPick();
-  }));
-
-  $("#btnTailor").addEventListener("click", () => {
+  /* One button: each job gets the resume its plan says, then on to Apply. */
+  $("#btnTailor").addEventListener("click", async () => {
     const chosen = chosenJobs();
     if (!chosen.length) { toast("Pick at least one job.", { kind: "warn" }); return; }
-    if (S.pickMode === "all" && chosen.length > 10) {
-      toast(`That is ${chosen.length} jobs. Start with 10 — you can run more after.`, { kind: "warn", title: "Apply all", ms: 9000 });
-    }
     S.picks = chosen.map((j) => j.id);
     save();
+    if ($("#btnTailor").dataset.mode === "apply") { go(5); return; }
     go(4);
+    const todo = chosen.filter((j) => readyAs(j) !== planOf(j));
+    const masters = todo.filter((j) => planOf(j) === "master");
+    const tailors = todo.filter((j) => planOf(j) === "tailor");
+    if (masters.length) await useOriginalAll(masters);
+    if (tailors.length) await tailorAll(tailors);
+    paintPrepare();
   });
 
   /* ---------------- step 4: tailor ---------------- */
@@ -1075,19 +1553,40 @@ npx skills add career-ops-india/apply</div>
       email: d.email || "",
       phone: d.phone || "",
       location: d.city || S.geo.city || "",
+      ...(d.postalCode ? { postalCode: d.postalCode } : {}),
+      ...(d.state ? { state: d.state } : {}),
+      ...(d.country ? { country: d.country } : {}),
+      ...(d.institution ? { institution: d.institution } : {}),
       linkedin: d.linkedin || "",
-      website: "",
+      website: d.website || "",
       title: d.currentTitle || "",
       company: d.currentCompany || "",
       years: Number.isFinite(years) && years > 0 ? years : undefined,
+      ...(d.currentCtc ? { currentCtc: d.currentCtc } : {}),
+      ...(d.expectedCtc ? { expectedCtc: d.expectedCtc } : {}),
+      ...(d.noticePeriod ? { noticePeriod: d.noticePeriod } : {}),
+      ...(d.preferredWorkMode ? { preferredWorkMode: d.preferredWorkMode } : {}),
+      ...(d.willingToRelocate ? { willingToRelocate: d.willingToRelocate } : {}),
+      ...(d.workAuthorization ? { workAuthorization: d.workAuthorization } : {}),
+      ...(d.preferredLocality ? { preferredLocality: d.preferredLocality } : {}),
     };
   }
 
   function pickedJobs() {
     const byId = new Map();
+    for (const j of ls.get("co.apply.jobs", [])) byId.set(j.id, j);
     for (const j of S.jobs) byId.set(j.id, j);
     for (const j of shortlist()) byId.set(j.id, j);
     return S.picks.map((id) => byId.get(id)).filter(Boolean);
+  }
+
+  function situationalLabel(j) {
+    const jdLen = String(j.jd || "").replace(/\s+/g, " ").trim().length;
+    if ((j.score || 0) < 48) return ["Stretch", "gray"];
+    if (jdLen < 140 || ((j.score || 0) >= 74 && (!(j.miss || []).length || (j.have || []).length >= (j.miss || []).length * 2))) {
+      return ["Original fit", "info"];
+    }
+    return ["Tailor fit", "info"];
   }
 
   function renderTailor() {
@@ -1095,16 +1594,20 @@ npx skills add career-ops-india/apply</div>
     const done = jobs.filter((j) => S.tailored.has(j.id)).length;
     $("#tailorH1").textContent = `${jobs.length || 0} ${jobs.length === 1 ? "resume" : "resumes"}, one per job.`;
     $("#tailorBar").style.width = jobs.length ? `${Math.round((done / jobs.length) * 100)}%` : "0%";
-    $("#tailorCount").textContent = jobs.length ? `${done} of ${jobs.length} tailored${done < jobs.length ? ` · ${jobs.length - done} to go` : ""}` : "Nothing picked yet.";
+    $("#tailorCount").textContent = jobs.length ? `${done} of ${jobs.length} ready${done < jobs.length ? ` · ${jobs.length - done} to go` : ""}` : "Nothing picked yet.";
     $("#tailorRows").innerHTML = jobs.length ? jobs.map((j) => {
       const ok = S.tailored.has(j.id);
+      const tMode = (S.tailorModes && S.tailorModes[j.id]) || "tailored";
+      const [sitTxt, sitCls] = situationalLabel(j);
+      const expTxt = j.experienceAsked ? `${esc(j.experienceAsked)} · ` : "";
       return `<tr data-row="${esc(j.id)}">
-        <td><b>${esc(j.title)}</b><span class="sub">${esc(j.company)} · ${esc(j.location || j.workMode || "")}</span></td>
+        <td><b>${esc(j.title)}</b><span class="sub">${esc(j.company)} · ${esc(fmtLoc(j.location) || j.workMode || "")}</span></td>
         <td>${Number(j.score || 0).toFixed(1)}</td>
+        <td><span class="small">${expTxt}</span><span class="pill ${sitCls}">${esc(sitTxt)}</span></td>
         <td>${(j.miss || []).slice(0, 2).map((m) => `<span class="pill gray">${esc(m)}</span>`).join(" ") || "—"}</td>
-        <td>${ok ? `<span class="pill ok">Tailored</span>` : `<span class="pill gray">Queued</span>`}</td>
+        <td>${ok ? `<span class="pill ok">${tMode === "original" ? "Original PDF" : "Tailored"}</span>` : `<span class="pill gray">Queued</span>`}</td>
       </tr>`;
-    }).join("") : `<tr><td colspan="4" class="muted">Pick jobs in step 3 first.</td></tr>`;
+    }).join("") : `<tr><td colspan="5" class="muted">Add jobs to <a href="#step3" data-go="3">your list</a> first.</td></tr>`;
   }
 
   function setRow(id, html) {
@@ -1121,9 +1624,9 @@ npx skills add career-ops-india/apply</div>
     });
     if (!d || !d.ok) {
       const why = d && d.reason === "no-key"
-        ? "No AI key yet. Add one in Connections - the resume is still read without it."
+        ? "No AI key yet. Add one in Connections, or click “Use original PDF (₹0 key)” to attach your master resume directly."
         : d && d.reason === "no-resume"
-          ? "Upload the master resume in step 1."
+          ? "Upload your master resume first."
           : (d && d.error) || "The model did not answer.";
       setRow(job.id, `<span class="pill bad">Failed</span>`);
       return { ok: false, error: why, fatal: d && (d.reason === "no-key" || d.reason === "no-resume") };
@@ -1135,29 +1638,36 @@ npx skills add career-ops-india/apply</div>
           contact: [profileFor().email, profileFor().phone, profileFor().location, profileFor().linkedin].filter(Boolean),
         })
       : "";
-    const saved = await api("/api/tailored/save", { jobId: job.id, data: d, html });
+    const saved = await api("/api/tailored/save", { jobId: job.id, data: d, html, mode: "tailored" });
     if (!saved || !saved.ok) {
       setRow(job.id, `<span class="pill bad">PDF failed</span>`);
       return { ok: false, error: (saved && saved.error) || "Could not save the PDF." };
     }
     S.tailored.add(job.id);
+    S.tailorModes[job.id] = "tailored";
     save();
     setRow(job.id, `<span class="pill ok">Tailored</span>`);
     return { ok: true };
   }
 
   let tailoring = false;
-  async function tailorAll() {
+  async function tailorAll(only) {
     if (tailoring) return;
-    const jobs = pickedJobs().filter((j) => !S.tailored.has(j.id));
+    const jobs = Array.isArray(only) ? only : pickedJobs().filter((j) => !S.tailored.has(j.id) || (S.tailorModes && S.tailorModes[j.id] === "original"));
     if (!jobs.length) { toast("Everything picked is already tailored.", { kind: "info" }); return; }
     tailoring = true;
     $("#btnTailorRun").disabled = true;
+    if ($("#btnOriginalRun")) $("#btnOriginalRun").disabled = true;
     let failed = 0;
+    let lastError = "";
+    const thinkEl = $("#tailorThink");
+    thinkEl.hidden = false;
+    const think = window.CO?.ui?.thinking(thinkEl, `Tailoring ${jobs.length} resume${jobs.length === 1 ? "" : "s"}`);
     for (const job of jobs) {
       const r = await tailorOne(job);
       if (!r.ok) {
         failed++;
+        if (r.error) lastError = r.error;
         if (r.fatal) {
           $("#tailorOut").innerHTML = `<div class="notice bad"><span>${esc(r.error)}</span></div>`;
           break;
@@ -1166,22 +1676,81 @@ npx skills add career-ops-india/apply</div>
       renderTailor();
     }
     tailoring = false;
+    if (think) { if (failed) think.fail(`${failed} of ${jobs.length} not tailored`); else think.done("Tailored in"); }
     $("#btnTailorRun").disabled = false;
+    if ($("#btnOriginalRun")) $("#btnOriginalRun").disabled = false;
     renderTailor();
     if (!failed) {
       $("#tailorOut").innerHTML = `<div class="notice ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span>All ${jobs.length} tailored. The PDFs are saved with a hash.</span></div>`;
       toast("Tailored. Ready to apply.", { kind: "ok" });
-    } else if (!$("#tailorOut").innerHTML) {
-      $("#tailorOut").innerHTML = `<div class="notice warn"><span>${failed} of ${jobs.length} did not tailor. Try again, or tailor them one at a time.</span></div>`;
+    } else if (!$("#tailorOut").innerHTML || failed > 0) {
+      $("#tailorOut").innerHTML = `<div class="notice warn"><span>${failed} of ${jobs.length} did not tailor${lastError ? `: ${esc(lastError)}` : "."} Try again, or use your original PDF (₹0 key).</span></div>`;
     }
   }
 
-  $("#btnTailorRun").addEventListener("click", tailorAll);
+  async function useOriginalAll(only) {
+    if (tailoring) return;
+    const allPicked = pickedJobs();
+    const unready = allPicked.filter((j) => !S.tailored.has(j.id));
+    const jobs = Array.isArray(only) ? only : unready.length ? unready : allPicked.filter((j) => !S.tailorModes || S.tailorModes[j.id] !== "original");
+    if (!jobs.length) { toast("Everything picked is already using Original PDF.", { kind: "info" }); return; }
+    if (!S.resume || S.resume.trim().length < 60) {
+      $("#tailorOut").innerHTML = `<div class="notice bad"><span><a href="#step1" data-go="1">Upload your master resume</a> first.</span></div>`;
+      return;
+    }
+    tailoring = true;
+    $("#btnTailorRun").disabled = true;
+    if ($("#btnOriginalRun")) $("#btnOriginalRun").disabled = true;
+    let failed = 0;
+    for (const job of jobs) {
+      setRow(job.id, `<span class="pill warn">Preparing…</span>`);
+      const r = await api("/api/tailored/use-original", {
+        jobId: job.id,
+        job: { title: job.title, company: job.company },
+        profile: profileFor(),
+        resumeText: S.resume,
+      });
+      if (r && r.ok) {
+        S.tailored.add(job.id);
+        S.tailorModes[job.id] = "original";
+        save();
+      } else {
+        failed++;
+        setRow(job.id, `<span class="pill bad">Failed</span>`);
+      }
+    }
+    tailoring = false;
+    $("#btnTailorRun").disabled = false;
+    if ($("#btnOriginalRun")) $("#btnOriginalRun").disabled = false;
+    renderTailor();
+    if (!failed) {
+      $("#tailorOut").innerHTML = `<div class="notice ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span>Prepared ${jobs.length} application${jobs.length === 1 ? "" : "s"} with your Original Master Resume PDF (zero AI key cost).</span></div>`;
+      toast("Original PDFs ready for Apply.", { kind: "ok" });
+    } else {
+      $("#tailorOut").innerHTML = `<div class="notice bad"><span>Could not prepare ${failed} original PDF(s). Check that Chrome/Edge is available on this machine.</span></div>`;
+    }
+  }
+
+  $("#btnTailorRun").addEventListener("click", () => tailorAll());
+  $("#btnOriginalRun")?.addEventListener("click", () => useOriginalAll());
 
   /* ---------------- step 5: apply ---------------- */
 
   function aaJob(j) {
-    return { id: j.id, title: j.title, company: j.company, source: j.source, applyUrl: j.applyUrl || "", sourceUrl: j.sourceUrl || "", score: j.score };
+    return {
+      id: j.id,
+      title: j.title,
+      company: j.company,
+      source: j.source,
+      applyUrl: j.applyUrl || "",
+      sourceUrl: j.sourceUrl || "",
+      score: j.score,
+      location: j.location || "",
+      category: j.category || "",
+      experienceAsked: j.experienceAsked || "",
+      miss: j.miss || [],
+      resumeMode: (S.tailorModes && S.tailorModes[j.id]) || "tailored",
+    };
   }
 
   const STATUS = {
@@ -1189,34 +1758,106 @@ npx skills add career-ops-india/apply</div>
     filling: ["now", "Working", "warn"],
     filled: ["ok", "Filled", "info"],
     needs: ["now", "Needs you", "warn"],
-    submitted: ["ok", "Done", "ok"],
+    submitted: ["ok", "Applied", "ok"],
     failed: ["bad", "Failed", "bad"],
     skipped: ["wait", "Skipped", "gray"],
   };
 
   function renderQueue() {
     const st = S.queue;
-    const items = (st && st.items) || [];
+    /* a job Naukri already lists as applied is applied, not skipped */
+    const items = ((st && st.items) || []).map((it) => (it.status === "skipped" && /already applied/i.test(it.message || "")) ? { ...it, status: "submitted", earlier: true, confirmation: "Naukri shows it as applied" } : it);
+    /* applied jobs leave your queue; Results keeps them */
+    const appliedIds = items.filter((i) => i.status === "submitted").map((i) => i.id);
+    if (appliedIds.some((id) => S.picks.includes(id))) {
+      S.picks = S.picks.filter((id) => !appliedIds.includes(id));
+      save();
+      dispatchEvent(new Event("co:applylist"));
+    }
     const done = items.filter((i) => i.status === "submitted").length;
     const needs = items.filter((i) => i.status === "needs").length;
     $("#queueCnt").textContent = items.length
-      ? `${done + needs + items.filter((i) => ["failed", "skipped", "filled"].includes(i.status)).length} of ${items.length} · ${done} submitted${needs ? ` · ${needs} needs you` : ""}`
+      ? `${done + needs + items.filter((i) => ["failed", "skipped", "filled"].includes(i.status)).length} of ${items.length} · ${done} applied${needs ? ` · ${needs} needs you` : ""}`
       : "Not started";
 
-    $("#queueRows").innerHTML = items.length ? items.map((it, i) => {
-      const [cls, label, pill] = STATUS[it.status] || STATUS.queued;
+    /* Grouped by what needs you: Needs you first, then running, failed, queued,
+       filled, submitted. When a job changes status its row glides to its group. */
+    const GROUPS = [
+      ["needs", "Needs you"], ["filling", "Running"], ["failed", "Failed"], ["queued", "Queued"],
+      ["filled", "Filled · waiting for your Submit"], ["submitted", "Applied"], ["skipped", "Skipped"],
+    ];
+    const RING = 2 * Math.PI * 9;
+    const ask = st && st.ask;
+    const mark = (it, i) => {
+      const s2 = it.status || "queued";
+      let extra = "";
+      if (s2 === "needs" && ask && ask.jobId === it.id && ask.expiresAt) {
+        const left = Math.max(0, (Date.parse(ask.expiresAt) - Date.now()) / 1000);
+        const total = Math.max(1, (Date.parse(ask.expiresAt) - Date.parse(ask.createdAt || ask.expiresAt)) / 1000);
+        extra = ` style="--left:${left.toFixed(1)}s;--from:${(RING * (1 - left / total)).toFixed(1)}"`;
+      }
+      const inner = s2 === "submitted" ? `<svg class="cx-check" viewBox="0 0 24 24"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg>`
+        : s2 === "failed" ? "!" : s2 === "needs" ? "" : String(i + 1);
+      return `<span class="jq-mark" data-s="${s2}"${extra}><svg viewBox="0 0 22 22" aria-hidden="true"><circle class="jq-track" cx="11" cy="11" r="9"/><circle class="jq-ring" cx="11" cy="11" r="9" stroke-dasharray="${RING.toFixed(1)}"/></svg><span class="jq-in">${inner}</span></span>`;
+    };
+    const row = (it, i) => {
+      const [, label0, pill] = STATUS[it.status] || STATUS.queued;
+      const label = it.status === "submitted" && it.earlier ? "Applied before" : label0;
       const steps = [`<span class="step ${it.status !== "queued" ? "done" : ""}">Reached</span>`];
       if (it.filled) steps.push(`<span class="step done">${it.filled} fields</span>`);
-      if (it.status === "submitted") steps.push(`<span class="step done">Submitted</span>`);
+      if (it.status === "submitted") steps.push(`<span class="step done">${it.earlier ? "On Naukri's applied list" : "Submitted"}</span>`);
       else if (it.status === "needs") steps.push(`<span class="step now">${esc(it.needs || "Needs you")}</span>`);
       else if (it.status === "filling") steps.push(`<span class="step now">Working</span>`);
-      return `<div class="job">
-        <div class="st ${cls}">${it.status === "submitted" ? "✓" : it.status === "failed" ? "!" : i + 1}</div>
+      const jobUrl = it.applyUrl || it.sourceUrl || "";
+      const detailText = it.confirmation
+        ? it.confirmation
+        : it.message || (Array.isArray(it.fields) && it.fields.length ? `Needs: ${it.fields.join(", ")}` : "");
+      const showDetail = Boolean(detailText && it.status !== "queued");
+      const canRetryOne = it.status === "needs" || it.status === "failed" || it.status === "skipped";
+      return `<div class="job jq-row" data-id="${esc(it.id)}" data-s="${esc(it.status || "queued")}">
+        ${mark(it, i)}
         <div><b>${esc(it.title)}</b><span class="co">${esc(it.company)} · ${esc(sourceName(it.source))}</span>
-          <div class="steps">${steps.join("")}</div></div>
+          <div class="steps">${steps.join("")}</div>
+          ${showDetail ? `<div class="msg">${esc(detailText)}</div>` : ""}
+          ${(canRetryOne || jobUrl) ? `<div class="row-acts">${jobUrl ? `<a href="${esc(jobUrl)}" target="_blank" rel="noopener">Open posting</a>` : ""}${canRetryOne ? `<button type="button" data-retry-one="${esc(it.id)}">Retry this</button>` : ""}${it.status === "needs" ? `<a href="browser.html" target="_blank" rel="noopener">Open in browser</a>` : ""}</div>` : ""}
+        </div>
         <span class="pill ${pill}">${esc(label)}</span>
       </div>`;
+    };
+    const host = $("#queueRows");
+    const before = new Map([...host.querySelectorAll(".jq-row[data-id]")].map((el) => [el.dataset.id, el.getBoundingClientRect().top]));
+    const order = new Map(items.map((it, i) => [it.id, i]));
+    /* the lane: one hairline segment per job, coloured by status */
+    const lane = $("#queueLane");
+    if (lane) lane.innerHTML = items.map((it) => `<i data-s="${esc(it.status || "queued")}" title="${esc(it.title)}"></i>`).join("");
+    host.innerHTML = items.length ? GROUPS.map(([key, name]) => {
+      const inGroup = items.filter((it) => (it.status || "queued") === key);
+      if (!inGroup.length) return "";
+      return `<div class="jq-group" data-g="${key}"><span>${name}</span><span class="jq-n">${inGroup.length}</span></div>` +
+        inGroup.map((it) => row(it, order.get(it.id))).join("");
     }).join("") : `<div class="job"><div class="st wait">·</div><div><b>Nothing queued</b><span class="co">Tailor a batch, then start applying.</span></div></div>`;
+    if (!window.CO?.ui?.reduce) {
+      host.querySelectorAll(".jq-row[data-id]").forEach((el) => {
+        const y0 = before.get(el.dataset.id);
+        if (y0 == null) { if (before.size) el.classList.add("jq-new"); return; }
+        const dy = y0 - el.getBoundingClientRect().top;
+        if (!dy) return;
+        el.style.transition = "none";
+        el.style.transform = `translateY(${dy}px)`;
+        requestAnimationFrame(() => { el.style.transition = ""; el.style.transform = ""; });
+      });
+    }
+
+    $$("[data-retry-one]").forEach((btn) => btn.addEventListener("click", async () => {
+      const id = btn.dataset.retryOne;
+      btn.disabled = true;
+      const d = await api("/api/autoapply/retry", { id });
+      if (d && d.state) { S.queue = d.state; renderQueue(); }
+      if (!d || !d.ok) {
+        btn.disabled = false;
+        toast((d && d.error) || "Could not retry that job.", { kind: "info" });
+      }
+    }));
 
     const running = Boolean(st && st.running);
     $("#btnStart").disabled = running;
@@ -1245,82 +1886,137 @@ npx skills add career-ops-india/apply</div>
     return s || "Company site";
   }
 
+  /* Approval card: says plainly what the run needs, lists what is worth
+     checking, counts down to expiry, and folds into one line once answered. */
+  let askShown = null;
+  let askTimer = 0;
+  let askFoldUntil = 0;
+  const ICON_SHIELD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M12 8v5M12 16v.5"/></svg>`;
+  const ICON_CHECK = `<svg class="cx-check" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+
   function renderAsk(ask) {
-    if (!ask) { $("#askHost").innerHTML = ""; return; }
+    const host = $("#askHost");
+    if (!ask) {
+      /* an answered card stays folded for a moment instead of vanishing */
+      const wait = askFoldUntil - Date.now();
+      if (wait > 0 && host.querySelector('.ap[data-state="answered"]')) { setTimeout(() => renderAsk(S.queue && S.queue.ask), wait); return; }
+      clearInterval(askTimer); askShown = null; host.innerHTML = ""; return;
+    }
+    if (askShown === ask.id && host.querySelector('.ap[data-state="open"]')) return; /* keep what the user is typing */
+    askShown = ask.id;
+    clearInterval(askTimer);
+
     const site = ask.site || "The site";
     const learned = S.sites.find((s) => s.host === ask.site);
     const learnedLine = learned
       ? `<div class="learned"><span class="b">Learned</span> ${esc(learned.host)} · ${esc(flowLabel(learned.flow))} · ${learned.fields.length} fields</div>`
       : "";
+    const what = ask.kind === "otp" ? "a code" : ask.kind === "captcha" ? "a bot check" : ask.kind === "login" ? "a sign-in" : "an answer";
+    const job = ((S.queue && S.queue.items) || []).find((i) => i.id === ask.jobId) || {};
+    const details = [
+      ["Job", ask.jobTitle || job.title],
+      ["Company", job.company],
+      ["Asks for", ask.label],
+      ["Site", ask.site],
+    ].filter(([, v]) => v);
 
-    const head = (icon, title) => `
-      <div class="gh"><span class="ic">${icon}</span><b>${esc(title)}</b></div>`;
-
-    let body = "";
-    if (ask.kind === "captcha") {
-      body = `
-        <h3>Clear the bot check</h3>
-        <p>${esc(site)} is showing a bot check. We never solve it for you. Open the page, clear it, then press Done.</p>
-        <div class="actions">
-          <button class="btn btn--primary btn--sm" type="button" data-ask-done>Done, continue</button>
-          <a class="btn btn--sm" href="browser.html" target="_blank" rel="noopener">Open in browser</a>
-        </div>`;
-    } else if (ask.kind === "login") {
-      body = `
-        <h3>Sign in, then press Done</h3>
-        <p>${esc(site)} wants a password. Sign in yourself; we never see or store it.</p>
-        <div class="actions">
-          <button class="btn btn--primary btn--sm" type="button" data-ask-done>Done, continue</button>
-          <a class="btn btn--sm" href="browser.html" target="_blank" rel="noopener">Open in browser</a>
-        </div>`;
-    } else if (ask.kind === "otp") {
-      body = `
-        <h3>${esc(ask.label || "Enter the one-time code")}</h3>
-        <p>${esc(ask.detail || `${site} sent a code. Paste it here and the run continues.`)}</p>
-        <input class="otp" id="askInput" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••" aria-label="One-time code">
-        <div class="actions">
-          <button class="btn btn--primary btn--sm" type="button" data-ask-send>Continue</button>
-        </div>`;
+    let input = "";
+    let actions = "";
+    if (ask.kind === "captcha" || ask.kind === "login") {
+      actions = `<button class="btn btn--primary btn--sm" type="button" data-ask-done>Done, continue</button>
+        <a class="btn btn--sm" href="browser.html" target="_blank" rel="noopener">Open in browser</a>
+        <button class="btn btn--sm btn--ghost" type="button" data-ask-skip>Park &amp; next job</button>`;
     } else {
       const type = ask.inputType === "email" ? "email" : ask.inputType === "tel" ? "tel" : "text";
       const choices = ask.inputType === "select" && Array.isArray(ask.options) ? ask.options : null;
-      body = `
-        <h3>${esc(ask.label || "One more answer")}</h3>
-        <p>${esc(ask.detail || `${site} requires this. It is saved to your answers and reused.`)}</p>
-        ${choices
-          ? `<select class="otp" id="askInput" style="font-size:15px;letter-spacing:0;text-align:left" aria-label="${esc(ask.label || "Answer")}">${choices.map((o) => `<option value="${esc(o)}">${esc(o)}</option>`).join("")}</select>`
+      input = ask.kind === "otp"
+        ? `<input class="otp ap-code" id="askInput" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••" aria-label="One-time code">`
+        : choices
+          ? `<select class="ap-in" id="askInput" aria-label="${esc(ask.label || "Answer")}">${choices.map((o) => `<option value="${esc(o)}">${esc(o)}</option>`).join("")}</select>`
           : ask.inputType === "textarea"
-            ? `<textarea class="otp" id="askInput" style="font-size:13px;letter-spacing:0;text-align:left;min-height:80px" aria-label="${esc(ask.label || "Answer")}"></textarea>`
-            : `<input class="otp" id="askInput" type="${type}" style="font-size:15px;letter-spacing:0;text-align:left" aria-label="${esc(ask.label || "Answer")}">`}
-        <div class="actions">
-          <button class="btn btn--primary btn--sm" type="button" data-ask-send>Save and continue</button>
-        </div>`;
+            ? `<textarea class="ap-in" id="askInput" style="min-height:80px" aria-label="${esc(ask.label || "Answer")}"></textarea>`
+            : `<input class="ap-in" id="askInput" type="${type}" aria-label="${esc(ask.label || "Answer")}">`;
+      actions = `<button class="btn btn--primary btn--sm" type="button" data-ask-send>${ask.kind === "otp" ? "Continue" : "Save and continue"}</button>
+        <button class="btn btn--sm btn--ghost" type="button" data-ask-skip>Park &amp; next job</button>`;
+    }
+    const detail = ask.detail || (ask.kind === "captcha"
+      ? `${site} is showing a bot check. We never solve it for you. Open the page, clear it, then press Done.`
+      : ask.kind === "login"
+        ? `${site} wants a sign-in. Sign in yourself in the Career-Ops browser; we never see or store it.`
+        : ask.kind === "otp"
+          ? `${site} sent a code. Paste it here and the run continues.`
+          : `${site} requires this. It is saved to your answers and reused.`);
+
+    host.innerHTML = `<div class="ap" data-state="open" data-kind="${esc(ask.kind)}" role="region" aria-label="${esc(site)} asks for ${what}">
+      <div class="ap-head">
+        <span class="ap-ic">${ICON_SHIELD}</span>
+        <div class="ap-t"><b class="ap-label">Needs ${ask.kind === "otp" ? "your code" : ask.kind === "captcha" || ask.kind === "login" ? "you" : "your answer"}</b><span>${esc(site)} asks for ${what}</span></div>
+        <span class="ap-timer" title="Time left before this question expires"></span>
+      </div>
+      <div class="ap-body"><div>
+        <dl class="ap-dl">${details.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
+        <p class="ap-p">${esc(detail)}</p>
+        ${input}
+        <div class="actions">${actions}</div>
+        ${learnedLine}
+      </div></div>
+    </div>`;
+    const card = host.querySelector(".ap");
+    const label = card.querySelector(".ap-label");
+
+    /* countdown to expiry */
+    const timer = card.querySelector(".ap-timer");
+    const exp = Date.parse(ask.expiresAt || "");
+    if (Number.isFinite(exp)) {
+      const paint = () => {
+        const left = Math.max(0, Math.round((exp - Date.now()) / 1000));
+        timer.textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
+        timer.classList.toggle("is-low", left <= 30);
+        if (!left) {
+          clearInterval(askTimer);
+          card.dataset.state = "expired";
+          label.textContent = "Expired";
+          timer.textContent = "";
+        }
+      };
+      paint();
+      askTimer = setInterval(paint, 1000);
     }
 
-    $("#askHost").innerHTML = `<div class="gate">${head(
-      `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>`,
-      `${site} asks for ${ask.kind === "otp" ? "a code" : ask.kind === "captcha" ? "a bot check" : ask.kind === "login" ? "a sign-in" : "an answer"}`
-    )}<div class="gb">${body}${learnedLine}</div></div>`;
+    const inputEl = $("#askInput");
+    if (inputEl) setTimeout(() => inputEl.focus(), 40);
 
-    const input = $("#askInput");
-    if (input) setTimeout(() => input.focus(), 40);
-
-    const send = async (value) => {
+    const fold = (text) => {
+      clearInterval(askTimer);
+      card.dataset.state = "answered";
+      card.querySelector(".ap-ic").innerHTML = ICON_CHECK;
+      label.textContent = text;
+      timer.textContent = "";
+      askFoldUntil = Date.now() + 2400;
+    };
+    const send = async (value, btn) => {
+      if (btn) btn.disabled = true;
       const r = await api("/api/autoapply/answer", { id: ask.id, value });
-      if (!r || !r.ok) { toast((r && r.error) || "That question expired.", { kind: "bad" }); }
+      if (!r || !r.ok) {
+        if (btn) btn.disabled = false;
+        card.classList.remove("sb-shake"); void card.offsetWidth; card.classList.add("sb-shake");
+        toast((r && r.error) || "That question expired.", { kind: "bad" });
+      } else {
+        fold(value === "" ? "Parked · next job" : value === "done" ? "Continuing" : ask.kind === "otp" ? "Code sent" : "Answered · saved");
+      }
       if (r && r.state) { S.queue = r.state; renderQueue(); }
     };
-    const done = $("[data-ask-done]");
-    if (done) done.addEventListener("click", () => send("done"));
-    const btn = $("[data-ask-send]");
+    card.querySelector("[data-ask-done]")?.addEventListener("click", (e) => send("done", e.currentTarget));
+    card.querySelector("[data-ask-skip]")?.addEventListener("click", (e) => send("", e.currentTarget));
+    const btn = card.querySelector("[data-ask-send]");
     if (btn) {
       const go2 = () => {
-        const v = (input && input.value || "").trim();
+        const v = ((inputEl && inputEl.value) || "").trim();
         if (!v) { toast("Type the answer first.", { kind: "warn" }); return; }
-        send(v);
+        send(v, btn);
       };
       btn.addEventListener("click", go2);
-      if (input) input.addEventListener("keydown", (e) => { if (e.key === "Enter" && ask.inputType !== "textarea") { e.preventDefault(); go2(); } });
+      if (inputEl) inputEl.addEventListener("keydown", (e) => { if (e.key === "Enter" && ask.inputType !== "textarea") { e.preventDefault(); go2(); } });
     }
   }
 
@@ -1357,7 +2053,8 @@ npx skills add career-ops-india/apply</div>
     const d = await api("/api/autoapply/start", {
       jobs: jobs.map(aaJob),
       mode: S.submit ? "submit" : "fill",
-      cap: 10,
+      cap: Math.max(10, Math.min(50, jobs.length)),
+      deferBlocked: Boolean(S.deferBlocked),
       profile: profileFor(),
     });
     if (!d || !d.ok) {
@@ -1388,6 +2085,13 @@ npx skills add career-ops-india/apply</div>
   });
   $("#submitToggle").classList.toggle("on", S.submit);
 
+  $("#deferToggle")?.addEventListener("click", () => {
+    S.deferBlocked = !S.deferBlocked;
+    $("#deferToggle").classList.toggle("on", S.deferBlocked);
+    save();
+  });
+  if ($("#deferToggle")) $("#deferToggle").classList.toggle("on", S.deferBlocked);
+
   $("#btnBrowser").addEventListener("click", () => window.open("browser.html", "_blank", "noopener"));
 
   /* ---------------- step 6: learn ---------------- */
@@ -1413,7 +2117,12 @@ npx skills add career-ops-india/apply</div>
 
     $$("[data-forget]").forEach((b) => b.addEventListener("click", async () => {
       const host = b.dataset.forget;
-      if (!confirm(`Forget everything learned about ${host}?`)) return;
+      if (b.dataset.armed !== "1") {
+        b.dataset.armed = "1";
+        b.textContent = "Confirm forget";
+        setTimeout(() => { if (b.isConnected) { b.dataset.armed = ""; b.textContent = "Forget"; } }, 4000);
+        return;
+      }
       await api("/api/sites", { host }, "DELETE");
       toast(`Forgot ${host}.`, { kind: "ok" });
       refreshSites();
@@ -1470,21 +2179,41 @@ npx skills add career-ops-india/apply</div>
       <div class="stat"><div class="n">${needs}</div><div class="l">waiting on you</div></div>`;
 
     const chosen = pickedJobs();
+    const byId = new Map(chosen.map((j) => [j.id, j]));
     const miss = {};
     for (const j of chosen) for (const m of j.miss || []) miss[m] = (miss[m] || 0) + 1;
     const gaps = Object.entries(miss).sort((a, b) => b[1] - a[1]).slice(0, 6);
     $("#ovGapLine").textContent = gaps.length
       ? `${gaps.map(([g, n]) => `${g} in ${n}`).join(", ")}. Mark what you already have.`
       : "Tailor a batch to see the gaps.";
-    $("#ovGaps").innerHTML = gaps.map(([g, n]) => `<button class="chip" type="button" data-og="${esc(g)}">${esc(g)} · ${n}</button>`).join("");
-    $$("[data-og]").forEach((c) => c.addEventListener("click", () => c.classList.toggle("on")));
+    $("#ovGaps").innerHTML = gaps.map(([g, n]) => `<button class="chip ${S.knownGaps.has(g) ? "on" : ""}" type="button" data-og="${esc(g)}">${esc(g)} · ${n}</button>`).join("");
+    $$("[data-og]").forEach((c) => c.addEventListener("click", () => {
+      const k = c.dataset.og;
+      if (S.knownGaps.has(k)) S.knownGaps.delete(k); else S.knownGaps.add(k);
+      c.classList.toggle("on", S.knownGaps.has(k));
+      save();
+    }));
 
-    $("#ovRows").innerHTML = items.length ? items.map((it) => `
+    const channelKind = (s) => {
+      const k = String(s || "").toLowerCase();
+      if (/lever|greenhouse|ashby|smartrecruiters|company/.test(k)) return `Direct ATS (${sourceName(s)})`;
+      return `Job portal (${sourceName(s)})`;
+    };
+
+    $("#ovRows").innerHTML = items.length ? items.map((it) => {
+      const meta = byId.get(it.id) || {};
+      const exp = it.experienceAsked || meta.experienceAsked || "Not stated";
+      const learn = ((it.miss && it.miss.length ? it.miss : meta.miss) || []).filter((g) => !S.knownGaps.has(g)).slice(0, 3);
+      return `
       <tr>
-        <td><b>${esc(it.title)}</b><span class="sub">${esc(it.company)} · ${esc(sourceName(it.source))}</span></td>
-        <td><span class="pill ${(STATUS[it.status] || STATUS.queued)[2]}">${esc((STATUS[it.status] || STATUS.queued)[1])}</span></td>
-        <td class="muted">${esc(it.confirmation || it.message || "—")}</td>
-      </tr>`).join("") : `<tr><td colspan="3" class="muted">No applications in this run.</td></tr>`;
+        <td><b>${esc(it.title)}</b><span class="sub">${esc(it.company)} · ${esc(it.resumeMode === "original" ? "Original PDF" : "Tailored PDF")}</span></td>
+        <td><span class="pill gray">${esc(channelKind(it.source))}</span></td>
+        <td>${esc(exp)}</td>
+        <td>${learn.length ? learn.map((g) => `<span class="pill gray">${esc(g)}</span>`).join(" ") : "—"}</td>
+        <td><span class="pill ${(STATUS[it.status] || STATUS.queued)[2]}">${esc((STATUS[it.status] || STATUS.queued)[1])}</span>
+          <span class="sub">${esc(it.confirmation || it.message || "—")}</span></td>
+      </tr>`;
+    }).join("") : `<tr><td colspan="5" class="muted">No applications in this run.</td></tr>`;
   }
 
   $("#btnExport").addEventListener("click", () => {
@@ -1519,12 +2248,28 @@ npx skills add career-ops-india/apply</div>
         if (!S.years && prof.years !== undefined && prof.years !== "") S.years = String(prof.years);
         if (prof.details && Object.keys(prof.details).length) S.details = { ...prof.details, ...S.details };
       }
+      if (S.resume) {
+        const back = inferDetails(S.resume, S.layout);
+        const cur = S.details || {};
+        let patched = false;
+        for (const k of ["name", "city", "postalCode", "linkedin", "website", "currentTitle", "currentCompany"]) {
+          if (!cur[k] && back[k]) { cur[k] = back[k]; patched = true; }
+        }
+        const yrs = inferYears(S.resume);
+        if (yrs && !S.years) {
+          S.years = yrs;
+          patched = true;
+        }
+        S.details = cur;
+        if (patched) { save(); pushProfile(); }
+      }
     } catch {}
 
     $("#role").value = S.role || "";
     $("#years").value = S.years || "";
     $("#whoName").textContent = (S.details && S.details.name) || "You";
     $("#whoAv").textContent = ((S.details && S.details.name) || "You").split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+    renderReadinessStrip();
     if (S.file) {
       $("#dropTitle").textContent = S.file;
       $("#dropSub").textContent = `${Math.round(S.resume.length / 1000)}k characters read · click to replace`;
@@ -1533,18 +2278,53 @@ npx skills add career-ops-india/apply</div>
       $("#liveText").innerHTML = `<b>${S.jobs.length}</b> jobs`;
       $("#liveDot").classList.remove("off");
     }
-    go(S.step || 1);
+    let initialQueue = null;
+    try {
+      const qd = await api("/api/autoapply/status");
+      if (qd && qd.ok && qd.state) initialQueue = qd.state;
+    } catch {}
+    if (initialQueue) S.queue = initialQueue;
+    /* jobs already applied (the app's log or Naukri's own list) leave your queue */
+    try {
+      const rr = await fetch("/api/results").then((x) => x.json());
+      const done = new Set((rr.ids || []).map(String));
+      const gone = S.picks.filter((id) => done.has(String(id)));
+      if (gone.length) {
+        S.picks = S.picks.filter((id) => !done.has(String(id)));
+        save();
+        dispatchEvent(new Event("co:applylist"));
+        toast(`${gone.length} job${gone.length === 1 ? "" : "s"} you already applied to left your queue. Results has ${gone.length === 1 ? "it" : "them"}.`, { kind: "ok" });
+      }
+    } catch { /* offline: leave the list as it is */ }
+
+    const hash = String(location.hash || "").toLowerCase();
+    const hm = hash.match(/^#step([1-7])$/);
+    let startStep = S.step || 1;
+    if (hm) startStep = Number(hm[1]);
+    else if (hash === "#apply" || (initialQueue && (initialQueue.running || initialQueue.paused || initialQueue.ask))) startStep = 5;
+
+    go(startStep);
     connectEvents();
     /* The job list is persisted, so the funnel and the shortlist must be
        rebuilt too; otherwise a reload lands on "Run Find live jobs first". */
     if (S.jobs.length) refreshSummary();
-    api("/api/autoapply/status").then((d) => {
-      if (d && d.ok && d.state) { S.queue = d.state; renderQueue(); if (S.step === 7) renderOverview(); }
-    });
+    if (initialQueue) { renderQueue(); if (startStep === 7) renderOverview(); }
     refreshSites();
   }
 
   boot();
+  addEventListener("storage", (e) => {
+    if (e.key !== "co.console.picks") return;
+    S.picks = ls.get("co.console.picks", []);
+    if (S.step === 3) renderPick();
+    if (S.step === 4) renderTailor();
+  });
+  addEventListener("hashchange", () => {
+    const h = String(location.hash || "").toLowerCase();
+    const m = h.match(/^#step([1-7])$/);
+    if (m) go(Number(m[1]));
+    else if (h === "#apply") go(5);
+  });
 })();
 </script>
 </body>

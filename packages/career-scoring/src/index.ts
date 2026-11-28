@@ -65,11 +65,15 @@ function clamp01(n: number): number {
 /** "5+ years", "3-5 years", "7-10 Yrs", "minimum 4 years" → 5, 3, 7, 4 */
 export function parseRequiredYears(text: string): number | undefined {
   const t = norm(text);
-  /* A range comes first: "7-10 yrs" must read as 7, not 10. */
-  const range = t.match(/(\d+)\s*(?:-|to)\s*(\d+)\s*(?:years?|yrs?)/);
-  if (range?.[1]) return Number(range[1]);
-  const plus = t.match(/(\d+)\s*\+?\s*(?:years?|yrs?)/);
-  if (plus?.[1]) return Number(plus[1]);
+  /* A range comes first: "7-10 yrs" must read as 7, not 10; ignore unrealistic numbers (>25 yrs). */
+  for (const m of t.matchAll(/(\d+)\s*(?:-|to)\s*(\d+)\s*(?:years?|yrs?)/g)) {
+    const n = Number(m[1]);
+    if (Number.isFinite(n) && n >= 0 && n <= 25) return n;
+  }
+  for (const m of t.matchAll(/(\d+)\s*\+?\s*(?:years?|yrs?)/g)) {
+    const n = Number(m[1]);
+    if (Number.isFinite(n) && n >= 0 && n <= 25) return n;
+  }
   return undefined;
 }
 

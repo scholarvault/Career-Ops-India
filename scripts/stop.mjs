@@ -36,5 +36,25 @@ try {
   }
 } catch {}
 
+// The server is killed outright on Windows, so its Chrome would be orphaned
+// and keep the profile locked. Close only Chrome running on this app's own
+// data/browser-profile* folders; a personal Chrome is never touched.
+let browsers = 0;
+if (process.platform === "win32") {
+  try {
+    const ps =
+      "$n = $env:CO_NEEDLE; $k = 0; Get-CimInstance Win32_Process -Filter \"Name='chrome.exe' or Name='msedge.exe'\" | " +
+      "Where-Object { $_.CommandLine -and $_.CommandLine.Contains($n) -and $_.CommandLine -notmatch '--type=' } | " +
+      "ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue; $k++ }; $k";
+    browsers = Number(execFileSync("powershell", ["-NoProfile", "-Command", ps], {
+      encoding: "utf8",
+      env: { ...process.env, CO_NEEDLE: join(root, "data", "browser-profile") },
+    }).trim()) || 0;
+  } catch {}
+} else {
+  try { execFileSync("pkill", ["-f", `--user-data-dir=${join(root, "data", "browser-profile")}`]); browsers = 1; } catch {}
+}
+if (browsers) console.log(`closed the app's browser`);
+
 if (stopped.size) console.log(`stopped pid ${[...stopped].join(', ')}`);
 else console.log(`nothing was running on ${port}`);

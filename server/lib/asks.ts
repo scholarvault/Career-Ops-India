@@ -157,3 +157,66 @@ export function openAsks(): PendingAsk[] {
 export function askState(): { open: PendingAsk[]; recent: PendingAsk[] } {
   return { open: openAsks(), recent: history.slice(0, 12) };
 }
+
+export type AgentChallengeCode =
+  | "CAPTCHA_GATE"
+  | "OTP_REQUIRED"
+  | "LOGIN_REQUIRED"
+  | "CONSENT_REQUIRED"
+  | "SCREENING_QUESTION";
+
+export type AgentChallenge = {
+  errorCode: AgentChallengeCode;
+  blocking: true;
+  askId: string;
+  jobId: string;
+  jobTitle?: string;
+  site: string;
+  question: string;
+  detail?: string;
+  inputType: AskInput;
+  options?: string[];
+  resumeAction: "answer_ask" | "browser_handover";
+  resumeEndpoint: string;
+  browserHandoverUrl: string | null;
+  policyNote: string;
+};
+
+/** Maps a live PendingAsk into a machine-readable challenge envelope for MCP / HTTP API callers. */
+export function toAgentChallenge(
+  item: PendingAsk,
+  serverOrigin = "http://127.0.0.1:4173"
+): AgentChallenge {
+  const origin = serverOrigin.replace(/\/$/, "");
+  const codeMap: Record<AskKind, AgentChallengeCode> = {
+    captcha: "CAPTCHA_GATE",
+    otp: "OTP_REQUIRED",
+    login: "LOGIN_REQUIRED",
+    password: "LOGIN_REQUIRED",
+    consent: "CONSENT_REQUIRED",
+    email: "SCREENING_QUESTION",
+    field: "SCREENING_QUESTION",
+  };
+  const needsHandover = item.kind === "captcha" || item.kind === "login" || item.kind === "password";
+  return {
+    errorCode: codeMap[item.kind],
+    blocking: true,
+    askId: item.id,
+    jobId: item.jobId,
+    ...(item.jobTitle ? { jobTitle: item.jobTitle } : {}),
+    site: item.site || "employer-portal",
+    question: item.label,
+    ...(item.detail ? { detail: item.detail } : {}),
+    inputType: item.inputType,
+    ...(item.options ? { options: item.options } : {}),
+    resumeAction: needsHandover ? "browser_handover" : "answer_ask",
+    resumeEndpoint: `${origin}/api/autoapply/answer`,
+    browserHandoverUrl: needsHandover ? `${origin}/browser.html` : null,
+    policyNote:
+      item.kind === "captcha"
+        ? "Bot checks are never bypassed or auto-solved. Open browserHandoverUrl for human clearing, then answer 'done'."
+        : item.kind === "login" || item.kind === "password"
+          ? "Passwords are never collected by the agent. Sign in at browserHandoverUrl, then answer 'done'."
+          : "Prompt the candidate for this exact field and submit the response to resumeEndpoint (or MCP answer_ask).",
+  };
+}

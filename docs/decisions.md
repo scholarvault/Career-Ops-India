@@ -667,3 +667,342 @@ The browser panel is no longer the place a user types an email or a code.
 **Revisit if:** a site's form is only usable through its own UI (a drag-and-drop
 builder, a multi-page wizard with no stable selectors). Then the handover view
 is the right answer for that site, and the ask card should say so.
+
+---
+
+## ADR-026 - The browser runs headless by default; a window is opt-in, per profile
+
+**Date:** 2026-11-28
+**Status:** accepted. Amends ADR-022.
+
+A headed Chrome parked off-screen still showed up: in the taskbar, on a second
+monitor, and after any crash as an orphaned window that held the profile lock,
+so the next launch died with exit code 21 (seen live on 2026-11-27).
+
+**Decision.**
+
+1. `server/lib/browser.ts` launches each profile in one of three modes:
+   `headless` (no window), `offscreen` (headed, parked off every monitor) or
+   `window` (a normal window). `auto` picks headless for the main profile -
+   employer ATS forms and Naukri - and offscreen for Indeed and Workday, which
+   refuse a headless browser. `CAREER_OPS_BROWSER_MODE` overrides it.
+2. The in-app panel (`ui/browser.html`) streams screenshots and forwards input
+   in every mode, so the captcha and password hand-off works with no window.
+   "Open as a window" relaunches the same profile headed (`POST
+   /api/browser/mode`) and reopens the page; the cookies are on disk, so the
+   sign-in survives.
+3. On start the server closes any Chrome still running on its own
+   `data/browser-profile*` folders, and `pnpm stop` does the same. Ctrl+C closes
+   the context. A personal Chrome is never matched.
+
+**Not done, on purpose.** Headless is not disguised as headed. A site that
+refuses headless gets a headed browser, not a patched fingerprint (ADR-004).
+
+**Revisit if:** a companion Chrome extension ships. It would drive the user's
+own Chrome and their own sessions, and the Playwright browser would remain
+only for background discovery.
+
+---
+
+## ADR-027 - Naukri sign-in is email or phone plus a one-time code; the password form is removed
+
+**Date:** 2026-11-28
+**Status:** accepted. Enforces ADR-003.
+
+`ui/naukri.html` had a password form and `POST /api/naukri/login` forwarded
+the password to Naukri. That contradicted ADR-003 even though nothing was
+stored.
+
+**Decision.** `/api/naukri/login` takes only `username` (an email or a 10-digit
+mobile), asks Naukri to send a code, and returns `needsOtp`. `/api/naukri/otp`
+verifies it. A request that carries a `password` field is refused with 410.
+When Naukri wants a captcha before sending a code, the answer is
+`needsBrowser` and the page opens the hand-off panel; "Use the browser
+session" then borrows the token. Google sign-in takes the same path.
+
+**Consequence.** The app never sees a Naukri password. One fewer way in for a
+user who only knows their password; the code path covers every Naukri account.
+
+---
+
+## ADR-028 - Dark is the default theme; light is one click away
+
+**Date:** 2026-11-28
+**Status:** accepted. Replaces the "force `color-scheme: light`" rule in AGENTS.md.
+
+The owner asked for a black default with white as the option.
+
+**Decision.** `ui/fx.css` keeps the light palette and adds a dark layer scoped
+to `html:not([data-theme="light"])`, so dark applies unless the page carries
+`data-theme="light"`. `ui/design.js` adds a sun/moon switch (bottom left) that
+stores the choice in `localStorage["co.theme"]`; each page sets the attribute
+in `<head>` before paint so a light user never sees a dark flash. ui-sdk's
+`--ui-*` tokens are mapped in both palettes, and `color-scheme` follows the
+theme. Contrast is checked for both (text >= 4.5:1, control edges >= 3:1).
+
+**Palette (owner, 2026-11-28).** The app is pure black (`#000` ground,
+`#0a0a0a` surfaces, neutral greys, no blue tint) with one orange accent
+(`#f36b2b`, gradient `#ff8f45` to `#e0521a`). Orange fills carry black text,
+6.5:1; white on orange is only 3:1. Light mode keeps the orange, with
+`#c2410c` for orange text on white (5.2:1). The landing page
+(`frontend/`) is the opposite: white paper with orange art.
+
+---
+
+## ADR-029 - One step bar, no side rails, and an orange budget
+
+**Date:** 2026-11-28
+**Status:** accepted. Amends ADR-028 (palette use) and retires `ui/onboard.html`.
+
+The owner found the app confusing. There were two onboardings (`index.html`
+and `onboard.html`), two seven-step rails (Workspace and Console) that
+described the same journey, a Naukri item in the Workspace rail, and orange
+on nearly every surface.
+
+**Decision.** Every app page shares one top step bar, drawn by `stepBar()` in
+`ui/design.js`: **Profile · Connect · Jobs · Shortlist · Tailor · Apply ·
+Track**. Each step maps to an existing screen: `map.html`, `settings.html`,
+`workspace.html#jobs`, `console.html#step3`, `#step4`, `#step5` and
+`workspace.html#track`. The bar is a segmented control with a sliding pill,
+inspired by Hairline UI's liquid tabs and rebuilt here, not copied. The
+Workspace sidebar and the Console rail are hidden. Setup (`index.html`) keeps
+its own steps, laid out as a horizontal stepper at the top. `onboard.html`
+redirects to `index.html`. Naukri sign-in belongs to Connect.
+
+`ui/fx.css` is now a "hairline" skin: system type (SF Pro, then Inter), one
+ground, hairline borders, frosted bars, pill buttons, and no gradients, glows,
+spotlights or aurora. Orange is budgeted: the primary button fill, the focus
+ring and the brand dot. Selected chips invert. Switches and high scores are
+green, and amber means "needs you". The legacy tokens `--accent-ink` and
+`--accent-soft` are neutral, so old markup loses its orange without edits.
+
+**Amended 2026-11-28.** Seven steps were too many: Shortlist and Tailor showed
+empty screens before any job was chosen. The bar is now **Profile · Connect ·
+Jobs · Apply · Track**. A job reaches Apply only when the user presses **Add to
+apply** in Jobs, which writes it to the console's list (`co.console.picks`,
+with the job itself in `co.apply.jobs` so a console search cannot drop it).
+Apply then runs Your list → Resumes → Apply. The Top 10 / Manual / Apply all
+chooser is gone; an apply-all warning belongs to an agent asking over MCP, not
+to this screen. Connections drops the feed table and the free and paid lists
+and shows agents (Claude, Codex, Gemini, Cursor) with live MCP status.
+
+**Consequence.** One list drives tailoring and applying. The console's own
+market search (step 2) still exists for agents and links, but the bar no
+longer leads to it.
+
+## ADR-030 - Four places: You, Find, Queue, Results; sources behind a gear
+
+**Date:** 2026-11-28. **Status:** accepted. Amends ADR-029.
+
+**Context.** Five steps still read as a setup wizard after setup was done.
+Connect is visited once and then rarely, yet it held a fifth of the bar. The
+Jobs toolbar mixed filters with links (Apply console, Browser, Connections)
+and a bell that competed with the bar's "Needs you" pill. "Last 7 days" and
+"70+" were switches with no idea of how many postings each one kept.
+
+**Decision.** The bar is **You · Find · Queue · Results**, drawn by
+`stepBar()` in `ui/design.js`. Sources and settings (`settings.html`) sit
+behind a gear in the bar. The bar has one inbox: amber "Needs you" items come
+from the auto-apply status, news (postings marked Ready, deadlines) comes from
+the page through `CO.inbox.provide()`.
+
+Find (`workspace.html#jobs`) has three panels that count before you choose:
+
+- **Match**: a slider over a histogram of scores, in steps of 5.
+- **Posted**: 24 hours, 3 days, 7 days (default), 30 days, any time, and
+  whether to include postings with no date (listed last).
+- **Sources**: built from what is in the results, with a count each, grouped
+  as Always on, Your accounts, Search engines and Job feeds with your key. An
+  account or engine missing from the results is a dashed row to Sources.
+
+Each posting has a checkbox; ticked ones go to the queue together with **Add
+to queue**. The queue is still `co.console.picks`. Results is the old Track;
+the server opens `/` on Results once `data/applications.jsonl` holds a
+confirmed application, and on Find before that.
+
+**Consequence.** Only one orange button shows at a time: while jobs are
+ticked, the pick bar's Add to queue is primary and the detail pane's is not.
+Saved stays as "save for later". Phase 3 (master or tailor per job in the
+queue) and phase 4 (the Results dashboard) build on these names.
+
+## ADR-031 - Indian job boards through the search index; master or tailor per job; Results with proof
+
+**Date:** 2026-11-28. **Status:** accepted.
+
+**Boards.** foundit, Shine, TimesJobs, Instahyre, Cutshort, Hirist, iimjobs,
+Internshala, Apna, Wellfound and Freshersworld are discovered through the
+user's Firecrawl or TinyFish key, from what the index already holds. The app
+does not crawl them. Each job's `sourceId` is the board. Sign-in to a board
+is the user's, once, in the popup (Sources). Applying opens the posting; no
+board is submitted for the user until its terms are in the source register.
+
+**Master or tailor.** In the Queue every job is Master (send the master
+resume, no AI call) or Tailor (reorder toward the posting). The suggestion is
+Master when the posting's terms already on the resume (`have`) are at least
+85% of `have + miss`; the user can switch, and the note says "Your choice".
+Tailoring still never adds a term the resume lacks. The plan is stored in
+`co.resumePlan`; one button prepares each job its own way.
+
+**Results.** `GET /api/results` reads `data/applications.jsonl` and counts only
+rows with a confirmation. Results shows Applied, This week, Interviews and In
+your queue; the pipeline board and the activity heatmap include confirmed
+applications this browser never tracked; "Applied, with proof" lists each
+confirmation; Sources shows postings in Find and applications per source.
+
+**You.** The bar's avatar opens one menu from every page: target role, master
+resume (replace or read again), preferences, answers, career map, photo. If
+the master resume PDF embeds a JPEG photo, "Use the photo from your resume"
+opens it in the cropper (`GET /api/resume/photo`; nothing leaves the machine).
+
+**ADR-031 amended 2026-11-28.** At the owner's request, auto apply now
+submits on the Indian boards too, with the same engine and the same rules as
+Naukri and employer sites: a confirmation page or message is required and
+stored, and an OTP, captcha, login or unanswered question hands over. LinkedIn
+stays fill-only. The board's own terms are the user's to accept; the cards say
+"Auto apply" so the choice is visible. Sign-in is still the user's, on the
+real site: a site that refuses the hidden browser is retried in a full
+browser kept off-screen (ADR-026), then in a window; nothing passes a bot
+check for the user. The popup now notices a sign-in by a new session cookie
+as well as a logout link, and pasting (an email code, a copied password)
+goes straight into the focused field on the site.
+
+**ADR-030 amended 2026-11-28.** "You" is gone from the bar: it sent a
+returning user back into setup, because the profile pages read what setup
+left in the tab's sessionStorage. The bar is **Find · Queue · Results**. The
+profile is Settings → Profile (read from and saved to `data/profile.json`),
+reached from the avatar or the gear; the career map and the single-step setup
+links (`index.html#edit-N`) now rebuild from `/api/profile` when the tab has
+no setup of its own. Setup is for a new user only.
+
+## ADR-032 - The user's own browser, attached over CDP, for sites they choose
+
+**Date:** 2026-11-28. **Status:** accepted.
+
+**Context.** foundit and Naukri refuse the app's browser outright, and the
+user is already signed in to them in Chrome or Brave. agent-browser
+(agent-browser.dev) was considered: it is a Rust CLI over the same Chrome
+DevTools Protocol, with no Node API, so it would add a second driver beside
+Playwright without getting past any site the app cannot. Its useful idea,
+attaching to the user's running browser, Playwright already does.
+
+**Decision.** `server/lib/user-browser.ts` attaches with
+`chromium.connectOverCDP` to the browser named in its `DevToolsActivePort`
+file, which exists only after the user turns on remote debugging at
+`chrome://inspect/#remote-debugging` (brave://, edge://); the browser then
+asks them to Allow. Sites the user ticks (`data/user-browser.json`) open in a
+new tab there, for sign-in and for auto apply (`routeFor` in
+`profileDirFor`). The app records the tabs it opens and touches no other;
+Disconnect, or 15 quiet minutes, closes only those and detaches. Sign out of a
+routed site forgets the record and never clears the user's cookies. Nothing is
+copied from the profile; no saved password is read; a bot check is still the
+user's. The panel says plainly that while attached, other local programs
+could drive the browser too.
+
+**Rejected.** Copying the user's profile into a temp folder (agent-browser
+`--profile <name>`): it copies every cookie they have, bank and mail
+included. Stealth or captcha plugins: never (AGENTS.md).
+
+## ADR-033 - The Career-Ops window: a real browser shown when the user is needed
+
+**Date:** 2026-11-28. **Status:** accepted. Amends ADR-022 and ADR-026.
+
+**Context.** The sign-in popup streamed JPEG screenshots of a hidden browser
+and forwarded clicks and keys. It was blurry, lagged, broke paste, and foundit
+and Naukri refused the headless browser behind it. Attaching the user's own
+browser (ADR-032) needed a debugging switch, an Allow prompt and the right
+browser (the owner uses Brave, the app tried Chrome), and failed in testing.
+agent-browser drives Chrome over the same protocol and would not change any
+of this.
+
+**Decision.** Every app profile runs as a real headed Chrome parked
+off-screen. When the user is needed, `showWindow()` moves that window on
+screen, centred, over CDP (`Browser.setWindowBounds`), and `hideWindow()`
+parks it after. Sign-in in Settings opens the site there and waits; the
+hand-off page (`browser.html`) brings the window forward for a captcha,
+login or review. Text is native and sharp, paste and the keyboard are the
+browser's own, and checks are the user's to pass. The profile stays separate
+from the user's everyday browser, so their other sessions are never exposed.
+Auto apply and the MCP tools keep driving the same window through Playwright.
+
+**Consequences.** A headed browser costs a little more memory than headless
+and still closes after ten idle minutes. Attaching the user's own browser
+stays, as an advanced option. Sign-in detection also reads an account greeting,
+account links, and a site's signed-in pages (foundit `/seeker/`).
+
+## ADR-034 - Live searches every connected source and says what each did
+
+**Date:** 2026-11-28. **Status:** accepted.
+
+**Context.** The owner connected Firecrawl, TinyFish, Indeed, Apna, foundit and
+Wellfound and saw none of it in Find. Measured: Live sent only public, Naukri
+and Indeed; Indeed hit a check and returned 0; Naukri was asked for fresher
+roles (no years sent) and returned 11; the boards were never searched.
+
+**Decision.**
+- foundit gets a session connector (`connectors/foundit.ts`) and runs
+  whenever the user is signed in to it.
+- `/api/jobs` fills `years` from the saved profile; Naukri reads two pages.
+- `locality` (the profile's preferred locality) marks postings that name it
+  as "near you" and ranks them first among matches. It never filters: most
+  postings name only the city.
+- Find keeps the last search's report per source. The Sources panel lists
+  every connected source with its count, or "Pass a check" (which opens that
+  site in the Career-Ops window), and says plainly which signed-in boards are
+  found through search only (Apna, Wellfound, others).
+- A city filter sits inside the state filter, counted on what the other
+  filters keep.
+
+**Result.** Product Manager, Chennai: matching postings 85 → 167 (Naukri 11 → 50,
+foundit 0 → 48). Apna and Wellfound still have no session connector; Apna's
+search renders server-side and needs its own reader.
+
+## ADR-035 - A search that streams, drops unrelated roles, and can be the user's own
+
+**Date:** 2026-11-28. **Status:** accepted.
+
+**Context.** A Product Manager search returned 1,406 postings, 1,229 of them
+unrelated roles at the same companies; nothing showed for 53 seconds while the
+slowest source (Indeed) answered; Indeed stopped at a check; Apna and the
+other boards were never searched; and Firecrawl ran only as fixed queries.
+
+**Decision.**
+- **Noise.** A posting that does not match the role and whose relationship is
+  "separate" is left out (`keepOthers` brings it back). The count says how
+  many: "1,344 unrelated left out".
+- **Streaming.** `/api/jobs/stream` sends one JSON line per source as it
+  answers, then the sorted, de-duplicated whole. Find paints each batch.
+  Measured: first postings at 1.5 s on the server, 3.6 s on the page.
+- **One source again.** After a check is passed in the Career-Ops window,
+  "Search Indeed now" runs that source alone (`sources: [id, "no-engines"]`)
+  and merges what it finds.
+- **Apna** is read from its public page by plain request (25 PM postings in
+  Chennai); it runs in every search.
+- **Search the web.** Find has the user's own Firecrawl / TinyFish search,
+  limited to career sites, the Indian boards, or one board, with an optional
+  "seen in the last day / week / month".
+
+**Not yet.** Wellfound: its listings are in a large page-data blob and it
+ignored the city in testing; it stays search-index only.
+
+**Result.** Product Manager, Chennai: 178 matches (85 before ADR-034), first
+postings in under 4 seconds.
+
+## ADR-036 - Indeed hands its check to the user mid-search; Wellfound; Apna addresses
+
+**Date:** 2026-11-28. **Status:** accepted.
+
+- **Indeed.** A check during a streamed search is shown to the user in the
+  Career-Ops window (`showPage()`); the page says "Indeed needs you"; the
+  search waits up to 60 s, then reads the results or goes on without Indeed.
+  The check is seen in about 10 s. Never solved for the user.
+- **Wellfound.** `connectors/wellfound.ts` reads the India role page's own
+  data in the user's session: 30 listings with company, pay and posted date.
+- **Apna.** Each job's own page adds its address, posted date and full
+  description. Apna's distance filter was tested and not used: for a Product
+  Manager search within 10 km it returned telecaller and delivery roles. A job
+  naming the user's locality is still marked "near you".
+- **Search the web** reports in a bar above the list (searching, then "N new
+  postings · M match", "Show only these", "Search again"), and adds the user's
+  city when the words name no place.
+
+**Result.** Product Manager, Chennai: 201 matches from 12 sources.

@@ -15,13 +15,15 @@
 // It never signs in, never solves a challenge and never submits.
 
 import type { Job } from "@career-ops/contracts";
-import { HAS_CHROME, withPage } from "../lib/browser";
+import { HAS_CHROME, hidePage, showPage, withPage } from "../lib/browser";
 
 export type IndeedOptions = {
   role: string;
   city?: string;
   profileDir: string;
   limit?: number;
+  /** Called when a check is shown to the user; the search then waits up to 60 s. */
+  onWait?: () => void;
 };
 
 export type IndeedResult = {
@@ -100,13 +102,34 @@ export async function discoverIndeed(opts: IndeedOptions): Promise<IndeedResult>
 
     const url = searchUrl(opts.role, opts.city);
     let rendered = false;
-    for (let attempt = 0; attempt < 2 && !rendered; attempt++) {
+    /* Cards, or a check: whichever shows first. A check is seen in seconds
+       now (it used to cost two 20-second waits before the user was asked). */
+    const CARDS = ".job_seen_beacon, .jobsearch-ResultsList > li";
+    let checked = false;
+    for (let attempt = 0; attempt < 2 && !rendered && !checked; attempt++) {
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
-      try {
-        await page.waitForSelector(".job_seen_beacon, .jobsearch-ResultsList > li", { timeout: 20000 });
-        rendered = true;
-      } catch {
-        if (attempt === 0) await page.waitForTimeout(4000);
+      for (let t = 0; t < 20 && !rendered; t++) {
+        if ((await page.locator(CARDS).count().catch(() => 0)) > 0) { rendered = true; break; }
+        if (t >= 3 && blockedReason(await page.locator("body").innerText().catch(() => ""))) { checked = true; break; }
+        await page.waitForTimeout(1000);
+      }
+    }
+
+    /* A check in the way (ADR-036): show this tab to the user in the
+       Career-Ops window and wait while they pass it. The app never answers a
+       check itself. If they do not, the search goes on without Indeed. */
+    if (!rendered && opts.onWait) {
+      const body0 = (await page.locator("body").innerText().catch(() => "")).toLowerCase();
+      if (blockedReason(body0) && (await showPage(page))) {
+        opts.onWait();
+        for (let i = 0; i < 30 && !rendered; i++) {
+          await page.waitForTimeout(2000);
+          rendered = (await page.locator(".job_seen_beacon, .jobsearch-ResultsList > li").count().catch(() => 0)) > 0;
+          if (!rendered && i % 10 === 9 && !/verify|captcha|human|security check|just a moment/i.test(await page.locator("body").innerText().catch(() => ""))) {
+            await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 }).catch(() => {});
+          }
+        }
+        await hidePage(page);
       }
     }
 
@@ -117,7 +140,7 @@ export async function discoverIndeed(opts: IndeedOptions): Promise<IndeedResult>
         return {
           jobs: [],
           needsHuman: why,
-          message: "Indeed asked for a verification. Solve it once in the window; the session is then remembered.",
+          message: "Indeed asked for a verification. Open the browser panel (/browser.html?indeed=1), solve it once yourself, then search again; the profile remembers it.",
         };
       }
       return { jobs: [], message: "No job cards rendered. Indeed may have changed its layout." };

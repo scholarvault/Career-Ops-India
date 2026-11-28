@@ -32,7 +32,7 @@
       color: #f2f5f6; white-space: nowrap;
     }
     .snav-brand b { font-weight: 650; }
-    .snav-brand span { color: #7e9a9a; font-weight: 400; }
+    .snav-brand span { color: #8a8a8a; font-weight: 400; }
     .snav-mark {
       display: none; place-items: center;
       width: 30px; height: 30px; margin: 0 auto 20px;
@@ -43,32 +43,32 @@
     .snav-item {
       display: flex; align-items: center; gap: 11px; width: 100%;
       padding: 9px 10px; border: 0; border-radius: var(--r-md);
-      background: none; color: #8fa8a8; font: inherit; font-size: 13px;
+      background: none; color: #9a9a9a; font: inherit; font-size: 13px;
       text-align: left; cursor: pointer; white-space: nowrap;
       text-decoration: none;
       transition: background var(--t-fast), color var(--t-fast);
     }
-    .snav-item:hover { background: var(--rail-active); color: #dbeceb; }
+    .snav-item:hover { background: var(--rail-active); color: #ffe6d5; }
     .snav-item:focus-visible { outline: 3px solid rgba(143, 189, 189, 0.45); outline-offset: 1px; }
     .snav-item.on { background: var(--rail-active); color: #ffffff; font-weight: 600; }
     .snav-num {
       display: grid; place-items: center; flex: 0 0 auto;
       width: 21px; height: 21px; border-radius: 50%;
-      background: #14484a; color: #5f7f80;
+      background: #1c1c1c; color: #8a8a8a;
       font-size: 10px; font-weight: 700;
     }
     .snav-item.on .snav-num { background: #f2f5f6; color: var(--rail); }
-    .snav-item.done { color: #a8c2c2; }
-    .snav-item.done .snav-num { background: transparent; color: #5fa98a; }
+    .snav-item.done { color: #b8b8b8; }
+    .snav-item.done .snav-num { background: transparent; color: #34d399; }
     .snav-label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
-    .snav-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid #1d4a4c; }
+    .snav-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid #222222; }
     .snav-toggle {
       display: flex; align-items: center; gap: 9px; width: 100%;
       padding: 8px 10px; border: 0; border-radius: var(--r-md);
-      background: none; color: #7e9a9a; font: inherit; font-size: 11.5px;
+      background: none; color: #8a8a8a; font: inherit; font-size: 11.5px;
       cursor: pointer; white-space: nowrap;
     }
-    .snav-toggle:hover { background: var(--rail-active); color: #dbeceb; }
+    .snav-toggle:hover { background: var(--rail-active); color: #ffe6d5; }
     .snav-toggle svg { width: 15px; height: 15px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 190ms var(--ease-out); }
     .sidenav.collapsed .snav-toggle svg { transform: rotate(180deg); }
     .sidenav.collapsed .snav-label,
@@ -161,6 +161,25 @@
     .rail-step.on .dot { background: var(--accent); color: #fff; }
     .rail-sep { color: var(--border-strong); font-size: 10px; }
 
+    .ws-livebar {
+      flex: 0 0 auto;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding: 9px 18px;
+      background: var(--accent-soft);
+      border-bottom: 1px solid var(--border);
+      font-size: 12.5px; color: var(--ink);
+    }
+    .ws-livebar[hidden] { display: none; }
+    .ws-livebar.warn { background: var(--warn-soft); border-bottom-color: #ecd9b0; }
+    .ws-livebar .live-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 2px 9px; border-radius: 999px;
+      font-size: 11px; font-weight: 650; white-space: nowrap;
+      background: var(--surface); border: 1px solid var(--border);
+    }
+    .ws-livebar .live-msg { flex: 1 1 260px; min-width: 0; color: var(--ink-2); }
+    .ws-livebar .live-acts { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
     /* ---------------- split ---------------- */
 
     .split { flex: 1 1 auto; display: grid; grid-template-columns: minmax(360px, 41%) 1fr; min-height: 0; }
@@ -213,7 +232,7 @@
 
     .jobcard {
       position: relative;
-      display: grid; grid-template-columns: 34px 1fr auto; gap: 11px;
+      display: grid; grid-template-columns: 18px 34px 1fr auto; gap: 11px; align-items: start;
       width: 100%; padding: 13px 16px 13px 14px;
       border: 0; border-bottom: 1px solid var(--line);
       background: transparent; color: inherit; font: inherit; text-align: left;
@@ -240,6 +259,42 @@
     }
 
     .jobcard .body { min-width: 0; }
+    html[data-view="track"] header.appbar, html[data-view="improve"] header.appbar { display: none; }
+    /* the profile lives in the bar's avatar (design.js meMenu) */
+    #profileChip { display: none !important; }
+    .fp-acc span { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink); }
+    .fp-on { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); display: inline-block; }
+    /* results older than a connection: the Live button asks for a refresh */
+    #fLive.is-stale .live-dot { background: var(--warn) !important; }
+    #fLive.is-stale::after { content: "Refresh"; margin-left: 6px; font-size: 11px; font-weight: 600; color: var(--warn); }
+    .webbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 12px 10px 16px; border-bottom: 1px solid var(--line); background: var(--surface-2, var(--fill)); font-size: 13px; animation: rise 220ms var(--ease-out) both; }
+    .webbar[hidden] { display: none; }
+    .webbar .wb-t { flex: 1 1 220px; min-width: 0; color: var(--ink); }
+    .webbar .wb-t small { display: block; margin-top: 2px; font-size: 11.5px; color: var(--muted); }
+    .webbar[data-state="bad"] .wb-t b { color: var(--bad, #c0392b); }
+    .webbar .wb-x { border: 0; background: none; font-size: 18px; line-height: 1; color: var(--muted); cursor: pointer; padding: 2px 6px; }
+    .wb-spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--ink); animation: wbspin 800ms linear infinite; flex: none; }
+    @keyframes wbspin { to { transform: rotate(360deg); } }
+    .fp-web { display: grid; gap: 10px; }
+    .fp-web label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+    .fp-web input, .fp-web select { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font: inherit; font-size: 13px; background: var(--bg); color: var(--ink); }
+    .fp-web-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .fpop:has(.fp-web) { width: 340px; }
+    .fp-rep { display: grid; gap: 2px; padding: 0 2px 4px; }
+    .fp-rrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px; font-size: 12.5px; }
+    .fp-rrow small { font-size: 11.5px; color: var(--muted); }
+    .fp-rrow small.bad { color: var(--bad, #c0392b); }
+    .fp-fix { border: 0; border-radius: 980px; padding: 3px 9px; font: inherit; font-size: 11.5px; font-weight: 600; background: var(--warn-soft); color: var(--warn); cursor: pointer; }
+    .jobcard .pick { display: grid; place-items: center; height: 34px; cursor: pointer; }
+    .jobcard .pick input { width: 16px; height: 16px; margin: 0; accent-color: var(--ink); cursor: pointer; }
+    .jobcard .pick input:disabled { cursor: default; opacity: 0.55; }
+    .pickbar {
+      display: flex; align-items: center; gap: 8px; padding: 10px 12px 10px 16px;
+      border-top: 1px solid var(--line); background: var(--surface);
+      animation: rise 220ms var(--ease-out) both;
+    }
+    .pickbar[hidden] { display: none; }
+    .pickbar b { font-size: 13px; font-weight: 600; margin-right: auto; }
     .jobcard .title {
       font-size: 13.5px; font-weight: 600; line-height: 1.35; letter-spacing: -0.005em;
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
@@ -326,7 +381,7 @@
     .bd-row .track { height: 7px; background: var(--surface-3); border-radius: 4px; overflow: hidden; }
     .bd-row .track > i {
       display: block; height: 100%; width: 0; border-radius: 4px;
-      background: linear-gradient(90deg, var(--accent), #4e8c8a);
+      background: var(--grad);
       transition: width 720ms var(--ease-out);
     }
     .bd-row .val { font-size: 12.5px; font-variant-numeric: tabular-nums; text-align: right; color: var(--muted); }
@@ -649,9 +704,9 @@
       padding: 3px 8px; border-radius: 6px; cursor: pointer;
     }
     .rpreview-open:hover { border-color: var(--border-strong); }
-    .rpreview-stage { position: relative; overflow: hidden; background: #e9edf0; }
+    .rpreview-stage { position: relative; overflow: hidden; background: var(--surface-3); }
     .rpreview-stage iframe {
-      display: block; border: 0; background: #fff;
+      display: block; border: 0; background: var(--surface);
       transform-origin: top left;
     }
 
@@ -810,8 +865,8 @@
     .task span { display: block; margin-top: 2px; font-size: 11.5px; line-height: 1.5; color: var(--muted); }
 
     .evidence { margin: 0 18px 18px; padding: 14px 15px; border-radius: var(--r-md); background: var(--rail); }
-    .evidence b { display: block; font-size: 11px; font-weight: 650; letter-spacing: 0.1em; text-transform: uppercase; color: #8fbdbd; margin-bottom: 8px; }
-    .evidence p { margin: 0; font-size: 12px; line-height: 1.6; color: #a8c2c2; }
+    .evidence b { display: block; font-size: 11px; font-weight: 650; letter-spacing: 0.1em; text-transform: uppercase; color: #ffb07a; margin-bottom: 8px; }
+    .evidence p { margin: 0; font-size: 12px; line-height: 1.6; color: #b8b8b8; }
     .evidence p + p { margin-top: 8px; }
     .evidence em { font-style: normal; color: #f2f5f6; }
 
@@ -837,6 +892,28 @@
     /* ---------------- activity heatmap + sparkline ---------------- */
 
     /* daily cap: what was actually sent today */
+    .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 28px 0; }
+    .kpi { display: grid; gap: 4px; padding: 16px 18px; border-radius: 16px; background: var(--surface); box-shadow: 0 0 0 1px var(--hair, var(--border)); }
+    .kpi b { font: 650 30px/1 var(--display, inherit); letter-spacing: -0.02em; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .kpi span { font-size: 13px; font-weight: 600; color: var(--ink-2, var(--ink)); }
+    .kpi small { font-size: 12px; color: var(--muted); }
+    .res-h { margin: 26px 28px 10px; font-size: 13px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+    .res-card .res-h { margin: 0 0 10px; }
+    .res-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; margin: 22px 28px 32px; align-items: start; }
+    .res-card { padding: 16px 18px; border-radius: 16px; background: var(--surface); box-shadow: 0 0 0 1px var(--hair, var(--border)); min-width: 0; }
+    .proof { list-style: none; margin: 0; padding: 0; }
+    .proof li { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 1px solid var(--line); }
+    .proof li:first-child { border-top: 0; }
+    .proof-t, .proof-r { display: grid; gap: 3px; min-width: 0; }
+    .proof-r { justify-items: end; flex: none; }
+    .proof-t b { font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .proof small { font-size: 12px; color: var(--muted); }
+    .srch { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .srch th { text-align: left; font-size: 11.5px; font-weight: 600; color: var(--muted); padding: 0 0 6px; }
+    .srch th + th, .srch td + td { text-align: right; font-variant-numeric: tabular-nums; }
+    .srch td { padding: 7px 0; border-top: 1px solid var(--line); }
+    .res-empty, .res-foot { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); }
+    @media (max-width: 900px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 14px 16px 0; } .res-grid { grid-template-columns: 1fr; margin: 16px; } .res-h { margin: 22px 16px 10px; } }
     .capstrip {
       display: flex; align-items: center; gap: 10px;
       margin: 16px 28px 0; padding: 10px 14px;
@@ -884,9 +961,9 @@
     .heat { display: grid; grid-auto-flow: column; grid-auto-columns: 13px; gap: 3px; width: max-content; margin: 0 auto; }
     .heat-col { display: grid; grid-template-rows: repeat(7, 13px); gap: 3px; }
     .heat-cell { width: 13px; height: 13px; border-radius: 3px; background: var(--surface-3); }
-    .heat-cell[data-l="1"] { background: #cfe3e2; }
-    .heat-cell[data-l="2"] { background: #9cc6c4; }
-    .heat-cell[data-l="3"] { background: #5f9e9b; }
+    .heat-cell[data-l="1"] { background: #ffd2b0; }
+    .heat-cell[data-l="2"] { background: #ffb07a; }
+    .heat-cell[data-l="3"] { background: #f36b2b; }
     .heat-cell[data-l="4"] { background: var(--accent); }
     .heat-legend { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 10px; font-size: 10.5px; color: var(--faint); }
     .heat-legend .heat-cell { width: 10px; height: 10px; }
@@ -1163,11 +1240,9 @@
       .search { order: 3; flex: 1 1 100%; max-width: none; }
       .appbar-right {
         margin-left: 0; width: 100%;
-        flex-wrap: nowrap; gap: 6px;
-        overflow-x: auto; scrollbar-width: none;
-        padding-bottom: 1px; contain: paint;
+        flex-wrap: wrap; gap: 6px;
+        padding-bottom: 1px;
       }
-      .appbar-right::-webkit-scrollbar { display: none; }
       .appbar-right .btn { flex: 0 0 auto; }
       .profile-chip { flex: 0 0 auto; margin-left: auto; }
     }
@@ -1275,6 +1350,8 @@
       .drawer { width: 100vw; }
     }
   </style>
+  <link rel="stylesheet" href="fx.css" />
+  <script>try{if(localStorage.getItem("co.theme")==="light")document.documentElement.setAttribute("data-theme","light")}catch(e){}</script>
 </head>
 <body>
   <div class="shell">
@@ -1286,7 +1363,7 @@
         <a class="snav-item done" href="map.html"><span class="snav-num">✓</span><span class="snav-label">Analyse</span></a>
         <button class="snav-item on" id="railRecommend" type="button" aria-current="step"><span class="snav-num">3</span><span class="snav-label">Recommend</span></button>
         <button class="snav-item" id="railTailor" type="button"><span class="snav-num">4</span><span class="snav-label">Tailor</span></button>
-        <a class="snav-item" href="console.html"><span class="snav-num">5</span><span class="snav-label">Apply</span></a>
+        <a class="snav-item" id="railApply" href="console.html#step5"><span class="snav-num">5</span><span class="snav-label">Apply</span></a>
         <button class="snav-item" id="railTrack" type="button"><span class="snav-num">6</span><span class="snav-label">Track</span></button>
         <button class="snav-item" id="railImprove" type="button"><span class="snav-num">7</span><span class="snav-label">Improve</span></button>
       </div>
@@ -1321,60 +1398,45 @@
 
     <div class="appbar-right">
       <button class="btn btn--sm" id="fLive" type="button"
-        data-tip="Pull postings from the live job feeds. Click again to go back to the bundled list.">
+        data-tip="Search the live job sources again: company boards, remote boards, Naukri, Indeed and your connected search keys.">
         <span class="live-dot" aria-hidden="true"></span>
         <span class="btn-label">Live feeds</span>
         <span class="sr-only">Pull postings from the live job feeds</span>
       </button>
-      <button class="btn btn--sm" id="fFresh" type="button" aria-pressed="true"
-        data-tip="Only postings from the last 7 days. Click again to include older ones.">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></svg>
-        <span class="btn-label">Last 7 days</span>
-        <span class="sr-only">Only postings from the last 7 days</span>
-      </button>
-      <button class="btn btn--sm" id="fScore" type="button" aria-pressed="false"
-        data-tip="Only postings that score 70 or higher against your profile.">
+      <button class="btn btn--sm" id="fMatch" type="button" aria-pressed="false" aria-haspopup="dialog" aria-expanded="false" data-pop-label="Match"
+        data-tip="How well a posting fits your profile. Drag to keep only the stronger ones.">
         <svg viewBox="0 0 24 24"><path d="M4 18V9M10 18V5M16 18v-6M22 18H2"/></svg>
-        <span class="btn-label">70+</span>
-        <span class="sr-only">Only postings that score 70 or higher</span>
+        <span class="btn-label">Any match</span>
       </button>
-      <button class="btn btn--sm" id="fSource" type="button" aria-haspopup="listbox" aria-expanded="false"
-        data-tip="Filter by the site the posting came from.">
+      <button class="btn btn--sm" id="fPosted" type="button" aria-pressed="false" aria-haspopup="dialog" aria-expanded="false" data-pop-label="Posted"
+        data-tip="When the employer posted it. Older listings are often closed.">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></svg>
+        <span class="btn-label">Posted · 7 days</span>
+      </button>
+      <button class="btn btn--sm" id="fSource" type="button" aria-pressed="false" aria-haspopup="dialog" aria-expanded="false" data-pop-label="Sources"
+        data-tip="Where the postings came from, with a count for each.">
         <svg viewBox="0 0 24 24"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
         <span class="btn-label">All sources</span>
-        <span class="sr-only">Filter by the site the posting came from</span>
       </button>
       <button class="btn btn--sm" id="fSaved" type="button" aria-pressed="false"
-        data-tip="Only the postings you saved for later.">
+        data-tip="Postings you saved for later. Saved ones are rechecked, and you are told if one closes.">
         <svg viewBox="0 0 24 24"><path d="M6 4h12v17l-6-4-6 4z"/></svg>
         <span class="btn-label">Saved</span>
         <span class="sr-only">Only the postings you saved for later</span>
       </button>
-      <a class="btn btn--sm btn--primary" href="console.html" title="Open the apply console">
-        <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 6"/></svg>
-        <span class="btn-label">Apply console</span>
-      </a>
-      <a class="btn btn--sm btn--ghost" href="browser.html" title="Open the Career-Ops browser (handover view)">
-        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><circle cx="6.5" cy="6.5" r="0.6" fill="currentColor"/></svg>
-        <span class="btn-label">Browser</span>
-      </a>
-      <a class="btn btn--sm btn--ghost" href="settings.html" title="Connections">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-        <span class="btn-label">Connections</span>
-      </a>
-      <div class="bell" id="bellWrap">
-        <button class="btn btn--sm btn--ghost" id="bell" type="button" aria-label="Notifications" aria-expanded="false" aria-haspopup="dialog" title="What needs you">
-          <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
-          <span class="dot-badge" id="bellCount" hidden>0</span>
-        </button>
-        <div class="notif" id="notif" role="dialog" aria-label="Notifications" hidden></div>
-      </div>
+      <button class="btn btn--sm" id="fWeb" type="button" aria-haspopup="dialog" aria-expanded="false" data-pop-label="Search the web"
+        data-tip="Your own search through Firecrawl or TinyFish: career sites, Indian job boards, or one board.">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>
+        <span class="btn-label">Search the web</span>
+      </button>
       <button class="profile-chip" id="profileChip" type="button" title="Edit your profile">
         <span class="who"><b id="chipRole">Product Manager</b><small id="chipMeta">Chennai</small></span>
         <span class="avatar" id="chipAvatar">PM</span>
       </button>
     </div>
       </header>
+
+      <div class="ws-livebar" id="wsLiveBar" hidden aria-live="polite"></div>
 
       <div class="split" id="split">
     <div class="listpane">
@@ -1409,13 +1471,22 @@
           <option value="himachal pradesh">Himachal Pradesh</option>
           <option value="jammu and kashmir">Jammu and Kashmir</option>
         </select>
+        <select class="sortsel" id="city" aria-label="Filter by city" hidden>
+          <option value="">Every city</option>
+        </select>
         <select class="sortsel" id="sort" aria-label="Sort postings">
           <option value="match">Best match</option>
           <option value="newest">Newest first</option>
           <option value="score">Highest score</option>
         </select>
       </div>
-      <div class="list" id="list" role="listbox" aria-label="Matched jobs"></div>
+      <div class="webbar" id="webBar" hidden aria-live="polite"></div>
+      <div class="list" id="list" role="listbox" aria-label="Matched jobs" aria-multiselectable="true"></div>
+      <div class="pickbar" id="pickBar" hidden aria-live="polite">
+        <b id="pickN">0 chosen</b>
+        <button class="btn btn--sm btn--ghost" type="button" id="pickClear">Clear</button>
+        <button class="btn btn--sm btn--primary" type="button" id="pickAdd">Add to queue</button>
+      </div>
     </div>
 
     <div class="splitter" id="splitter" role="separator" aria-orientation="vertical" aria-label="Resize the posting list" tabindex="0"></div>
@@ -1434,8 +1505,8 @@
   <section class="view" id="viewTrack" hidden aria-label="Track applications">
     <div class="view-head">
       <div class="t">
-        <h1>Track</h1>
-        <p>Every posting you saved or started, in the order it moves. Nothing is sent without you.</p>
+        <h1>Results</h1>
+        <p>What was sent, with proof, and what came back. Nothing is sent without you.</p>
       </div>
       <div class="seg" role="group" aria-label="Track layout">
         <button type="button" id="segBoard" aria-pressed="true">
@@ -1449,9 +1520,10 @@
       </div>
       <button class="btn btn--sm" id="trackBack" type="button">
         <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-        <span class="btn-label">Back to matches</span>
+        <span class="btn-label">Back to Find</span>
       </button>
     </div>
+    <div class="kpis" id="kpis" aria-label="Results at a glance"></div>
     <div class="capstrip" id="capStrip">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
       <span class="capstrip-txt"><b id="capLabel">— / —</b> applications today</span>
@@ -1460,8 +1532,14 @@
       <a class="capstrip-link" href="naukri.html">Open the log</a>
     </div>
     <div class="heat-wrap" id="heatWrap"></div>
+    <div class="heat-wrap" id="geoHeatWrap"></div>
+    <h2 class="res-h">Pipeline</h2>
     <div class="board" id="board"></div>
     <div class="tbl-wrap" id="trackTable" hidden></div>
+    <div class="res-grid">
+      <section class="res-card" aria-labelledby="proofH"><h2 class="res-h" id="proofH">Applied, with proof</h2><div id="proofList"></div></section>
+      <section class="res-card" aria-labelledby="srcH"><h2 class="res-h" id="srcH">Sources</h2><div id="srcHealth"></div></section>
+    </div>
   </section>
 
   <section class="view" id="viewImprove" hidden aria-label="Improve your match">
@@ -1472,7 +1550,7 @@
       </div>
       <button class="btn btn--sm" id="improveBack" type="button">
         <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-        <span class="btn-label">Back to matches</span>
+        <span class="btn-label">Back to Find</span>
       </button>
     </div>
     <div class="gaps">
@@ -1523,7 +1601,7 @@
     <div class="drawer-head">
       <div class="t">
         <h2 id="dTitle">Tailoring your resume</h2>
-        <p id="dSub">Sarvam rewrites what you already have, in the posting's words.</p>
+        <p id="dSub" data-ai="{ai} rewrites what you already have, in the posting's words." data-ai-off="Rewrites what you already have, in the posting's words. Needs an AI key.">Rewrites what you already have, in the posting's words.</p>
       </div>
       <button class="icon-btn" id="dClose" type="button" aria-label="Close">
         <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
@@ -1565,9 +1643,20 @@
     }
 
     const family = state.family || window.CO.resolveFamily(state.role);
-    let JOBS = window.CO.jobsFor(family, state.role);
-    let live = false;
+    /* Jobs shows real postings only: the last live search for this role, or
+       nothing until the first one finishes. The bundled set is a demo for the
+       pages, never shown to someone looking for work. */
+    const LIVE_CACHE = "co.live.jobs";
+    const liveCache = (() => {
+      try {
+        const c = JSON.parse(localStorage.getItem(LIVE_CACHE) || "null");
+        return c && c.role === state.role && Array.isArray(c.jobs) ? c : null;
+      } catch { return null; }
+    })();
+    let JOBS = liveCache ? liveCache.jobs : [];
+    let live = Boolean(liveCache);
     let loading = false;
+    let liveError = "";
 
     const hasResume = Boolean(state.file);
     const FRESH_DAYS = 7;
@@ -1615,7 +1704,7 @@
       } catch {}
     }
 
-    const filters = { q: "", fresh: true, minScore: 0, source: "", sort: "match", savedOnly: false, state: "" };
+    const filters = { q: "", days: 7, undated: true, minScore: 0, source: "", sort: "match", savedOnly: false, state: "", city: "", web: "" };
 
     /* City -> state, so "Chennai" and "Tamil Nadu" are the same filter. Order
        matters: a specific state is checked before Delhi NCR, so Gurugram is
@@ -1707,19 +1796,27 @@
 
     function band(n) { return n >= 75 ? "hi" : n >= 60 ? "mid" : "lo"; }
 
+    /* skip names one filter to leave out, so a panel can count what it would keep */
+    function passes(j, skip) {
+      if (filters.savedOnly && !savedIds.has(j.id)) return false;
+      if (filters.web && j.webRun !== filters.web) return false;
+      if (skip !== "posted" && filters.days) {
+        const d = daysAgo(j.datePosted);
+        if (d === null ? !filters.undated : d > filters.days) return false;
+      }
+      if (skip !== "score" && j.score < filters.minScore) return false;
+      if (skip !== "source" && filters.source && j.source !== filters.source) return false;
+      if (skip !== "place" && filters.state && stateOf(j) !== filters.state) return false;
+      if (skip !== "place" && filters.city && !cityRx(filters.city).test(`${j.location || ""} ${j.title || ""}`)) return false;
+      if (filters.q) {
+        const hay = `${j.title} ${j.company} ${(j.have || []).join(" ")} ${(j.miss || []).join(" ")}`.toLowerCase();
+        if (!hay.includes(filters.q.toLowerCase())) return false;
+      }
+      return true;
+    }
+
     function visible() {
-      const rows = JOBS.filter((j) => {
-        if (filters.savedOnly && !savedIds.has(j.id)) return false;
-        if (filters.fresh && freshness(j).stale) return false;
-        if (j.score < filters.minScore) return false;
-        if (filters.source && j.source !== filters.source) return false;
-        if (filters.state && stateOf(j) !== filters.state) return false;
-        if (filters.q) {
-          const hay = `${j.title} ${j.company} ${(j.have || []).join(" ")} ${(j.miss || []).join(" ")}`.toLowerCase();
-          if (!hay.includes(filters.q.toLowerCase())) return false;
-        }
-        return true;
-      });
+      const rows = JOBS.filter((j) => passes(j));
 
       if (filters.sort === "newest") {
         rows.sort((a, b) => (daysAgo(a.datePosted) ?? 999) - (daysAgo(b.datePosted) ?? 999));
@@ -1739,6 +1836,27 @@
     /* ---------- list ---------- */
 
     let selected = null;
+    let searchThink = null;
+
+    /* Ticked postings, waiting for "Add to queue". Not saved: a tick is a
+       choice in progress; the queue is the commitment. */
+    const chosen = new Set();
+    function toggleChosen(id) {
+      if (chosen.has(id)) chosen.delete(id); else chosen.add(id);
+      const box = document.querySelector(`.jobcard[data-id="${CSS.escape(id)}"] .pick input`);
+      if (box) box.checked = chosen.has(id);
+      paintPickBar();
+    }
+    function paintPickBar() {
+      const bar = $("#pickBar");
+      if (!bar) return;
+      for (const id of [...chosen]) if (applyList.has(id) || !JOBS.some((j) => j.id === id)) chosen.delete(id);
+      const n = chosen.size;
+      bar.hidden = n === 0;
+      $("#pickN").textContent = `${n} chosen`;
+      const add = $("#addApply");
+      if (add) add.classList.toggle("btn--primary", n === 0 && add.getAttribute("aria-pressed") !== "true");
+    }
 
     function skeleton() {
       const box = $("#list");
@@ -1766,40 +1884,70 @@
         bar.className = "savedbar";
         bar.innerHTML = `
           <span><b>${savedIds.size}</b> saved</span>
-          <button class="btn btn--sm btn--primary" type="button" id="autoSaved">
-            <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13H11l-1 9 8.5-11H12z"/></svg>
-            <span class="btn-label">Auto apply all</span>
+          <button class="btn btn--sm" type="button" id="autoSaved">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            <span class="btn-label">Add saved to queue</span>
           </button>`;
         bar.querySelector("#autoSaved").addEventListener("click", () => {
-          const jobs = JOBS.filter((j) => savedIds.has(j.id));
-          if (jobs.length) openAutoApply(jobs);
+          const jobs = JOBS.filter((j) => savedIds.has(j.id) && !applyList.has(j.id));
+          jobs.forEach((j) => applyList.toggle(j));
+          UI.toast(jobs.length ? `${jobs.length} added. ${applyList.count()} in your queue.` : "Your saved jobs are already in the queue.", {
+            kind: "ok", action: { label: "Open Queue", href: "console.html#step3" },
+          });
+          renderDetail();
         });
         box.prepend(bar);
       }
 
-      if (filters.sort === "score" && rows.length) {
-        const top = rows.slice(0, 10);
-        const bar = document.createElement("div");
-        bar.className = "savedbar scorebar";
-        bar.innerHTML = `
-          <span>Top <b>${top.length}</b> by score</span>
-          <button class="btn btn--sm btn--primary" type="button" id="autoTop">
-            <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13H11l-1 9 8.5-11H12z"/></svg>
-            <span class="btn-label">Auto apply top ${top.length}</span>
-          </button>`;
-        bar.querySelector("#autoTop").addEventListener("click", () => openAutoApply(top));
-        box.prepend(bar);
-      }
     }
 
+    /* Re-rendering the list keeps the reader's place: when the same postings
+       are on screen (a click, a save, an add to apply), the scroll position
+       stays; a new filter, sort or search starts from the top. */
+    let lastListSig = "";
     function renderList() {
+      const box = $("#list");
+      const top = box ? box.scrollTop : 0;
+      const sig = (loading ? "L" : "") + visible().map((j) => j.id).join("|");
+      const same = sig === lastListSig;
+      lastListSig = sig;
+      renderListInner();
+      if (filters.state) paintCities();
+      if (same && box) box.scrollTop = top;
+    }
+    function renderListInner() {
       const rows = visible();
       const box = $("#list");
       box.innerHTML = "";
 
+      if (!JOBS.length && (loading || liveError || !state.role)) {
+        $("#count").innerHTML = loading ? `<b>—</b> searching` : `<b>0</b> postings`;
+        if (loading) {
+          box.innerHTML = `<div class="search-state"><div id="searchThink"></div>
+            <p>Reading company career boards, remote boards, Naukri and Indeed for <b>${UI.esc(state.role)}</b>${(state.cities || []).length ? ` in <b>${UI.esc(state.cities.join(", "))}</b>` : ""}. The first search starts a browser, so it can take a minute.</p></div>`;
+          const t = UI.thinking($("#searchThink"), "Searching live postings");
+          searchThink = t;
+          for (let i = 0; i < 5; i++) {
+            const d = document.createElement("div");
+            d.className = "sk-card";
+            d.innerHTML = `<div class="skeleton sk-mono"></div><div><div class="skeleton sk-line"></div><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w35"></div></div>`;
+            box.appendChild(d);
+          }
+        } else if (!state.role) {
+          box.innerHTML = `<div class="empty"><div class="e-icon"></div><h3>Set your target role first</h3>
+            <p>Jobs searches for the role in your profile.</p><div class="e-actions"><a class="btn btn--primary btn--sm" href="index.html#edit-1">Set your role</a></div></div>`;
+        } else {
+          box.innerHTML = `<div class="empty"><div class="e-icon"></div><h3>Could not reach the job sources</h3>
+            <p>${UI.esc(liveError)} Nothing is shown until real postings come back.</p>
+            <div class="e-actions"><button class="btn btn--primary btn--sm" type="button" id="liveRetry">Try again</button><a class="btn btn--sm" href="settings.html">Check Connect</a></div></div>`;
+          $("#liveRetry").addEventListener("click", () => runLive($("#fLive")));
+        }
+        return;
+      }
+
       $("#count").innerHTML = loading
         ? `<b>—</b> loading`
-        : `<b>${rows.length}</b> of ${JOBS.length} postings`;
+        : `<b>${rows.length}</b> of ${JOBS.length} postings${(window.coHidden || Number(localStorage.getItem("co.live.hidden") || 0)) ? ` · <span title="Roles at these companies unrelated to yours, left out of the search">${window.coHidden || localStorage.getItem("co.live.hidden")} unrelated left out</span>` : ""}`;
 
       if (!rows.length) {
         box.innerHTML = `
@@ -1810,14 +1958,14 @@
             <h3>${filters.savedOnly ? "Nothing saved yet" : "Nothing matches these filters"}</h3>
             <p>${filters.savedOnly
               ? "Tap the bookmark on any posting and it lands here."
-              : filters.fresh
-                ? `No posting from the last ${FRESH_DAYS} days fits. Older listings are usually expired.`
-                : "Widen the score floor or clear the source filter."}</p>
+              : filters.days && filters.days < 30
+                ? `No posting from the last ${postedLabel()} fits. Try a wider Posted range.`
+                : "Lower the match or clear the source filter."}</p>
             <div class="e-actions">
               ${filters.savedOnly
                 ? `<button class="btn btn--sm btn--primary" type="button" id="backAll">Back to all postings</button>`
                 : `<button class="btn btn--sm" type="button" id="clearFilters">Clear filters</button>
-                   ${filters.fresh ? "" : `<button class="btn btn--sm btn--primary" type="button" id="backFresh">Last 7 days</button>`}`}
+                   ${filters.days && filters.days < 30 ? `<button class="btn btn--sm btn--primary" type="button" id="backFresh">Posted · 30 days</button>` : ""}`}
             </div>
           </div>`;
         const bAll = $("#backAll");
@@ -1829,21 +1977,15 @@
         });
         const c = $("#clearFilters");
         if (c) c.addEventListener("click", () => {
-          filters.q = ""; filters.minScore = 0; filters.source = ""; filters.fresh = true;
+          filters.q = ""; filters.minScore = 0; filters.source = ""; filters.days = 7; filters.undated = true;
           $("#q").value = "";
-          $("#fScore").setAttribute("aria-pressed", "false");
-          $("#fScore .btn-label").textContent = "70+";
-          $("#fFresh").setAttribute("aria-pressed", "true");
-          $("#fFresh .btn-label").textContent = "Last 7 days";
-          $("#fSource .btn-label").textContent = "All sources";
-          $("#fSource").setAttribute("aria-pressed", "false");
+          paintFilterButtons();
           renderList();
         });
         const b = $("#backFresh");
         if (b) b.addEventListener("click", () => {
-          filters.fresh = true;
-          $("#fFresh").setAttribute("aria-pressed", "true");
-          $("#fFresh .btn-label").textContent = "Last 7 days";
+          filters.days = 30;
+          paintFilterButtons();
           renderList();
         });
         if (selected) { selected = null; renderDetail(); }
@@ -1865,19 +2007,25 @@
 
       const addRow = (j, i) => {
         const f = freshness(j);
-        const b = document.createElement("button");
-        b.type = "button";
+        const b = document.createElement("div");
+        b.tabIndex = 0;
         b.className = "jobcard";
+        b.dataset.id = j.id;
         b.setAttribute("role", "option");
         b.setAttribute("aria-selected", selected === j.id ? "true" : "false");
         b.style.animation = `rise 320ms var(--ease-out) both`;
         b.style.animationDelay = `${Math.min(i, 12) * 22}ms`;
+        const inQ = applyList.has(j.id);
         b.innerHTML = `
+          <label class="pick" title="${inQ ? "Already in your queue" : "Tick to add to your queue"}"><input type="checkbox" ${chosen.has(j.id) || inQ ? "checked" : ""} ${inQ ? "disabled" : ""} aria-label="Choose ${UI.esc(j.title)} at ${UI.esc(j.company)}"></label>
           <span class="mono" style="background:${tint(j.company)};color:${tintInk(j.company)};border-color:transparent">${initials(j.company)}</span>
           <span class="body">
             <span class="title">${UI.esc(j.title)}${savedIds.has(j.id) ? `<span class="saved-dot" title="Saved"></span>` : ""}</span>
             <span class="sub">${UI.esc(j.company)} · ${UI.esc(j.location || "location not stated")}</span>
             <span class="flags">
+              ${inQ ? `<span class="flag ok">in queue</span>` : ""}
+              ${j.near ? `<span class="flag ok" title="The posting names your neighbourhood">near you</span>` : ""}
+              ${j.web ? `<span class="flag info" title="From your web search">web</span>` : ""}
               <span class="flag info">${UI.esc(sourceName(j.source))}</span>
               <span class="flag ${f.cls}">${f.label}</span>
               ${j.partial ? `<span class="flag ghost" title="The source sent no description, so this score uses the title, location and stated experience only.">title-only score</span>` : ""}
@@ -1886,7 +2034,16 @@
           <span class="right">
             <span class="ring" data-score="${j.score}"></span>
           </span>`;
-        b.addEventListener("click", () => select(j.id));
+        b.addEventListener("click", (e) => { if (!e.target.closest(".pick")) select(j.id); });
+        b.addEventListener("keydown", (e) => {
+          if (e.target !== b) return;
+          if (e.key === "Enter") { e.preventDefault(); select(j.id); }
+          if (e.key === " " && !inQ) { e.preventDefault(); toggleChosen(j.id); }
+        });
+        b.querySelector(".pick input").addEventListener("change", (e) => {
+          if (e.target.checked) chosen.add(j.id); else chosen.delete(j.id);
+          paintPickBar();
+        });
         box.appendChild(b);
         const ringEl = b.querySelector(".ring");
         UI.ring(ringEl, j.score, { size: 40, stroke: 4 });
@@ -1969,7 +2126,7 @@
         { k: "discovered", label: "Found on " + sourceName(j.source), sub: posted, done: true },
         { k: "scored", label: "Scored " + j.score.toFixed(1) + " against your profile", sub: "deterministic, from the posting text", done: true },
         { k: "saved", label: "Saved for later", sub: "in your list", done: saved, at: savedAt[j.id] },
-        { k: "tailoring", label: "Resume tailored", sub: "Sarvam rewrote it for this posting", done: tailored, at: entry && entry.tailoredAt },
+        { k: "tailoring", label: "Resume tailored", sub: `${UI.aiName()} rewrote it for this posting`, done: tailored, at: entry && entry.tailoredAt },
         { k: "ready", label: "Reviewed and ready", sub: "waiting on you to send", done: ready, at: entry && entry.readyAt },
         { k: "applied", label: "Submitted", sub: "you sent the application", done: applied, at: entry && entry.appliedAt },
         { k: "interview", label: "Interview", sub: "a conversation is booked", done: interview, at: entry && entry.interviewAt },
@@ -1994,6 +2151,47 @@
       tl.innerHTML = timelineFor(j);
     }
 
+    /* The apply list is the console's own list (co.console.jobs + picks), so
+       a job added here is exactly what Apply tailors and submits. */
+    const applyList = (() => {
+      const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch { return d; } };
+      const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+      const FIELDS = ["id", "title", "company", "source", "applyUrl", "sourceUrl", "score", "location", "category", "experienceAsked", "miss", "have", "jd", "family", "relationship", "workMode", "datePosted", "firstSeenAt", "salary"];
+      const slim = (j) => Object.fromEntries(FIELDS.filter((f) => j[f] !== undefined).map((f) => [f, j[f]]));
+      return {
+        has: (id) => get("co.console.picks", []).includes(id),
+        count: () => get("co.console.picks", []).length,
+        toggle(j) {
+          const picks = get("co.console.picks", []);
+          const jobs = get("co.console.jobs", []);
+          const on = !picks.includes(j.id);
+          if (on) {
+            if (!jobs.some((x) => x.id === j.id)) jobs.push(slim(j));
+            set("co.console.jobs", jobs);
+            const kept = get("co.apply.jobs", []).filter((x) => x.id !== j.id);
+            set("co.apply.jobs", [...kept, slim(j)]);
+            set("co.console.picks", [...picks, j.id]);
+          } else {
+            set("co.console.picks", picks.filter((x) => x !== j.id));
+          }
+          set("co.console.pickMode", "manual");
+          dispatchEvent(new Event("co:applylist"));
+          return on;
+        },
+      };
+    })();
+
+    $("#pickClear").addEventListener("click", () => { chosen.clear(); paintPickBar(); renderList(); });
+    $("#pickAdd").addEventListener("click", () => {
+      const jobs = JOBS.filter((j) => chosen.has(j.id) && !applyList.has(j.id));
+      jobs.forEach((j) => applyList.toggle(j));
+      chosen.clear();
+      paintPickBar();
+      renderList();
+      renderDetail();
+      UI.toast(`${jobs.length} added. ${applyList.count()} in your queue.`, { kind: "ok", action: { label: "Open Queue", href: "console.html#step3" } });
+    });
+
     function renderDetail() {
       const j = JOBS.find((x) => x.id === selected);
       const box = $("#detail");
@@ -2001,7 +2199,7 @@
         box.innerHTML = `
           <div class="empty-detail">
             <div class="art"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></div>
-            <h3>Pick a posting</h3>
+            <h3>${loading ? "Your matches appear here" : JOBS.length ? "Pick a posting" : "No postings yet"}</h3>
             <p>Every score is broken into its parts, so you can see exactly what raised it and what is missing.</p>
           </div>`;
         return;
@@ -2150,22 +2348,26 @@
           </div>
 
           <div class="stickybar">
-            <button class="btn btn--primary" type="button" id="tailor">
+            <button class="btn btn--primary" type="button" id="addApply" aria-pressed="false">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+              <span class="btn-label">Add to queue</span>
+            </button>
+            <button class="btn" type="button" id="tailor">
               <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-              <span class="btn-label">Tailor resume &amp; prepare</span>
+              <span class="btn-label">Tailor now</span>
             </button>
             <button class="btn" type="button" id="open">
               <svg viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
               <span class="btn-label">Open original</span>
             </button>
-            <button class="btn" type="button" id="autoApply" title="Fill and submit this application">
+            <button class="btn" type="button" id="autoApply" style="display:none" title="Fill and submit this application">
               <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13H11l-1 9 8.5-11H12z"/></svg>
               <span class="btn-label">Auto apply</span>
             </button>
             <button class="icon-btn" id="save" type="button" title="${savedIds.has(j.id) ? "Saved — remove" : "Save for later"}" aria-label="Save for later" aria-pressed="${savedIds.has(j.id) ? "true" : "false"}" style="${savedIds.has(j.id) ? "color:var(--accent)" : ""}">
               <svg viewBox="0 0 24 24"><path d="M6 4h12v17l-6-4-6 4z" ${savedIds.has(j.id) ? 'fill="currentColor"' : ""}/></svg>
             </button>
-            <span class="note">Sarvam tailors. You review and send.</span>
+            <span class="note" data-ai="{ai} tailors. You review and send." data-ai-off="Tailoring needs an AI key. Add one in Connect."></span>
           </div>
         </div>`;
 
@@ -2186,10 +2388,15 @@
         });
       }
 
-      /* bars grow after paint */
+      /* each dimension becomes a dot matrix that lights up column by column */
       requestAnimationFrame(() => {
         document.querySelectorAll("#bd .track > i").forEach((el, i) => {
-          setTimeout(() => { el.style.width = el.dataset.w + "%"; }, 60 + i * 55);
+          const track = el.parentElement;
+          if (window.CO?.ui?.dotMeter && track) {
+            window.CO.ui.dotMeter(track, Number(el.dataset.w) || 0, { delay: 80 + i * 70 });
+          } else {
+            setTimeout(() => { el.style.width = el.dataset.w + "%"; }, 60 + i * 55);
+          }
         });
       });
 
@@ -2247,6 +2454,30 @@
       }
 
       $("#tailor").addEventListener("click", () => openTailor(j));
+
+      /* Add to apply: the job joins the list the Apply step works through
+         (tailor one resume each, then fill and submit with you in the loop). */
+      {
+        const btn = $("#addApply");
+        const paintAdd = () => {
+          const on = applyList.has(j.id);
+          btn.setAttribute("aria-pressed", String(on));
+          /* one orange button at a time: the pick bar's, while jobs are ticked */
+          btn.classList.toggle("btn--primary", !on && chosen.size === 0);
+          btn.querySelector(".btn-label").textContent = on ? "In queue · remove" : "Add to queue";
+          btn.title = on ? "Take this job out of your queue" : "Add this job to your queue";
+        };
+        paintAdd();
+        btn.addEventListener("click", () => {
+          const on = applyList.toggle(j);
+          paintAdd();
+          renderList();
+          UI.toast(on ? `Added. ${applyList.count()} in your queue.` : "Taken out of your queue.", {
+            kind: on ? "ok" : "info",
+            action: on ? { label: "Open Queue", href: "console.html#step3" } : undefined,
+          });
+        });
+      }
       $("#autoApply").addEventListener("click", () => {
         if (!tailoredIds.has(j.id)) {
           UI.toast("Tailor this resume first. Auto apply attaches the tailored PDF.", { kind: "info", title: "Tailor first" });
@@ -2399,7 +2630,34 @@
 
     $("#q").addEventListener("input", (e) => { filters.q = e.target.value.trim(); renderList(); });
     $("#sort").addEventListener("change", (e) => { filters.sort = e.target.value; renderList(); });
-    $("#loc").addEventListener("change", (e) => { filters.state = e.target.value; renderList(); });
+    /* City inside the state: the cities the state's postings actually name,
+       with a count each. "Chennai" also catches "Madras". */
+    const CITY_SAME = { chennai: ["chennai", "madras"], bengaluru: ["bengaluru", "bangalore"], gurugram: ["gurugram", "gurgaon"], mumbai: ["mumbai", "bombay"], kochi: ["kochi", "cochin"], "tiruchirappalli": ["tiruchirappalli", "trichy"], mysuru: ["mysuru", "mysore"] };
+    const cityRxCache = new Map();
+    function cityRx(c) {
+      if (!cityRxCache.has(c)) {
+        const names = CITY_SAME[c] || [c];
+        cityRxCache.set(c, new RegExp("\\b(" + names.map((n) => n.replace(/[^a-z ]/gi, "")).join("|") + ")\\b", "i"));
+      }
+      return cityRxCache.get(c);
+    }
+    function paintCities() {
+      const sel = $("#city");
+      const st = filters.state;
+      if (!st || st === "remote" || !STATE_ALIASES[st]) { sel.hidden = true; filters.city = ""; return; }
+      const seen = new Set();
+      const cities = STATE_ALIASES[st].filter((k) => k !== st && !Object.values(CITY_SAME).some((v) => v.slice(1).includes(k))).filter((k) => (seen.has(k) ? false : seen.add(k)));
+      /* counted on what the other filters keep, so the number matches the list */
+      const inState = JOBS.filter((j) => passes(j, "place") && stateOf(j) === st);
+      const opts = cities.map((c) => ({ c, n: inState.filter((j) => cityRx(c).test(`${j.location || ""} ${j.title || ""}`)).length })).filter((o) => o.n > 0).sort((a, b) => b.n - a.n);
+      const title = (c) => c.replace(/\b\w/g, (m) => m.toUpperCase());
+      sel.innerHTML = `<option value="">Every city · ${inState.length}</option>` + opts.map((o) => `<option value="${o.c}">${title(o.c)} · ${o.n}</option>`).join("");
+      if (filters.city && !opts.some((o) => o.c === filters.city)) filters.city = "";
+      sel.value = filters.city;
+      sel.hidden = !opts.length;
+    }
+    $("#loc").addEventListener("change", (e) => { filters.state = e.target.value; filters.city = ""; paintCities(); renderList(); });
+    $("#city").addEventListener("change", (e) => { filters.city = e.target.value; renderList(); });
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "/" && document.activeElement !== $("#q")) {
@@ -2411,134 +2669,317 @@
       }
     });
 
-    $("#fFresh").addEventListener("click", (e) => {
-      filters.fresh = !filters.fresh;
-      e.currentTarget.setAttribute("aria-pressed", String(filters.fresh));
-      e.currentTarget.querySelector(".btn-label").textContent = filters.fresh ? "Last 7 days" : "All dates";
-      renderList();
-    });
-
-    $("#fScore").addEventListener("click", (e) => {
-      filters.minScore = filters.minScore ? 0 : 70;
-      e.currentTarget.setAttribute("aria-pressed", String(filters.minScore > 0));
-      e.currentTarget.querySelector(".btn-label").textContent = filters.minScore ? "70+ · on" : "70+";
-      renderList();
-    });
-
-    const SOURCE_CYCLE = [
-      { label: "All sources", id: "" },
-      { label: "Company portals", id: "company" },
-      { label: "Lever", id: "lever" },
-      { label: "Greenhouse", id: "greenhouse" },
-      { label: "Ashby", id: "ashby" },
-      { label: "SmartRecruiters", id: "smartrecruiters" },
-      { label: "Naukri", id: "naukri" },
-      { label: "Indeed India", id: "indeed" },
-      { label: "Himalayas", id: "himalayas" },
-      { label: "Remotive", id: "remotive" },
-      { label: "Remote OK", id: "remoteok" },
-      { label: "Jobicy", id: "jobicy" },
-      { label: "Working Nomads", id: "workingnomads" },
-      { label: "Freelancer", id: "freelancer" },
+    /* ---------------- Find: match, posted, sources ----------------
+       Three controls, each a small panel under its button. Every panel shows
+       what it would keep before you let go, counted on the postings the other
+       filters already keep, so a choice never lands on an empty list. */
+    const SOURCE_NAME = {
+      company: "Company portals", lever: "Lever", greenhouse: "Greenhouse", ashby: "Ashby",
+      smartrecruiters: "SmartRecruiters", naukri: "Naukri", indeed: "Indeed India", linkedin: "LinkedIn",
+      himalayas: "Himalayas", remotive: "Remotive", remoteok: "Remote OK", jobicy: "Jobicy",
+      workingnomads: "Working Nomads", freelancer: "Freelancer.com", firecrawl: "Firecrawl", tinyfish: "TinyFish",
+      adzuna: "Adzuna", jooble: "Jooble", careerjet: "Careerjet", "careerjet-data": "Careerjet", jsearch: "JSearch",
+      foundit: "foundit", shine: "Shine", timesjobs: "TimesJobs", instahyre: "Instahyre", cutshort: "Cutshort", hirist: "Hirist",
+      iimjobs: "iimjobs", internshala: "Internshala", apna: "Apna", wellfound: "Wellfound", freshersworld: "Freshersworld",
+    };
+    const sourceName = (id) => SOURCE_NAME[id] || String(id || "").replace(/^./, (c) => c.toUpperCase());
+    const SOURCE_GROUPS = [
+      { id: "accounts", label: "Your accounts", ids: ["naukri", "indeed", "linkedin", "foundit", "apna", "wellfound"], connect: { naukri: "Naukri", indeed: "Indeed India" } },
+      { id: "engines", label: "Search engines", ids: ["firecrawl", "tinyfish"], connect: { firecrawl: "Firecrawl", tinyfish: "TinyFish" } },
+      { id: "boards", label: "Indian job boards, via search", ids: ["shine", "timesjobs", "instahyre", "cutshort", "hirist", "iimjobs", "internshala", "apna", "freshersworld"] },
+      { id: "keys", label: "Job feeds with your key", ids: ["adzuna", "jooble", "careerjet", "careerjet-data", "jsearch"] },
     ];
+    const groupOf = (id) => (SOURCE_GROUPS.find((g) => g.ids.includes(id)) || { id: "always" }).id;
 
-    /* the id is what the API sends; the label is what a person reads */
-    const SOURCE_NAME = Object.fromEntries(
-      SOURCE_CYCLE.filter((s) => s.id).map((s) => [s.id, s.label])
-    );
-    SOURCE_NAME.freelancer = "Freelancer.com";
-    const sourceName = (id) => SOURCE_NAME[id] || id;
-    /* The source filter is a list, not a switch. It used to walk the whole
-       catalogue one source per click, so reaching "Working Nomads" meant
-       eleven clicks and overshooting meant starting again. */
-    const srcBtn = $("#fSource");
-    const srcMenu = document.createElement("div");
-    srcMenu.className = "srcmenu";
-    srcMenu.id = "srcMenu";
-    srcMenu.setAttribute("role", "listbox");
-    srcMenu.setAttribute("aria-label", "Filter by source");
-    srcMenu.hidden = true;
-    document.body.appendChild(srcMenu);
+    const POSTED_STOPS = [
+      { days: 1, label: "24 hours" }, { days: 3, label: "3 days" }, { days: 7, label: "7 days" },
+      { days: 30, label: "30 days" }, { days: 0, label: "Any time" },
+    ];
+    const postedLabel = () => (POSTED_STOPS.find((p) => p.days === filters.days) || POSTED_STOPS[2]).label;
 
-    const TICK = '<svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>';
-
-    function buildSourceMenu() {
-      srcMenu.innerHTML = SOURCE_CYCLE.map((s) => {
-        const on = s.id === filters.source;
-        return `<button class="menu-item" type="button" role="option" data-id="${s.id}" aria-selected="${on}">${TICK}<span>${s.label}</span></button>`;
-      }).join("");
+    function paintFilterButtons() {
+      const m = $("#fMatch"), p = $("#fPosted"), s = $("#fSource");
+      m.querySelector(".btn-label").textContent = filters.minScore ? `Match ${filters.minScore}+` : "Any match";
+      m.setAttribute("aria-pressed", String(filters.minScore > 0));
+      p.querySelector(".btn-label").textContent = filters.days ? `Posted · ${postedLabel()}` : "Posted · any time";
+      p.setAttribute("aria-pressed", String(filters.days !== 7 || !filters.undated));
+      s.querySelector(".btn-label").textContent = filters.source ? sourceName(filters.source) : "All sources";
+      s.setAttribute("aria-pressed", String(Boolean(filters.source)));
     }
 
-    /* fixed and clamped to the viewport: the filter row scrolls sideways on a
-       phone, and a panel anchored inside it would be clipped */
-    function placeSourceMenu() {
-      const r = srcBtn.getBoundingClientRect();
-      srcMenu.style.visibility = "hidden";
-      srcMenu.hidden = false;
-      const w = srcMenu.offsetWidth;
-      const h = srcMenu.offsetHeight;
-      const left = Math.max(8, Math.min(r.right - w, innerWidth - w - 8));
-      let top = r.bottom + 6;
-      if (top + h > innerHeight - 8) top = Math.max(8, r.top - h - 6);
-      srcMenu.style.left = `${Math.round(left)}px`;
-      srcMenu.style.top = `${Math.round(top)}px`;
-      srcMenu.style.visibility = "";
+    /* one floating panel for all three, clamped to the viewport */
+    const fpop = document.createElement("div");
+    fpop.className = "fpop";
+    fpop.setAttribute("role", "dialog");
+    fpop.hidden = true;
+    document.body.appendChild(fpop);
+    let fpopFor = null;
+    function placePop(btn) {
+      const r = btn.getBoundingClientRect();
+      fpop.style.visibility = "hidden";
+      fpop.hidden = false;
+      const w = fpop.offsetWidth, h = fpop.offsetHeight;
+      const left = Math.max(8, Math.min(r.left, innerWidth - w - 8));
+      let top = r.bottom + 8;
+      if (top + h > innerHeight - 8) top = Math.max(8, r.top - h - 8);
+      fpop.style.left = `${Math.round(left)}px`;
+      fpop.style.top = `${Math.round(top)}px`;
+      fpop.style.visibility = "";
     }
-
-    function openSourceMenu() {
-      buildSourceMenu();
-      placeSourceMenu();
-      srcBtn.setAttribute("aria-expanded", "true");
-      const sel = srcMenu.querySelector('[aria-selected="true"]') || srcMenu.querySelector(".menu-item");
-      if (sel) sel.focus({ preventScroll: true });
+    function openPop(btn, render) {
+      if (fpopFor === btn) { closePop(true); return; }
+      closePop(false);
+      fpopFor = btn;
+      fpop.setAttribute("aria-label", btn.dataset.popLabel || "Filter");
+      render();
+      placePop(btn);
+      btn.setAttribute("aria-expanded", "true");
+      const first = fpop.querySelector("input, button");
+      if (first) first.focus({ preventScroll: true });
     }
-
-    function closeSourceMenu(refocus) {
-      if (srcMenu.hidden) return;
-      srcMenu.hidden = true;
-      srcBtn.setAttribute("aria-expanded", "false");
-      if (refocus) srcBtn.focus();
+    function closePop(refocus) {
+      if (!fpopFor) return;
+      const b = fpopFor;
+      fpopFor = null;
+      fpop.hidden = true;
+      b.setAttribute("aria-expanded", "false");
+      if (refocus) b.focus();
     }
-
-    function chooseSource(id) {
-      const item = SOURCE_CYCLE.find((s) => s.id === id) || SOURCE_CYCLE[0];
-      filters.source = item.id;
-      srcBtn.querySelector(".btn-label").textContent = item.label;
-      srcBtn.setAttribute("aria-pressed", String(Boolean(item.id)));
-      closeSourceMenu(true);
-      renderList();
-    }
-
-    srcBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (srcMenu.hidden) openSourceMenu();
-      else closeSourceMenu(true);
-    });
-
-    srcMenu.addEventListener("click", (e) => {
-      const item = e.target.closest(".menu-item");
-      if (item) chooseSource(item.dataset.id);
-    });
-
-    srcMenu.addEventListener("keydown", (e) => {
-      const items = [...srcMenu.querySelectorAll(".menu-item")];
-      const i = items.indexOf(document.activeElement);
-      if (e.key === "ArrowDown") { e.preventDefault(); items[(i + 1) % items.length].focus(); }
-      else if (e.key === "ArrowUp") { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
-      else if (e.key === "Home") { e.preventDefault(); items[0].focus(); }
-      else if (e.key === "End") { e.preventDefault(); items[items.length - 1].focus(); }
-      else if (e.key === "Escape") { e.preventDefault(); closeSourceMenu(true); }
-      else if (e.key === "Tab") { closeSourceMenu(false); }
-    });
-
     document.addEventListener("click", (e) => {
-      if (!srcMenu.hidden && !srcMenu.contains(e.target) && !srcBtn.contains(e.target)) closeSourceMenu(false);
+      if (fpopFor && !fpop.contains(e.target) && !fpopFor.contains(e.target)) closePop(false);
     });
-    addEventListener("resize", () => closeSourceMenu(false));
-    addEventListener("scroll", (e) => {
-      if (srcMenu.contains(e.target)) return;
-      closeSourceMenu(false);
-    }, true);
+    fpop.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.preventDefault(); closePop(true); } });
+    addEventListener("resize", () => closePop(false));
+
+    /* Match: a slider over a histogram of scores in steps of 10 */
+    function renderMatch() {
+      const base = JOBS.filter((j) => passes(j, "score"));
+      const bins = Array.from({ length: 10 }, (_, i) => base.filter((j) => Math.min(9, Math.floor(j.score / 10)) === i).length);
+      const peak = Math.max(1, ...bins);
+      const kept = (v) => base.filter((j) => j.score >= v).length;
+      fpop.innerHTML = `
+        <div class="fp-h"><b>Match</b><span class="fp-n" id="fpMatchN"></span></div>
+        <div class="fp-hist" aria-hidden="true">${bins.map((n, i) => `<i data-lo="${i * 10}" style="height:${Math.max(4, Math.round((n / peak) * 100))}%" title="${i * 10}–${i * 10 + 9}: ${n}"></i>`).join("")}</div>
+        <input class="fp-range" id="fpMatch" type="range" min="0" max="90" step="5" value="${filters.minScore}" aria-label="Lowest match score">
+        <div class="fp-scale"><span>0</span><span>50</span><span>90</span></div>
+        <p class="fp-note">The score is worked out the same way every time, from your profile. The AI never sets it.</p>`;
+      const range = fpop.querySelector("#fpMatch");
+      const sync = () => {
+        const v = Number(range.value);
+        fpop.querySelectorAll(".fp-hist i").forEach((b) => b.classList.toggle("on", Number(b.dataset.lo) + 9 >= v));
+        $("#fpMatchN").textContent = `${v ? v + "+" : "Any"} · keeps ${kept(v)} of ${base.length}`;
+        range.style.setProperty("--p", `${(v / 90) * 100}%`);
+      };
+      range.addEventListener("input", () => { sync(); filters.minScore = Number(range.value); paintFilterButtons(); renderList(); });
+      sync();
+    }
+
+    /* Posted: stops, and what to do with postings that state no date */
+    function renderPosted() {
+      const base = JOBS.filter((j) => passes(j, "posted"));
+      const keeps = (days, undated) => base.filter((j) => {
+        const d = daysAgo(j.datePosted);
+        if (!days) return true;
+        return d === null ? undated : d <= days;
+      }).length;
+      fpop.innerHTML = `
+        <div class="fp-h"><b>Posted</b><span class="fp-n">keeps ${keeps(filters.days, filters.undated)} of ${base.length}</span></div>
+        <div class="fp-stops" role="radiogroup" aria-label="Posted within">${POSTED_STOPS.map((p) => `
+          <button type="button" role="radio" aria-checked="${p.days === filters.days}" data-days="${p.days}"><b>${p.label}</b><small>${keeps(p.days, filters.undated)}</small></button>`).join("")}</div>
+        <label class="fp-check"><input type="checkbox" id="fpUndated" ${filters.undated ? "checked" : ""}> Include postings with no date <small>(${base.filter((j) => daysAgo(j.datePosted) === null).length}, listed last)</small></label>`;
+      fpop.querySelectorAll("[data-days]").forEach((b) => b.addEventListener("click", () => {
+        filters.days = Number(b.dataset.days);
+        paintFilterButtons(); renderList(); renderPosted();
+        fpop.querySelector(`[data-days="${filters.days}"]`)?.focus();
+      }));
+      fpop.querySelector("#fpUndated").addEventListener("change", (e) => {
+        filters.undated = e.target.checked;
+        paintFilterButtons(); renderList(); renderPosted();
+        fpop.querySelector("#fpUndated")?.focus();
+      });
+    }
+
+    /* Sources: built from what is actually in the results, with a count each,
+       grouped by where it comes from. A source you have not connected shows
+       as a dashed row that leads to Sources. */
+    /* The accounts the user connected, read once from the server: Naukri's
+       OTP session and every job site signed in from Settings. The Sources
+       panel lists all of them, whatever the current results hold. */
+    let ACCOUNTS = [];
+    const SEARCHED = { naukri: true, indeed: true, foundit: true, apna: true, wellfound: true }; // sites Live searches in your session
+    async function loadAccounts() {
+      const [sites, nk] = await Promise.all([
+        fetch("/api/job-sites").then((r) => r.json()).catch(() => ({ sites: [] })),
+        fetch("/api/naukri/status").then((r) => r.json()).catch(() => ({})),
+      ]);
+      ACCOUNTS = [
+        { id: "naukri", name: "Naukri", on: Boolean(nk.signedIn), at: nk.savedAt || "" },
+        ...(sites.sites || []).filter((x) => x.id !== "linkedin").map((x) => ({ id: x.id, name: x.name, on: Boolean(x.signedInAt), at: x.signedInAt || "" })),
+      ];
+      paintLiveHint();
+    }
+    /* results older than a connection: say so, once, on the Live button */
+    function paintLiveHint() {
+      const b = $("#fLive");
+      if (!b || !lastReport) return;
+      const ran = new Set((lastReport.connectors || []).map((c) => c.id));
+      const missed = ACCOUNTS.filter((a) => a.on && SEARCHED[a.id] && !ran.has(a.id) && (!a.at || a.at > lastReport.at));
+      b.classList.toggle("is-stale", missed.length > 0);
+      b.title = missed.length ? `Press Live to include ${missed.map((a) => a.name).join(" and ")}` : "";
+    }
+
+    function renderSources() {
+      const base = JOBS.filter((j) => passes(j, "source"));
+      const counts = {};
+      for (const j of base) counts[j.source] = (counts[j.source] || 0) + 1;
+      const rep = {};
+      for (const c of (lastReport && lastReport.connectors) || []) rep[c.id] = c;
+      const row = (id, label) => `<button type="button" role="option" class="fp-src" data-id="${UI.esc(id)}" aria-selected="${filters.source === id}">
+          <span>${UI.esc(label || (id ? sourceName(id) : "All sources"))}</span><small>${id ? counts[id] : base.length}</small></button>`;
+      /* an account with nothing on screen still shows, with the reason */
+      const accRow = (a) => {
+        if (counts[a.id]) return row(a.id, a.name);
+        if (!a.on) return `<a class="fp-src fp-add" href="settings.html#${a.id === "naukri" ? "siteNaukri" : "siteCards"}"><span>${UI.esc(a.name)}</span><small>Connect</small></a>`;
+        const r = rep[a.id];
+        let why;
+        if (r && r.needsHuman) why = `<button type="button" class="fp-fix" data-fix="${a.id}">Pass a check</button>`;
+        else if (SEARCHED[a.id] && !r) why = `<small>Press Live to search it</small>`;
+        else if (SEARCHED[a.id] && r && r.ok) why = `<small>${r.count ? "hidden by filters" : "none this search"}</small>`;
+        else if (SEARCHED[a.id] && r) why = `<small class="bad">${UI.esc(String(r.error || "failed").slice(0, 32))}</small>`;
+        else why = `<small>via search · none now</small>`;
+        return `<div class="fp-rrow fp-acc"><span>${UI.esc(a.name)} <i class="fp-on" title="Signed in"></i></span>${why}</div>`;
+      };
+      const accIds = new Set(ACCOUNTS.map((a) => a.id));
+      const others = Object.keys(counts).filter((id) => !accIds.has(id));
+      const groups = [
+        { label: "Always on", ids: others.filter((id) => groupOf(id) === "always") },
+        { label: "Search engines", ids: others.filter((id) => groupOf(id) === "engines") },
+        { label: "Job feeds with your key", ids: others.filter((id) => groupOf(id) === "keys") },
+        { label: "Indian job boards, via search", ids: others.filter((id) => groupOf(id) === "boards") },
+      ];
+      const when = lastReport ? new Date(lastReport.at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "";
+      let html = `<div class="fp-h"><b>Sources</b><span class="fp-n">${when ? "last search " + when : Object.keys(counts).length + " in these results"}</span></div><div role="listbox" aria-label="Source">${row("")}`;
+      /* your accounts first: every one you connected, then the ones you have not */
+      const acc = [...ACCOUNTS].sort((x, y) => Number(y.on) - Number(x.on) || (counts[y.id] || 0) - (counts[x.id] || 0));
+      if (acc.length) {
+        const on = acc.filter((a) => a.on), off = acc.filter((a) => !a.on && ["naukri", "indeed", "foundit"].includes(a.id));
+        html += `<div class="fp-sec">Your accounts · ${on.length} connected</div>` + on.map(accRow).join("") + off.map(accRow).join("");
+      }
+      for (const g of groups) {
+        if (!g.ids.length) continue;
+        html += `<div class="fp-sec">${g.label}</div>` + g.ids.sort((a, b) => counts[b] - counts[a]).map((id) => row(id)).join("");
+      }
+      fpop.innerHTML = html + "</div>";
+      fpop.querySelectorAll("[data-fix]").forEach((b) => b.addEventListener("click", () => { closePop(false); passCheck(b.dataset.fix); }));
+      fpop.querySelectorAll("button.fp-src").forEach((b) => b.addEventListener("click", () => {
+        filters.source = b.dataset.id;
+        paintFilterButtons(); renderList(); closePop(true);
+      }));
+    }
+    loadAccounts();
+
+    /* Search the web: the user's words through Firecrawl or TinyFish, limited
+       to employer career sites, the Indian boards, or one board. Results join
+       the list, scored like everything else; nothing is applied. */
+    const WEB_BOARDS = [["foundit.in", "foundit"], ["instahyre.com", "Instahyre"], ["cutshort.io", "Cutshort"], ["hirist.tech", "Hirist"], ["iimjobs.com", "iimjobs"], ["wellfound.com", "Wellfound"], ["shine.com", "Shine"], ["timesjobs.com", "TimesJobs"], ["internshala.com", "Internshala"], ["apna.co", "Apna"], ["freshersworld.com", "Freshersworld"]];
+    let webLast = { query: "", where: "all", engine: "both", days: "0" };
+    function renderWeb() {
+      const city = (state.cities && state.cities[0]) || "";
+      const q = webLast.query || `${state.role || ""} ${city}`.trim();
+      fpop.innerHTML = `
+        <div class="fp-h"><b>Search the web</b><span class="fp-n">Firecrawl · TinyFish</span></div>
+        <form class="fp-web" id="fpWeb">
+          <label>Search for<input name="query" value="${UI.esc(q)}" placeholder="Product Manager fintech Chennai" required></label>
+          <label>Where<select name="where">
+            <option value="all">Career sites and Indian boards</option>
+            <option value="careers">Employer career sites (Workday, SuccessFactors…)</option>
+            <option value="boards">Indian job boards</option>
+            ${WEB_BOARDS.map(([h, n]) => `<option value="${h}">Only ${n}</option>`).join("")}
+          </select></label>
+          <div class="fp-web-row">
+            <label>Engine<select name="engine"><option value="both">Both</option><option value="firecrawl">Firecrawl</option><option value="tinyfish">TinyFish</option></select></label>
+            <label>Seen in<select name="days"><option value="0">Any time</option><option value="1">The last day</option><option value="7">The last week</option><option value="30">The last month</option></select></label>
+          </div>
+          <button class="btn btn--sm btn--primary" type="submit" id="fpWebGo">Search</button>
+          <p class="fp-note">Firecrawl spends about 2 credits per 10 results. Each link is kept only if it is one posting, in India, with an employer named. A search index has no posting date.</p>
+        </form>`;
+      const f = fpop.querySelector("#fpWeb");
+      f.where.value = webLast.where; f.engine.value = webLast.engine; f.days.value = webLast.days;
+      f.addEventListener("submit", (e) => {
+        e.preventDefault();
+        webLast = { query: f.query.value.trim(), where: f.where.value, engine: f.engine.value, days: f.days.value };
+        closePop(false);
+        runWebSearch({ ...webLast, whereLabel: f.where.options[f.where.selectedIndex].text });
+      });
+    }
+
+    /* The web search reports in a bar above the list: searching, then what it
+       found, with "Show only these". Its postings are marked "web". */
+    let webRunN = 0;
+    function webBar(html, state) {
+      const bar = $("#webBar");
+      bar.hidden = !html;
+      bar.dataset.state = state || "";
+      bar.innerHTML = html || "";
+      bar.querySelector("[data-web-only]")?.addEventListener("click", (e) => {
+        filters.web = filters.web ? "" : e.currentTarget.dataset.webOnly;
+        if (filters.web) { filters.days = 0; filters.undated = true; filters.minScore = 0; filters.source = ""; filters.state = ""; filters.city = ""; $("#loc").value = ""; paintFilterButtons(); }
+        e.currentTarget.textContent = filters.web ? "Show everything" : "Show only these";
+        lastListSig = ""; renderList();
+      });
+      bar.querySelector("[data-web-again]")?.addEventListener("click", () => openPop($("#fWeb"), renderWeb));
+      bar.querySelector("[data-web-x]")?.addEventListener("click", () => { filters.web = ""; webBar(""); lastListSig = ""; renderList(); });
+    }
+    async function runWebSearch(o) {
+      const run = String(++webRunN);
+      const q = UI.esc(o.query);
+      webBar(`<span class="wb-spin" aria-hidden="true"></span><span class="wb-t"><b>Searching the web</b> for “${q}” · ${UI.esc(o.whereLabel || "")}</span>`, "busy");
+      $("#fWeb").disabled = true;
+      try {
+        const r = await fetch("/api/websearch", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ query: o.query, where: o.where, engine: o.engine, days: Number(o.days), role: state.role, cities: state.cities }) }).then((x) => x.json());
+        const ran = (r.ran || []).map((x) => `${x.id === "firecrawl" ? "Firecrawl" : "TinyFish"} ${x.ok ? x.count : "failed"}`).join(" · ");
+        const failed = (r.ran || []).filter((x) => !x.ok);
+        if (!r.ok && !(r.jobs || []).length) {
+          webBar(`<span class="wb-t"><b>The web search did not work</b> · ${UI.esc(r.error || (failed[0] && failed[0].error) || "no engine answered")}</span><button class="btn btn--sm" type="button" data-web-again>Try again</button><button class="wb-x" type="button" data-web-x aria-label="Close">×</button>`, "bad");
+          return;
+        }
+        const key = (j) => `${j.title.toLowerCase()}|${j.company.toLowerCase()}`;
+        const have = new Set(JOBS.map(key));
+        const found = r.jobs || [];
+        const fresh = found.filter((j) => !have.has(key(j))).map((j) => ({ ...j, web: true, webRun: run }));
+        /* ones already in the list belong to this search too */
+        const already = found.filter((j) => have.has(key(j)));
+        JOBS = JOBS.map((j) => (already.some((x) => key(x) === key(j)) ? { ...j, webRun: run } : j));
+        JOBS = [...fresh, ...JOBS];
+        const match = fresh.filter((j) => j.matched).length;
+        const total = fresh.length + already.length;
+        if (!total) {
+          webBar(`<span class="wb-t"><b>No postings for “${q}”</b> · ${ran}. The engines found pages, but none was one posting in India with an employer named. Try fewer words, or Any time.</span><button class="btn btn--sm" type="button" data-web-again>Search again</button><button class="wb-x" type="button" data-web-x aria-label="Close">×</button>`, "none");
+          return;
+        }
+        webBar(`<span class="wb-t"><b>${fresh.length} new posting${fresh.length === 1 ? "" : "s"}</b>${match ? ` · ${match} match your role` : ""}${already.length ? ` · ${already.length} already in your list` : ""} <small>“${q}” · ${ran}</small></span>
+          <button class="btn btn--sm" type="button" data-web-only="${run}">Show only these</button>
+          <button class="btn btn--sm btn--ghost" type="button" data-web-again>Search again</button>
+          <button class="wb-x" type="button" data-web-x aria-label="Close">×</button>`, "ok");
+        filters.web = run;
+        filters.days = 0; filters.undated = true; filters.minScore = 0; filters.source = ""; filters.state = ""; filters.city = ""; $("#loc").value = "";
+        paintFilterButtons();
+        $("#webBar [data-web-only]").textContent = "Show everything";
+        lastListSig = ""; renderList();
+        selected = visible()[0]?.id ?? selected; renderDetail();
+        $("#list").scrollTop = 0;
+      } catch {
+        webBar(`<span class="wb-t"><b>The web search did not answer.</b> Is the app running?</span><button class="btn btn--sm" type="button" data-web-again>Try again</button><button class="wb-x" type="button" data-web-x aria-label="Close">×</button>`, "bad");
+      } finally {
+        $("#fWeb").disabled = false;
+      }
+    }
+    $("#fWeb").addEventListener("click", (e) => { e.stopPropagation(); openPop(e.currentTarget, renderWeb); });
+
+    $("#fMatch").addEventListener("click", (e) => { e.stopPropagation(); openPop(e.currentTarget, renderMatch); });
+    $("#fPosted").addEventListener("click", (e) => { e.stopPropagation(); openPop(e.currentTarget, renderPosted); });
+    $("#fSource").addEventListener("click", (e) => { e.stopPropagation(); openPop(e.currentTarget, renderSources); });
+    paintFilterButtons();
 
     /* ---------------- tooltip ---------------- */
     /* One element for the whole page, driven by data-tip. Shown on hover and
@@ -2698,18 +3139,36 @@
       skipped: "Skipped",
     };
 
+    let savedProfileDetails = {};
+    fetch("/api/profile").then((r) => r.json()).then((d) => {
+      if (d?.ok && d.details) savedProfileDetails = d.details;
+    }).catch(() => {});
+
     function aaProfile() {
       const years = Number(String(factOf("Years of experience")).replace(/[^0-9.]/g, ""));
+      const a = state.answers || {};
+      const det = savedProfileDetails || {};
       return {
-        fullName: factOf("Full name"),
-        email: factOf("Email"),
-        phone: factOf("Phone"),
-        city: factOf("Location"),
-        linkedin: factOf("LinkedIn"),
-        website: factOf("Website"),
-        currentCompany: factOf("Current company"),
-        currentTitle: factOf("Current title"),
+        fullName: factOf("Full name") || det.name || "",
+        email: factOf("Email") || det.email || "",
+        phone: factOf("Phone") || a.phone || det.phone || "",
+        city: factOf("Location") || det.city || "",
+        ...(det.postalCode ? { postalCode: det.postalCode } : {}),
+        ...(det.state ? { state: det.state } : {}),
+        ...(det.country ? { country: det.country } : {}),
+        linkedin: factOf("LinkedIn") || a.linkedin || det.linkedin || "",
+        website: factOf("Website") || a.portfolio || det.website || "",
+        currentCompany: factOf("Current company") || det.currentCompany || "",
+        currentTitle: factOf("Current title") || det.currentTitle || "",
         years: Number.isFinite(years) ? years : undefined,
+        ...(a.curCtc || det.currentCtc ? { currentCtc: a.curCtc ? `${a.curCtc} LPA` : det.currentCtc } : {}),
+        ...(a.expCtc || det.expectedCtc ? { expectedCtc: a.expCtc ? `${a.expCtc} LPA` : det.expectedCtc } : {}),
+        ...(a.notice || det.noticePeriod ? { noticePeriod: a.notice || det.noticePeriod } : {}),
+        ...(det.preferredWorkMode ? { preferredWorkMode: det.preferredWorkMode } : {}),
+        ...(det.willingToRelocate ? { willingToRelocate: det.willingToRelocate } : {}),
+        ...(det.workAuthorization ? { workAuthorization: det.workAuthorization } : {}),
+        ...(det.preferredLocality ? { preferredLocality: det.preferredLocality } : {}),
+        ...(det.institution ? { institution: det.institution } : {}),
       };
     }
 
@@ -2722,6 +3181,10 @@
         applyUrl: j.applyUrl || "",
         sourceUrl: j.sourceUrl || "",
         score: j.score,
+        experienceAsked: j.experienceAsked,
+        miss: j.miss,
+        location: j.location,
+        category: j.category,
       };
     }
 
@@ -2758,10 +3221,23 @@
           <span class="aa-state">${AA_STATUS[it.status] || it.status}</span>
         </li>`).join("");
 
+      const ask = st.ask;
+      const askBox = ask ? `
+        <div class="notice warn" id="wsAskBox" style="margin-top:12px;flex-direction:column;align-items:stretch;gap:8px">
+          <b>${UI.esc(ask.site || "Site")} · ${UI.esc(ask.label || "Input needed")}</b>
+          ${ask.detail ? `<span>${UI.esc(ask.detail)}</span>` : ""}
+          ${ask.kind === "captcha" || ask.kind === "login"
+            ? `<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn--primary btn--sm" type="button" id="wsAskDone">Done, continue</button><a class="btn btn--sm" href="browser.html" target="_blank" rel="noopener">Open in browser</a></div>`
+            : Array.isArray(ask.options) && ask.options.length
+              ? `<div style="display:flex;gap:8px;flex-wrap:wrap"><select id="wsAskIn" style="flex:1;min-width:160px;padding:7px 10px;border:1px solid var(--border-strong);border-radius:6px">${ask.options.map((o) => `<option value="${UI.esc(o)}">${UI.esc(o)}</option>`).join("")}</select><button class="btn btn--primary btn--sm" type="button" id="wsAskSend">Continue</button></div>`
+              : `<div style="display:flex;gap:8px;flex-wrap:wrap"><input id="wsAskIn" placeholder="Type answer or OTP..." style="flex:1;min-width:160px;padding:7px 10px;border:1px solid var(--border-strong);border-radius:6px"><button class="btn btn--primary btn--sm" type="button" id="wsAskSend">Continue</button></div>`}
+        </div>` : "";
+
       $("#dBody").innerHTML = `
         <div class="aa">
           <div class="aa-progress"><b>${done}</b> of ${items.length} done · ${st.mode === "submit" ? "fill and submit" : "fill only"}</div>
           <ul class="aa-list aa-rows">${rows}</ul>
+          ${askBox}
           ${st.paused ? `<div class="notice info" style="margin-top:12px"><span>The run is paused. Answer in the browser panel, then press Continue.</span></div>` : ""}
         </div>`;
 
@@ -2770,7 +3246,27 @@
         <a class="btn" href="browser.html" target="_blank" rel="noopener"><span class="btn-label">Open browser</span></a>
         ${st.paused ? `<button class="btn btn--primary" id="aaResume" type="button"><span class="btn-label">Continue</span></button>` : ""}
         ${st.running || st.paused ? `<button class="btn" id="aaStop" type="button"><span class="btn-label">Stop</span></button>` : ""}
-        <span class="note">${st.running ? "Working…" : st.paused ? "Waiting on you." : "Finished."}</span>`;
+        <span class="note">${ask ? "Waiting on your answer above." : st.running ? "Working…" : st.paused ? "Waiting on you." : "Finished."}</span>`;
+      renderLiveBar(st);
+
+      if (ask) {
+        const submitAsk = async (val) => {
+          try {
+            const r = await fetch("/api/autoapply/answer", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ id: ask.id, value: val }),
+            });
+            const d = await r.json();
+            if (d?.state) renderQueue(d.state);
+          } catch {}
+        };
+        $("#wsAskDone")?.addEventListener("click", () => submitAsk("done"));
+        $("#wsAskSend")?.addEventListener("click", () => {
+          const v = $("#wsAskIn")?.value?.trim();
+          if (v) submitAsk(v);
+        });
+      }
 
       const stop = $("#aaStop");
       if (stop) stop.addEventListener("click", async () => {
@@ -2806,9 +3302,128 @@
           const d = await r.json();
           if (!d.ok) return;
           renderQueue(d.state);
+          renderLiveBar(d.state);
           if (!d.state.running && !d.state.paused) clearInterval(aaTimer);
         } catch {}
       }, 1500);
+    }
+
+    let wsBarTimer = null;
+    function renderLiveBar(st) {
+      const bar = $("#wsLiveBar");
+      const topApply = $("#topApplyLink");
+      const items = (st && st.items) || [];
+      if (!items.length) {
+        if (bar) bar.hidden = true;
+        if (topApply) {
+          topApply.href = "console.html";
+          const lbl = topApply.querySelector(".btn-label");
+          if (lbl) lbl.textContent = "Apply console";
+        }
+        return;
+      }
+
+      if (topApply) {
+        topApply.href = "console.html#step5";
+        const lbl = topApply.querySelector(".btn-label");
+        if (lbl) lbl.textContent = (st.running || st.paused || st.ask) ? "Resume Step 5 · Apply" : "Apply console (Step 5)";
+      }
+      if (!bar) return;
+
+      const submitted = items.filter((x) => x.status === "submitted").length;
+      const needs = items.filter((x) => x.status === "needs").length;
+      const queued = items.filter((x) => x.status === "queued" || x.status === "filling").length;
+      const cur = items.find((x) => x.id === st.current);
+      const firstNeed = items.find((x) => x.status === "needs");
+      const ask = st.ask;
+
+      const urgent = Boolean(ask || needs || st.paused);
+      bar.classList.toggle("warn", urgent);
+      const pillText = ask
+        ? (ask.kind === "captcha" ? "Bot check waiting" : ask.kind === "login" ? "Sign-in waiting" : "Needs your input")
+        : st.running
+          ? "Auto-applying live"
+          : needs
+            ? `${needs} parked · needs you`
+            : `Apply batch · ${submitted}/${items.length} sent`;
+
+      const summary = ask
+        ? `<b>${UI.esc(ask.jobTitle || ask.site || "Application")}</b> — ${UI.esc(ask.detail || ask.label || "Paused for your action.")}`
+        : cur
+          ? `Working on <b>${UI.esc(cur.title)}</b> (${UI.esc(cur.company)}) · ${submitted} sent${needs ? `, ${needs} needs you` : ""}${queued ? `, ${queued} left` : ""}.`
+          : firstNeed
+            ? `<b>${UI.esc(firstNeed.title)}</b>: ${UI.esc(firstNeed.message || firstNeed.needs || "Needs your review.")} (${submitted} of ${items.length} sent)`
+            : `${submitted} of ${items.length} submitted in Apply.`;
+
+      const canQuickDone = Boolean(ask && (ask.kind === "captcha" || ask.kind === "login"));
+      const sig = JSON.stringify([Boolean(st.running), Boolean(st.paused), st.current || "", submitted, needs, queued, ask?.id || "", ask?.kind || "", firstNeed?.id || "", items.length]);
+      if (bar.dataset.sig === sig && !bar.hidden) return;
+      bar.dataset.sig = sig;
+      bar.innerHTML = `
+        <span class="live-pill">${UI.esc(pillText)}</span>
+        <span class="live-msg">${summary}</span>
+        <span class="live-acts">
+          ${canQuickDone ? `<a class="btn btn--sm" href="browser.html" target="_blank" rel="noopener"><span class="btn-label">Open browser</span></a><button class="btn btn--sm btn--primary" type="button" id="wsBarAskDone"><span class="btn-label">Done, continue</span></button><button class="btn btn--sm" type="button" id="wsBarAskSkip"><span class="btn-label">Park &amp; next</span></button>` : ""}
+          <a class="btn btn--sm ${canQuickDone ? "" : "btn--primary"}" href="console.html#step5"><span class="btn-label">Resume Step 5 · Apply</span></a>
+          <button class="btn btn--sm" type="button" id="wsBarQueue"><span class="btn-label">View queue (${items.length})</span></button>
+        </span>`;
+      bar.hidden = false;
+
+      $("#wsBarQueue")?.addEventListener("click", () => {
+        openDrawer();
+        $("#dTitle").textContent = "Auto apply";
+        $("#dSub").textContent = `${items.length} job${items.length === 1 ? "" : "s"} in the Apply queue`;
+        renderQueue(st);
+        pollQueue();
+      });
+      const answerQuickBar = async (val) => {
+        if (!ask) return;
+        const b1 = $("#wsBarAskDone"), b2 = $("#wsBarAskSkip");
+        if (b1) b1.disabled = true;
+        if (b2) b2.disabled = true;
+        try {
+          const r = await fetch("/api/autoapply/answer", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ id: ask.id, value: val }),
+          });
+          const d = await r.json();
+          if (d?.state) renderLiveBar(d.state);
+        } catch {
+          if (b1) b1.disabled = false;
+          if (b2) b2.disabled = false;
+        }
+      };
+      $("#wsBarAskDone")?.addEventListener("click", () => answerQuickBar("done"));
+      $("#wsBarAskSkip")?.addEventListener("click", () => answerQuickBar(""));
+    }
+
+    async function syncLiveApplyBar(openOnHash) {
+      try {
+        const r = await fetch("/api/autoapply/status");
+        const d = await r.json();
+        if (!d?.ok || !d.state) return;
+        renderLiveBar(d.state);
+        if (openOnHash && location.hash === "#apply" && (d.state.items || []).length) {
+          openDrawer();
+          $("#dTitle").textContent = "Auto apply";
+          $("#dSub").textContent = `${d.state.items.length} jobs in the Apply queue`;
+          renderQueue(d.state);
+          pollQueue();
+        }
+        clearInterval(wsBarTimer);
+        if (d.state.running || d.state.paused || d.state.ask) {
+          wsBarTimer = setInterval(async () => {
+            try {
+              const r2 = await fetch("/api/autoapply/status");
+              const d2 = await r2.json();
+              if (!d2?.ok || !d2.state) return;
+              renderLiveBar(d2.state);
+              if (!d2.state.running && !d2.state.paused && !d2.state.ask) clearInterval(wsBarTimer);
+            } catch {}
+          }, 2500);
+        }
+      } catch {}
     }
 
     function openAutoApply(jobs) {
@@ -3021,7 +3636,7 @@
         if (!d.ok) {
           TAILOR_STAGES.forEach((_, i) => setStage(i, "done"));
           const why = d.reason === "no-key"
-            ? "Sarvam is not connected yet. Add your key in Connections and this runs on your own account."
+            ? "No AI provider is connected yet. Add one in Connect and this runs on your own account."
             : d.reason === "no-resume"
               ? d.hint || "Upload your master resume in onboarding first."
               : d.error || "The model did not answer.";
@@ -3048,7 +3663,7 @@
         $("#dBody").innerHTML = `
           <div class="notice bad">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
-            <span>${timedOut ? "Sarvam took too long. Try again — the posting is still open." : "Could not reach Sarvam. Check Connections and try again."}</span>
+            <span>${timedOut ? `${UI.aiName()} took too long. Try again — the posting is still open.` : `Could not reach ${UI.aiName()}. Check Connect and try again.`}</span>
           </div>`;
       }
     }
@@ -3370,44 +3985,117 @@
         const s = Math.round((Date.now() - t0) / 1000);
         btn.querySelector(".btn-label").textContent = `Connecting… ${s}s`;
         const note = [...stages].reverse().find(([at]) => s >= at);
-        if (note) $("#count").innerHTML = `<b>—</b> ${note[1]}`;
+        const lab = document.querySelector("#searchThink .th-label");
+        if (note && lab) lab.textContent = note[1].replace(/…$/, "");
       };
       paint();
       liveTimer = setInterval(paint, 1000);
     }
 
+    let lastReport = (() => { try { return JSON.parse(localStorage.getItem("co.live.report") || "null"); } catch { return null; } })();
     async function runLive(btn) {
       btn.disabled = true;
       btn.dataset.state = "loading";
       loading = true;
-      skeleton();
-      $("#count").innerHTML = `<b>—</b> loading live postings`;
+      liveError = "";
+      if (JOBS.length) $("#count").innerHTML = `<b>—</b> refreshing live postings`;
+      else { renderList(); renderDetail(); }
       startLiveClock(btn);
       try {
+        /* the boards the user signed in to that have a search connector */
+        const [sitesRes, prof] = await Promise.all([
+          fetch("/api/job-sites").then((r) => r.json()).catch(() => ({ sites: [] })),
+          fetch("/api/profile").then((r) => r.json()).catch(() => ({})),
+        ]);
+        const SEARCHABLE = ["foundit", "apna", "wellfound"];
+        const boards = (sitesRes.sites || []).filter((x) => x.signedInAt && SEARCHABLE.includes(x.id)).map((x) => x.id);
+        const locality = String((prof.details && prof.details.preferredLocality) || "");
+        const cities = (state.cities && state.cities.length) ? state.cities : (prof.details && prof.details.city ? [prof.details.city] : []);
         const yearsFact = (state.facts || []).find((f) => f.k === "Years of experience");
         const years = yearsFact ? Number(String(yearsFact.v).replace(/[^0-9.]/g, "")) : undefined;
-        const res = await fetch("/api/jobs", {
+        /* Streamed: each source's postings appear the moment it answers
+           (ADR-035); the last line is the full, sorted, de-duplicated set. */
+        const res = await fetch("/api/jobs/stream", {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             role: state.role,
-            cities: state.cities,
+            cities,
+            locality,
             modes: state.modes,
             years: Number.isFinite(years) ? years : undefined,
             skills: state.tasks || [],
             responsibilities: state.tasks || [],
-            sources: ["public", "naukri", "indeed"]
+            sources: ["public", "naukri", "indeed", ...boards]
           }),
           signal: AbortSignal.timeout(LIVE_TIMEOUT_MS)
         });
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const data = await res.json();
+        if (!res.ok || !res.body) throw new Error("HTTP " + res.status);
+        const streamed = [];
+        const seenKey = new Set();
+        const answered = [];
+        let data = null;
+        let paintAt = 0;
+        const paintSoon = () => {
+          const t = Date.now();
+          if (t - paintAt < 600) return;
+          paintAt = t;
+          if (!JOBS.length || !live) { JOBS = streamed.slice(); }
+          else JOBS = streamed.slice();
+          loading = false;
+          $("#count").innerHTML = `<b>${streamed.filter((j) => j.matched).length}</b> matches so far · ${answered.length} source${answered.length === 1 ? "" : "s"} answered`;
+          renderList();
+          if (!selected) { selected = visible()[0]?.id ?? null; renderDetail(); }
+          loading = true;
+        };
+        const reader = res.body.getReader();
+        const dec = new TextDecoder();
+        let buf = "";
+        for (;;) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buf += dec.decode(value, { stream: true });
+          let nl;
+          while ((nl = buf.indexOf("\n")) >= 0) {
+            const raw = buf.slice(0, nl); buf = buf.slice(nl + 1);
+            if (!raw.trim()) continue;
+            let m; try { m = JSON.parse(raw); } catch { continue; }
+            if (m.type === "batch" && m.group === "indeed-wait") {
+              /* Indeed showed a check: its tab is on the user's screen now */
+              UI.toast("Indeed showed a check. The Career-Ops window is on your screen with it: solve it there and the search carries on. It waits a minute.", { kind: "warn", title: "Indeed needs you", ms: 60000 });
+              window.CO?.inbox?.refresh?.();
+              continue;
+            }
+            if (m.type === "batch") {
+              answered.push(m.group);
+              for (const j of m.jobs || []) {
+                const k = `${String(j.title).toLowerCase().trim()}|${String(j.company).toLowerCase().trim()}`;
+                if (seenKey.has(k)) continue;
+                seenKey.add(k);
+                streamed.push(j);
+              }
+              paintSoon();
+            } else if (m.type === "done") {
+              data = m;
+            }
+          }
+        }
+        if (!data || data.ok === false) throw new Error((data && data.error) || "The search did not finish.");
         if (!data.jobs || !data.jobs.length) throw new Error("no postings returned");
 
         JOBS = data.jobs;
         live = true;
+        window.coHidden = data.hidden || 0;
+        try { localStorage.setItem("co.live.hidden", String(window.coHidden)); } catch {}
+        /* what each source did, for the Sources panel and the search report */
+        lastReport = { at: new Date().toISOString(), connectors: data.connectors || [], boards, sites: sitesRes.sites || [] };
+        try { localStorage.setItem("co.live.report", JSON.stringify(lastReport)); } catch {}
+        paintLiveHint();
+        paintCities();
         loading = false;
+        searchThink?.done("Found in");
         try { localStorage.setItem("co.liveOn", "1"); } catch {}
+        try { localStorage.setItem(LIVE_CACHE, JSON.stringify({ role: state.role, at: new Date().toISOString(), jobs: data.jobs })); } catch {}
         btn.dataset.state = "";
         btn.setAttribute("aria-pressed", "true");
         btn.querySelector(".btn-label").textContent = `Live · ${data.jobs.length}`;
@@ -3417,15 +4105,11 @@
 
         const needs = (data.connectors || []).filter((c) => c.needsHuman);
         if (needs.length) {
-          const names = needs.map((c) => (c.id === "indeed" ? "Indeed" : "Naukri")).join(" and ");
+          const NAME = { indeed: "Indeed", naukri: "Naukri", foundit: "foundit" };
+          const names = needs.map((c) => NAME[c.id] || c.id).join(" and ");
           UI.toast(
-            `${names} needs you to ${needs[0].needsHuman === "captcha" ? "solve a captcha" : "sign in"} once. Open the browser panel to do it — the session is then remembered.`,
-            {
-              kind: "warn",
-              title: `${names} needs you`,
-              ms: 12000,
-              action: { label: "Open browser", href: "browser.html" },
-            }
+            `${names} showed a check during the search, so it added nothing this time. Pass it once in the Career-Ops window, then press Live again.`,
+            { kind: "warn", title: `${names} needs you`, ms: 14000, action: { label: "Show the window", onClick: () => passCheck(needs[0].id) } }
           );
         } else if (data.matched === 0) {
           UI.toast(`0 of ${data.jobs.length} match “${state.role}”. Showing other roles at these companies.`, { kind: "info" });
@@ -3438,32 +4122,61 @@
         btn.querySelector(".btn-label").textContent = "Live feeds";
         setTimeout(() => { if (btn.dataset.state === "error") btn.dataset.state = ""; }, 6000);
         const timedOut = err && (err.name === "TimeoutError" || err.name === "AbortError");
-        UI.toast(
-          timedOut
-            ? "Live feeds took too long. Try again, or keep working with the sample set."
-            : "Live feeds are unavailable right now. Showing sample data.",
-          { kind: "bad", title: "Could not load live feeds", ms: 7000 }
-        );
+        liveError = timedOut
+          ? "The search took longer than three minutes."
+          : String(err && err.message) === "no postings returned"
+            ? "The sources answered, but none had a posting for this role."
+            : "The local app could not finish the search.";
+        searchThink?.fail("Search stopped");
+        if (JOBS.length) {
+          UI.toast(`${liveError} Showing your last results.`, { kind: "bad", title: "Could not refresh", ms: 7000 });
+        }
         renderList();
+        renderDetail();
       } finally {
         stopLiveClock();
         btn.disabled = false;
       }
     }
 
+    /* open the site that showed a check, in the Career-Ops window */
+    async function passCheck(id) {
+      const URLS = { indeed: ["https://in.indeed.com/", "indeed"], foundit: ["https://www.foundit.in/", ""], naukri: ["https://www.naukri.com/", ""] };
+      const [url, profile] = URLS[id] || URLS.indeed;
+      const post = (u, b) => fetch(u, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(b) }).then((r) => r.json()).catch(() => ({}));
+      const o = await post("/api/browser/open", { url, profile });
+      if (!o.ok) { UI.toast(o.message || "The window did not open.", { kind: "bad" }); return; }
+      await post("/api/browser/show", { profile: profile || "default" });
+      const NAME = { indeed: "Indeed", foundit: "foundit", naukri: "Naukri" };
+      UI.toast(`Pass the check in the Career-Ops window, then search ${NAME[id] || id} again. Only that site runs.`, {
+        kind: "info", ms: 60000, action: { label: `Search ${NAME[id] || id} now`, onClick: () => searchOne(id) },
+      });
+    }
+
+    /* One source again, without the whole search: after a check is passed */
+    async function searchOne(id) {
+      const NAME = { indeed: "Indeed", foundit: "foundit", naukri: "Naukri" };
+      await fetch("/api/browser/hide", { method: "POST" }).catch(() => {});
+      UI.toast(`Searching ${NAME[id] || id}…`, { kind: "info" });
+      try {
+        const prof = await fetch("/api/profile").then((r) => r.json()).catch(() => ({}));
+        const cities = (state.cities && state.cities.length) ? state.cities : (prof.details && prof.details.city ? [prof.details.city] : []);
+        const res = await fetch("/api/jobs/stream", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ role: state.role, cities, locality: (prof.details && prof.details.preferredLocality) || "", sources: [id, "no-engines"] }) });
+        const text = await res.text();
+        const done = text.trim().split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).find((m) => m && m.type === "done");
+        const conn = ((done && done.connectors) || []).find((c) => c.id === id);
+        if (conn && conn.needsHuman) { UI.toast(`${NAME[id] || id} still shows a check. Pass it in the window, then try again.`, { kind: "warn", action: { label: "Show the window", onClick: () => passCheck(id) } }); return; }
+        const have = new Set(JOBS.map((j) => `${j.title.toLowerCase()}|${j.company.toLowerCase()}`));
+        const fresh = ((done && done.jobs) || []).filter((j) => !have.has(`${j.title.toLowerCase()}|${j.company.toLowerCase()}`));
+        JOBS = [...fresh, ...JOBS];
+        if (lastReport && conn) { lastReport.connectors = [...lastReport.connectors.filter((c) => c.id !== id), conn]; try { localStorage.setItem("co.live.report", JSON.stringify(lastReport)); } catch {} }
+        renderList();
+        UI.toast(`${NAME[id] || id}: ${fresh.length} new posting${fresh.length === 1 ? "" : "s"} added${fresh.filter((j) => j.matched).length ? `, ${fresh.filter((j) => j.matched).length} matching` : ""}.`, { kind: "ok" });
+      } catch { UI.toast(`${NAME[id] || id} did not answer.`, { kind: "bad" }); }
+    }
+
     $("#fLive").addEventListener("click", async (e) => {
       const btn = e.currentTarget;
-      if (live) {
-        live = false;
-        try { localStorage.setItem("co.liveOn", "0"); } catch {}
-        JOBS = window.CO.jobsFor(family, state.role);
-        btn.setAttribute("aria-pressed", "false");
-        btn.querySelector(".btn-label").textContent = "Live feeds";
-        selected = visible()[0]?.id ?? null;
-        renderList();
-        renderDetail();
-        return;
-      }
       await runLive(btn);
     });
 
@@ -3499,14 +4212,19 @@
       split.hidden = v !== "matches";
       track.hidden = v !== "track";
       improve.hidden = v !== "improve";
+      /* the search and filters belong to Find; Results has its own controls */
+      document.documentElement.dataset.view = v;
       $("#railRecommend").classList.toggle("on", v === "matches");
       $("#railTrack").classList.toggle("on", v === "track");
       $("#railImprove").classList.toggle("on", v === "improve");
       const mobNames = { matches: "Recommend", track: "Track", improve: "Improve" };
       const mobStep = $("#mobStep");
       if (mobStep) mobStep.textContent = mobNames[v] || "Recommend";
-      if (v === "track") { renderTrack(); loadCap(); }
+      if (v === "track") { renderTrack(); loadCap(); loadResults(); }
       if (v === "improve") renderImprove();
+      /* the shared step bar (design.js) reads the hash */
+      try { history.replaceState(null, "", v === "matches" ? "#jobs" : "#" + v); } catch {}
+      dispatchEvent(new Event("co:step"));
     }
 
     function cardFor(entry) {
@@ -3528,9 +4246,50 @@
         </article>`;
     }
 
+    /* ---------- Results: KPIs, proof and source health ---------- */
+    let RESULTS = null;
+    async function loadResults() {
+      try { RESULTS = await fetch("/api/results").then((r) => (r.ok ? r.json() : null)); } catch { RESULTS = null; }
+      renderTrack();
+    }
+    function renderResults(entries) {
+      const r = RESULTS || { applied: 0, thisWeek: 0, master: 0, bySource: {}, recent: [] };
+      const interviews = entries.filter((e) => e.stage === "interview").length;
+      const applied = Math.max(r.applied, entries.filter((e) => ["applied", "interview", "closed"].includes(e.stage || "applied")).length);
+      const appliedSet = new Set((r.ids || []).map(String));
+      const queue = (() => { try { return (JSON.parse(localStorage.getItem("co.console.picks") || "[]") || []).filter((id) => !appliedSet.has(String(id))).length; } catch { return 0; } })();
+      const tile = (n, label, sub) => `<div class="kpi"><b>${n}</b><span>${label}</span>${sub ? `<small>${sub}</small>` : ""}</div>`;
+      $("#kpis").innerHTML =
+        tile(r.applied, "Applied", (r.applied ? "each with a confirmation" : "none confirmed yet") + (r.naukriOnly ? ` · +${r.naukriOnly} more on your Naukri applied list` : "")) +
+        tile(r.thisWeek, "This week", "last 7 days") +
+        tile(interviews, "Interviews", applied ? `${Math.round((interviews / applied) * 100)}% of applications` : "") +
+        tile(queue, "In your queue", queue ? `<a href="console.html#step3">Open Queue</a>` : `<a href="workspace.html#jobs">Find jobs</a>`);
+
+      $("#proofList").innerHTML = r.recent.length
+        ? `<ul class="proof">${r.recent.map((x) => `<li>
+            <span class="proof-t"><b>${UI.esc(x.title || "Untitled")}</b><small>${UI.esc(x.company || "")} · ${UI.esc(sourceName(x.source))} · ${x.resume === "master" ? "master resume" : "tailored resume"}</small></span>
+            <span class="proof-r"><span class="flag ok">${UI.esc(x.proof)}</span><small>${x.earlier ? "before" : x.at ? new Date(x.at).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : ""}</small></span>
+          </li>`).join("")}</ul>`
+        : `<p class="res-empty">Nothing sent yet. An application appears here only when the site confirms it.</p>`;
+
+      const found = {};
+      for (const j of JOBS) found[j.source] = (found[j.source] || 0) + 1;
+      const ids = [...new Set([...Object.keys(found), ...Object.keys(r.bySource || {})])].sort((a, b) => (found[b] || 0) - (found[a] || 0));
+      $("#srcHealth").innerHTML = ids.length
+        ? `<table class="srch"><thead><tr><th>Source</th><th>In Find</th><th>Applied</th></tr></thead><tbody>${ids.map((id) => `<tr>
+            <td>${UI.esc(sourceName(id))}</td><td>${found[id] || `<span class="muted">0</span>`}</td><td>${(r.bySource || {})[id] || `<span class="muted">0</span>`}</td></tr>`).join("")}</tbody></table>
+           <p class="res-foot">In Find is the last search. <a href="settings.html">Sources and settings</a></p>`
+        : `<p class="res-empty">No search has run yet.</p>`;
+    }
+
     function renderTrack() {
       const board = $("#board");
-      const entries = readTrack();
+      const local = readTrack();
+      const seen = new Set(local.map((e) => String(e.id)));
+      const fromLog = ((RESULTS && RESULTS.recent) || []).filter((x) => x.id && !seen.has(String(x.id)))
+        .map((x) => ({ id: x.id, title: x.title, company: x.company, source: x.source, stage: "applied", updatedAt: x.at }));
+      const entries = [...local, ...fromLog];
+      renderResults(entries);
       const tracked = new Set(entries.map((e) => String(e.id)));
       const savedCards = [...savedIds]
         .filter((id) => !tracked.has(String(id)))
@@ -3740,6 +4499,13 @@
 
     $("#railTrack").addEventListener("click", () => setView("track"));
     $("#railImprove").addEventListener("click", () => setView("improve"));
+    const viewFromHash = () => {
+      const h = String(location.hash || "").toLowerCase();
+      if (h === "#track" || h === "#improve") setView(h.slice(1));
+      else if (h === "#jobs") setView("matches");
+    };
+    addEventListener("hashchange", viewFromHash);
+    /* the first call runs at the end of this script, once every view helper exists */
     $("#trackBack").addEventListener("click", () => setView("matches"));
     $("#improveBack").addEventListener("click", () => setView("matches"));
 
@@ -3761,7 +4527,7 @@
       return [
         { group: "Actions", label: "Go to Track", sub: "every saved and applied posting", icon: "board", run: () => setView("track") },
         { group: "Actions", label: "Go to Improve", sub: "the gaps that repeat", icon: "spark", run: () => setView("improve") },
-        { group: "Actions", label: "Back to matches", sub: "the scored list", icon: "list", run: () => setView("matches") },
+        { group: "Actions", label: "Back to Find", sub: "the scored list", icon: "list", run: () => setView("matches") },
         { group: "Actions", label: "Show saved only", sub: "filter the list", icon: "bookmark", run: () => {
             filters.savedOnly = true;
             $("#fSaved").setAttribute("aria-pressed", "true");
@@ -3924,7 +4690,18 @@
     $("#chipRole").textContent = state.role || "Your role";
     $("#chipMeta").textContent = (state.cities || []).join(", ") || "no city set";
     $("#chipAvatar").textContent = initials(state.role || "You");
-    $("#profileChip").addEventListener("click", () => { location.href = "index.html"; });
+    /* The chip opens a profile menu: edit one part, never restart setup. */
+    $("#profileChip").addEventListener("click", () => {
+      UI.menu($("#profileChip"), [
+        { label: "Target role", note: UI.esc(state.role || "Not set"), href: "index.html#edit-1" },
+        { label: "Resume", note: "Replace or re-read it", href: "index.html#edit-3" },
+        { label: "Preferences", note: "City, work mode, CTC, notice", href: "index.html#edit-5" },
+        { label: "Answers", note: "What every form asks", href: "index.html#edit-6" },
+        { sep: true },
+        { label: "Career map", href: "map.html" },
+        { label: "Connections", href: "settings.html" },
+      ]);
+    });
 
     /* ---------- resizable split ---------- */
 
@@ -3984,8 +4761,16 @@
 
     function trackDates() {
       const out = [];
+      const seen = new Set();
       for (const e of readTrack()) {
+        seen.add(String(e.id));
         const d = e.updatedAt ? new Date(e.updatedAt) : null;
+        if (d && !isNaN(d)) out.push(d);
+      }
+      /* applications auto apply confirmed count too, from the server's log */
+      for (const x of (typeof RESULTS !== "undefined" && RESULTS && RESULTS.recent) || []) {
+        if (seen.has(String(x.id)) || x.earlier) continue; // sent before: no day to put it on
+        const d = x.at ? new Date(x.at) : null;
         if (d && !isNaN(d)) out.push(d);
       }
       return out;
@@ -4079,6 +4864,71 @@
             <span>More</span>
           </div>
         </div>`;
+      renderGeoHeat();
+    }
+
+    function renderGeoHeat(customLocality) {
+      const wrap = $("#geoHeatWrap");
+      if (!wrap) return;
+      const locQuery = String(customLocality ?? $("#geoLocIn")?.value ?? state?.cities?.[0] ?? "Chennai").trim();
+      const stateCounts = new Map();
+      for (const j of JOBS) {
+        const s = stateOf(j) || "pan-india";
+        stateCounts.set(s, (stateCounts.get(s) || 0) + 1);
+      }
+      const statesSorted = [...stateCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+      const maxSt = Math.max(1, statesSorted[0]?.[1] || 1);
+      const locRx = locQuery ? new RegExp(locQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i") : null;
+      const locHits = locRx ? JOBS.filter((j) => locRx.test(`${j.location || ""} ${j.title || ""} ${j.jd || ""}`)).length : 0;
+      const tnCount = stateCounts.get("tamil nadu") || 0;
+
+      wrap.innerHTML = `
+        <div class="heat-card">
+          <div class="heat-head" style="justify-content:space-between">
+            <div>
+              <h2>Geo Heatmap · India &rarr; State &rarr; Locality</h2>
+              <span class="sub">${locQuery ? `"${locQuery}": ${locHits} explicit hit(s) · Tamil Nadu total: ${tnCount} · Click Track -> Live for full micro-locality breakdown` : `${JOBS.length} loaded postings across ${statesSorted.length} regions`}</span>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input id="geoLocIn" value="${locQuery.replace(/"/g, "&quot;")}" placeholder="Check city/PIN (e.g. Velachery)" style="height:30px;padding:0 10px;border:1px solid var(--border);border-radius:6px;font:inherit;font-size:12px;background:var(--surface-2);color:var(--ink)" />
+              <button class="btn btn--sm" id="geoLiveBtn" type="button">Live heatmap</button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:8px">
+            ${statesSorted.map(([s, n]) => {
+              const lvl = Math.min(4, Math.max(1, Math.ceil((n / maxSt) * 4)));
+              const lbl = s.replace(/\b\w/g, (c) => c.toUpperCase());
+              return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);font-size:12px">
+                <span style="display:flex;align-items:center;gap:7px"><span class="heat-cell" data-l="${lvl}"></span><b>${lbl}</b></span>
+                <span style="font-variant-numeric:tabular-nums;color:var(--muted)">${n}</span>
+              </div>`;
+            }).join("")}
+          </div>
+        </div>`;
+      $("#geoLocIn")?.addEventListener("change", () => renderGeoHeat($("#geoLocIn").value));
+      $("#geoLiveBtn")?.addEventListener("click", async () => {
+        const q = $("#geoLocIn")?.value?.trim() || "Chennai";
+        const btn = $("#geoLiveBtn");
+        if (btn) btn.disabled = true;
+        try {
+          const r = await fetch(`/api/geo/heatmap?role=${encodeURIComponent(state.role || "Product Manager")}&locality=${encodeURIComponent(q)}&maxAgeDays=14`);
+          const d = await r.json();
+          if (d?.ok && d.geoDistribution) {
+            const gd = d.geoDistribution;
+            const cities = (gd.byCity || []).slice(0, 8);
+            const cMax = Math.max(1, cities[0]?.count || 1);
+            wrap.querySelector(".sub").textContent = (gd.requestedLocality && gd.requestedLocality.note) || `Live <=14d: ${gd.india} India · ${gd.remote} Remote`;
+            wrap.querySelector("[style*='display:grid']").innerHTML = cities.map((c) => {
+              const lvl = Math.min(4, Math.max(1, Math.ceil((c.count / cMax) * 4)));
+              return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);font-size:12px">
+                <span style="display:flex;align-items:center;gap:7px"><span class="heat-cell" data-l="${lvl}"></span><b>${c.label}</b></span>
+                <span style="font-variant-numeric:tabular-nums;color:var(--muted)">${c.count} (${c.sharePct}%)</span>
+              </div>`;
+            }).join("");
+          }
+        } catch {}
+        if (btn) btn.disabled = false;
+      });
     }
 
     /* ---------- notification panel ---------- */
@@ -4119,13 +4969,20 @@
       return items.filter((i) => i.at.getTime() > seen).sort((a, b) => b.at - a.at);
     }
 
-    function renderBell() {
-      const badge = $("#bellCount");
-      if (!badge) return;
-      const n = notifItems().length;
-      badge.hidden = n === 0;
-      badge.textContent = n > 9 ? "9+" : String(n);
-    }
+    /* News for the bar's inbox (design.js): Ready postings and deadlines. */
+    function renderBell() { window.CO?.inbox?.refresh(); }
+    window.CO?.inbox?.provide({
+      items: () => notifItems().map((it) => ({ id: it.id, title: it.title, sub: `${it.sub} · ${notifDayLabel(it.at)}` })),
+      open: (id) => {
+        const j = JOBS.find((x) => x.id === id);
+        if (!j) { UI.toast("That posting is not in the current set.", { kind: "info" }); return; }
+        selected = id;
+        setView("matches");
+        renderList();
+        renderDetail();
+      },
+      clear: () => { try { localStorage.setItem(NOTIF_KEY, String(Date.now())); } catch {} },
+    });
 
     function notifDayLabel(d) {
       const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -4137,71 +4994,6 @@
       return t.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
     }
 
-    function renderNotif() {
-      const box = $("#notif");
-      const items = notifItems();
-      if (!items.length) {
-        box.innerHTML = `<div class="notif-h"><b>Nothing needs you</b></div>
-          <div class="notif-empty">Postings you mark Ready, and deadlines in the next two days, appear here.</div>`;
-        return;
-      }
-      let html = `<div class="notif-h"><b>${items.length} thing${items.length === 1 ? "" : "s"} need you</b>
-        <button class="linkbtn" type="button" id="notifClear">Mark all read</button></div>`;
-      let last = "";
-      for (const it of items) {
-        const day = notifDayLabel(it.at);
-        if (day !== last) { html += `<div class="notif-day">${day}</div>`; last = day; }
-        html += `<button class="notif-item" type="button" data-id="${UI.esc(String(it.id))}">
-          <span class="ic ${it.kind === "ok" ? "ok" : ""}">
-            <svg viewBox="0 0 24 24">${it.kind === "ok"
-              ? '<path d="M5 13l4 4L19 7"/>'
-              : '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/>'}</svg>
-          </span>
-          <span class="tx"><b>${UI.esc(it.title)}</b><small>${UI.esc(it.sub)}</small></span>
-        </button>`;
-      }
-      box.innerHTML = html;
-
-      box.querySelectorAll(".notif-item").forEach((el) => {
-        el.addEventListener("click", () => {
-          const id = el.dataset.id;
-          const j = JOBS.find((x) => x.id === id);
-          notifClose();
-          if (!j) { UI.toast("That posting is not in the current set.", { kind: "info" }); return; }
-          selected = id;
-          setView("matches");
-          renderList();
-          renderDetail();
-        });
-      });
-      const clear = $("#notifClear");
-      if (clear) clear.addEventListener("click", () => {
-        try { localStorage.setItem(NOTIF_KEY, String(Date.now())); } catch {}
-        notifClose();
-        renderBell();
-        UI.toast("Notifications cleared for now.", { kind: "ok" });
-      });
-    }
-
-    function notifOpen() {
-      $("#notif").hidden = false;
-      $("#bell").setAttribute("aria-expanded", "true");
-      renderNotif();
-    }
-    function notifClose() {
-      const box = $("#notif");
-      if (!box || box.hidden) return;
-      box.hidden = true;
-      $("#bell").setAttribute("aria-expanded", "false");
-    }
-
-    $("#bell").addEventListener("click", (e) => {
-      e.stopPropagation();
-      $("#notif").hidden ? notifOpen() : notifClose();
-    });
-    document.addEventListener("click", (e) => {
-      if (!$("#bellWrap").contains(e.target)) notifClose();
-    });
 
     /* ---------- copy button ---------- */
 
@@ -4405,6 +5197,9 @@
         .catch(() => {});
     }
     loadCap();
+    syncLiveApplyBar(true);
+    addEventListener("pageshow", () => syncLiveApplyBar(false));
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) syncLiveApplyBar(false); });
 
     /* first run: point at the four things that are not obvious */
     try {
@@ -4426,9 +5221,19 @@
        cost ~750 MB before the user had asked for anything, and the bundled
        set is already scored. Once the user has chosen live, remember it and
        bring it back on the next visit. */
-    let liveWanted = false;
-    try { liveWanted = localStorage.getItem("co.liveOn") === "1"; } catch {}
-    if (state.role && (liveWanted || !window.CO.jobsFor(family, state.role).length)) runLive($("#fLive"));
+    if (liveCache) {
+      const b = $("#fLive");
+      b.setAttribute("aria-pressed", "true");
+      b.querySelector(".btn-label").textContent = `Live · ${liveCache.jobs.length}`;
+      b.title = `Last searched ${new Date(liveCache.at).toLocaleString()}. Click to search again.`;
+    } else if (state.role) {
+      runLive($("#fLive"));
+    } else {
+      renderList();
+    }
+
+    /* open the view the step bar asked for (#jobs, #track, #improve) */
+    viewFromHash();
   </script>
 </body>
 </html>

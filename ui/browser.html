@@ -272,6 +272,9 @@
     .live i { animation: none; }
   }
 </style>
+  <link rel="stylesheet" href="fx.css" />
+  <script>try{if(localStorage.getItem("co.theme")==="light")document.documentElement.setAttribute("data-theme","light")}catch(e){}</script>
+  <script>if (new URLSearchParams(location.search).get("embed") === "1") document.documentElement.dataset.embed = "1";</script>
 </head>
 <body>
 
@@ -282,17 +285,22 @@
   </a>
   <div class="who">
     <b>Career-Ops browser</b>
-    <span id="where">Handover view: clear a captcha or sign in, then go back to the console.</span>
+    <span id="where">Your turn: the Career-Ops window is on your screen. Solve the check, sign in or review the form there, then come back.</span>
   </div>
   <div class="spacer"></div>
   <div class="acts">
-    <a class="btn btn--primary btn--sm" href="console.html" title="The apply console is the main surface">
-      <span class="btn-label">Apply console</span>
+    <button class="btn btn--sm btn--primary" id="showWin" type="button" title="Bring the real Career-Ops window to the front">Show the window</button>
+    <button class="btn btn--sm btn--ghost" id="hideWin" type="button" title="Put the window back out of sight; the page stays open">Done there</button>
+    <a class="btn btn--sm" href="console.html#step5" title="Return to Step 5 · Auto-Applying">
+      <span class="btn-label">Step 5 · Apply</span>
     </a>
     <span class="live" id="live" data-state="off"><i></i><span id="liveText">Not open</span></span>
     <button class="control" id="control" type="button" aria-pressed="false" title="Pause automation and drive the page yourself">
       <svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>
       <span id="controlText">Take control</span>
+    </button>
+    <button class="btn btn--secondary btn--sm hide-sm" id="windowMode" type="button" title="Some sites refuse a hidden browser. This reopens the same signed-in browser as a normal window." hidden>
+      <span class="btn-label" id="windowModeText">Open as a window</span>
     </button>
     <button class="btn btn--secondary btn--sm hide-sm" id="presetNaukri" type="button">
       <span class="btn-label">Naukri</span>
@@ -438,6 +446,36 @@
     }
   }
 
+  /* The browser runs without a window by default (headless). When a site
+     refuses that, one click reopens the same signed-in profile as a window. */
+  const modeBtn = document.getElementById("windowMode");
+  const modeText = document.getElementById("windowModeText");
+  let modeNow = null;
+  let modeProfile = "";
+  function paintMode(modes) {
+    const m = modes.find((x) => x.open) || modes[0];
+    modeNow = m ? m.mode : null;
+    modeProfile = m ? m.profile : "";
+    modeBtn.hidden = !m || !m.open;
+    modeText.textContent = modeNow === "window" ? "Hide the window" : "Open as a window";
+  }
+  modeBtn.addEventListener("click", async () => {
+    const m = modeNow === "window" ? "headless" : "window";
+    modeBtn.disabled = true;
+    try {
+      const r = await fetch("/api/browser/mode", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ mode: m, profile: /indeed/i.test(modeProfile) ? "indeed" : "" }),
+      });
+      const d = await r.json();
+      if (!d.ok && d.message) alert(d.message);
+    } finally {
+      modeBtn.disabled = false;
+      status();
+    }
+  });
+
   async function status() {
     try {
       const r = await fetch("/api/browser/status", { cache: "no-store" });
@@ -445,6 +483,7 @@
       open = Boolean(d.open);
       paused = Boolean(d.paused);
       paintControl();
+      paintMode(d.modes || []);
       if (!d.hasChrome) {
         setLive("wait", "No Chrome");
         where.textContent = "Chrome or Edge was not found on this machine.";
@@ -453,7 +492,7 @@
       }
       if (!open) {
         setLive("off", "Not open");
-        where.textContent = "A real Chrome window, driven from this app.";
+        where.textContent = "A real Chrome, shown here instead of in its own window.";
         idle.hidden = false;
         frameEl.hidden = true;
         backBtn.disabled = true;
@@ -540,7 +579,8 @@
         return;
       }
       await status();
-      toast("Signed in. The session is ready.", { kind: "ok", title: "Browser open" });
+      /* opening a page is not signing in; the page says whether you are in */
+      if (document.documentElement.dataset.embed !== "1") toast("Page open. Sign in on the site; your password goes to the site only.", { kind: "ok", title: "Browser open" });
     } catch (e) {
       const timedOut = e && (e.name === "TimeoutError" || e.name === "AbortError");
       toast(timedOut ? "The page took too long to load." : "Could not reach the local agent.", { kind: "bad", title: "Not opened" });
@@ -664,8 +704,15 @@
       return;
     }
     if (ev.ctrlKey || ev.metaKey) {
-      /* let the app keep its own shortcuts; forward only the common edit keys */
-      if (!["a", "c", "v", "x", "z"].includes(ev.key.toLowerCase())) return;
+      const k = ev.key.toLowerCase();
+      /* Ctrl+V: let the browser fire "paste" below, which carries the text */
+      if (k === "v") return;
+      /* the common edit keys go to the page as shortcuts, not as letters */
+      if (["a", "c", "x", "z"].includes(k)) {
+        ev.preventDefault();
+        send({ kind: "key", key: "ControlOrMeta+" + k });
+      }
+      return;
     }
     if (SPECIAL.has(ev.key)) {
       ev.preventDefault();
@@ -678,10 +725,30 @@
     }
   });
 
+  /* Paste: the text you copied (an email code, a password) goes into the
+     field focused on the page. It passes through to the site and is not kept. */
+  stage.addEventListener("paste", (ev) => {
+    if (!open || frameEl.hidden) return;
+    const text = ev.clipboardData && ev.clipboardData.getData("text/plain");
+    if (!text) return;
+    ev.preventDefault();
+    send({ kind: "paste", text: text });
+  });
+
   /* ---------------- boot ---------------- */
 
   const params = new URLSearchParams(location.search);
-  status().then(() => {
+  /* ADR-033: the hand-off is the real window, not this preview. This page
+     brings it forward and keeps a small preview for reference. */
+  const post = (u, b) => fetch(u, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(b || {}) }).then((r) => r.json()).catch(() => ({ ok: false }));
+  async function showWin() {
+    const r = await post("/api/browser/show", {});
+    if (!r.ok) toast(r.message || "The window could not be shown.", { kind: "bad", title: "Window" });
+  }
+  $("#showWin")?.addEventListener("click", showWin);
+  $("#hideWin")?.addEventListener("click", async () => { await post("/api/browser/hide"); toast("The window is out of sight again. The page stays open.", { kind: "ok" }); });
+  status().then(async () => {
+    if (document.documentElement.dataset.embed !== "1") setTimeout(showWin, params.get("url") || params.get("naukri") || params.get("indeed") ? 2500 : 300);
     if (params.get("naukri")) openAt("https://www.naukri.com/", "");
     else if (params.get("indeed")) openAt("https://in.indeed.com/", "indeed");
     else if (params.get("url")) openAt(normalise(params.get("url")), params.get("profile") || "");

@@ -1,7 +1,7 @@
 {
   "name": "career-ops-india",
   "private": true,
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "AI job discovery, matching and application operations for the Indian market",
   "packageManager": "pnpm@12.11.2",
   "engines": {
@@ -12,10 +12,13 @@
     "start": "node scripts/serve.mjs",
     "stop": "node scripts/stop.mjs",
     "mcp": "tsx server/mcp.ts",
+    "connect": "node scripts/connect-agents.mjs",
     "demo": "tsx scripts/demo.ts",
     "ci": "tsx scripts/ci-run.ts",
     "test:extract": "node scripts/test-extraction.mjs",
+    "test:provenance": "tsx scripts/test-provenance.ts",
     "check:secrets": "node scripts/check-secrets.mjs",
+    "check:doctor": "node scripts/doctor.mjs",
     "shot:verify": "node scripts/shot-verify.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },

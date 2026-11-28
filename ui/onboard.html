@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Retired: the one setup is index.html (ADR-029). -->
+  <script>location.replace("index.html" + location.hash);</script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Express Onboarding — Career-Ops India</title>
+  <link rel="stylesheet" href="https://ui-sdk.dev/web.css" />
+  <script type="module" src="https://ui-sdk.dev/web.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #faf8f3;
+      --card: #ffffff;
+      --ink: #1a1816;
+      --muted: #666057;
+      --line: #ddd6c9;
+      --green: #1b6b43;
+      --green-soft: #eaf4ee;
+      --amber: #8a5300;
+      --amber-soft: #fdf4e3;
+      /* Map ui-sdk semantic tokens to Career-Ops India warm paper palette */
+      --ui-background: var(--surface);
+      --ui-foreground: #1a1816;
+      --ui-muted: #f2ede3;
+      --ui-muted-foreground: #666057;
+      --ui-border: #d6cfc2;
+      --ui-input: #d6cfc2;
+      --ui-primary: #1b6b43;
+      --ui-primary-foreground: #ffffff;
+      --ui-ring: #1b6b43;
+      --ui-ring-border: #1b6b43;
+      --ui-radius: 0.625rem;
+      --ui-font-sans: "Inter", system-ui, -apple-system, Segoe UI, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--ui-font-sans);
+      line-height: 1.5;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 22px;
+      border-bottom: 1px solid var(--line);
+      background: var(--card);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.01em;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      border: 1px solid #c3e2d1;
+    }
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      font-size: 13px;
+    }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .nav-links a:hover { color: var(--ink); }
+
+    .wrap {
+      max-width: 780px;
+      margin: 28px auto 56px;
+      padding: 0 18px;
+    }
+
+    .hero h1 {
+      margin: 0 0 6px;
+      font-size: 26px;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 14.5px;
+    }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .step-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--card);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+    }
+    .step-btn[aria-current="step"] {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+    .step-btn .num {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display: inline-grid;
+      place-items: center;
+      font-size: 12px;
+      border: 1px solid currentColor;
+      flex-shrink: 0;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px;
+      display: none;
+    }
+    .panel[data-active="true"] { display: block; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 12px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 12px;
+    }
+    @media (max-width: 640px) {
+      .stepper, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .chip {
+      padding: 5px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 12.5px;
+      cursor: pointer;
+    }
+    .chip[aria-pressed="true"] {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+
+    .drop {
+      border: 1.5px dashed #bfb6a6;
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--paper);
+      margin-bottom: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .compare-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 14px 0;
+    }
+    @media (max-width: 640px) { .compare-box { grid-template-columns: 1fr; } }
+    .box-free, .box-ai {
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      font-size: 13px;
+    }
+    .box-free { background: var(--green-soft); border-color: #c3e2d1; }
+    .box-ai { background: var(--amber-soft); border-color: #eed6ad; }
+    .box-free h3, .box-ai h3 { margin: 0 0 6px; font-size: 13.5px; }
+    .box-free ul, .box-ai ul { margin: 0; padding-left: 18px; }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .status-line {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+    .status-line.ok { color: var(--green); font-weight: 600; }
+    .status-line.err { color: #b42318; font-weight: 600; }
+
+    /* Clean fallback styling before custom elements upgrade */
+    ui-field { display: block; margin-bottom: 12px; }
+    ui-field-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    ui-field-description { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }
+    ui-input input, ui-number-input input, ui-textarea textarea, ui-select select {
+      width: 100%;
+    }
+    textarea#resumeText {
+      min-height: 180px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12.5px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--ui-border);
+      background: var(--surface);
+      color: var(--ink);
+      width: 100%;
+    }
+    input[type="text"], input[type="email"], input[type="number"], input[type="url"] {
+      padding: 8px 10px;
+      border: 1px solid var(--ui-border);
+      border-radius: 8px;
+      font-size: 14px;
+      background: var(--surface);
+      color: var(--ink);
+    }
+    .btn-primary {
+      background: var(--green);
+      color: #fff;
+      border: 1px solid var(--green);
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13.5px;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13.5px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+  </style>
+  <link rel="stylesheet" href="fx.css" />
+  <script>try{if(localStorage.getItem("co.theme")==="light")document.documentElement.setAttribute("data-theme","light")}catch(e){}</script>
+  <style id="fx-express">
+    :root {
+      --paper: transparent; --card: rgba(255, 255, 255, 0.74); --ink: #111111; --muted: #57574f;
+      --line: #e6e6e2; --green: #c2410c; --green-soft: #fff1e8; --amber: #92400e; --amber-soft: #fdf3e1;
+    }
+    .topbar { background: rgba(255, 255, 255, 0.66) !important; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); position: sticky; top: 0; z-index: 20; }
+    .brand::before { content: ""; width: 22px; height: 22px; border-radius: 7px; background: conic-gradient(from 210deg, #f36b2b, #ff9a3d, #ff8a3d, #f36b2b); box-shadow: 0 0 14px rgba(243, 107, 43, 0.5); }
+    .badge { border-color: rgba(243, 107, 43, 0.25) !important; }
+    .nav-links a { transition: color 160ms; }
+    .hero h1 { font-size: clamp(30px, 4vw, 42px) !important; background: var(--grad-text); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 4px; }
+
+    .stepper { position: relative; }
+    .step-btn {
+      position: relative; overflow: hidden;
+      background: rgba(255, 255, 255, 0.7) !important; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+      border-radius: 14px !important; padding: 12px 14px !important;
+      transition: border-color 200ms, color 200ms, transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 240ms;
+    }
+    .step-btn:hover { transform: translateY(-1px); border-color: rgba(243, 107, 43, 0.4); }
+    .step-btn[aria-current="step"] {
+      background: linear-gradient(#fff, #fff) padding-box, var(--grad) border-box !important;
+      border: 1px solid transparent !important; color: var(--accent-ink) !important;
+      box-shadow: 0 0 0 4px rgba(243, 107, 43, 0.1), 0 10px 26px -14px rgba(217, 83, 26, 0.7);
+    }
+    .step-btn[aria-current="step"] .num { background: var(--grad); color: #fff; border-color: transparent !important; animation: ob-halo 2.4s ease-out infinite; }
+    .step-btn[data-done="true"] .num { background: rgba(5, 150, 105, 0.12); color: #047857; border-color: rgba(5, 150, 105, 0.4) !important; }
+    @keyframes ob-halo { 0% { box-shadow: 0 0 0 0 rgba(255, 138, 61, 0.6); } 70%, 100% { box-shadow: 0 0 0 8px rgba(255, 138, 61, 0); } }
+
+    .panel { border-radius: 20px !important; padding: 24px !important; }
+    .panel[data-active="true"] { animation: ob-in 560ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .panel[data-active="true"][data-dir="back"] { animation-name: ob-in-back; }
+    @keyframes ob-in { from { opacity: 0; transform: translateX(28px) scale(0.99); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+    @keyframes ob-in-back { from { opacity: 0; transform: translateX(-28px) scale(0.99); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+    @media (prefers-reduced-motion: reduce) { .panel[data-active="true"], .step-btn .num { animation: none !important; } }
+  </style>
+  <script src="design.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span>Career-Ops India</span>
+      <span class="badge">Express Onboarding · ui-sdk</span>
+    </div>
+    <nav class="nav-links" aria-label="Workspace navigation">
+      <a href="index.html">Visual PDF Extractor</a>
+      <a href="console.html">Apply Console</a>
+      <a href="workspace.html">Job Feed</a>
+      <a href="settings.html">Connections &amp; AI Key</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>Ready to discover &amp; apply in 60 seconds</h1>
+      <p>Loads your Master Resume directly to the local agent backend (<code>/api/profile</code> &amp; <code>/api/resume</code>), captures your Chennai &amp; CTC guardrails, and clarifies what works free vs BYOK AI.</p>
+    </section>
+
+    <nav class="stepper" aria-label="Onboarding steps">
+      <button type="button" class="step-btn" data-step="1" aria-current="step"><span class="num">1</span> Master Resume</button>
+      <button type="button" class="step-btn" data-step="2"><span class="num">2</span> Role, City &amp; CTC</button>
+      <button type="button" class="step-btn" data-step="3"><span class="num">3</span> AI Key &amp; Launch</button>
+    </nav>
+
+    <!-- Step 1 -->
+    <section class="panel" data-panel="1" data-active="true" aria-label="Master Resume">
+      <div class="drop">
+        <div>
+          <strong>Master Resume Source</strong>
+          <div style="font-size:12.5px;color:var(--muted)">Upload <code>.txt</code>/<code>.md</code>, paste text, or use the <a href="index.html">Visual PDF Geometry Extractor</a> for 2-column PDFs.</div>
+        </div>
+        <label class="btn-secondary" style="cursor:pointer">
+          Load Text File
+          <input id="resumeFile" type="file" accept=".txt,.md,.json" style="display:none" />
+        </label>
+      </div>
+
+      <ui-field name="resumeText">
+        <ui-field-label>Master Resume Text (No Facts Ever Invented)</ui-field-label>
+        <ui-textarea>
+          <textarea id="resumeText" placeholder="Paste your Master Resume text here — roles, dates, metrics, skills, education..."></textarea>
+        </ui-textarea>
+        <ui-field-description id="resumeStats">Paste or load text to auto-detect name, experience years, and skills.</ui-field-description>
+        <ui-field-error></ui-field-error>
+      </ui-field>
+
+      <div class="grid-2">
+        <ui-field name="fullName">
+          <ui-field-label>Full Name</ui-field-label>
+          <ui-input><input id="fullName" type="text" placeholder="e.g. Candidate Name" /></ui-input>
+        </ui-field>
+        <ui-field name="email">
+          <ui-field-label>Email</ui-field-label>
+          <ui-input><input id="email" type="email" placeholder="you@example.com" /></ui-input>
+        </ui-field>
+      </div>
+
+      <div class="actions">
+        <span class="status-line" id="step1Hint">Stored locally only in <code>data/resume.json</code></span>
+        <ui-button><button type="button" class="btn-primary" id="toStep2">Next: Role &amp; CTC &rarr;</button></ui-button>
+      </div>
+    </section>
+
+    <!-- Step 2 -->
+    <section class="panel" data-panel="2" aria-label="Target Role, City and CTC">
+      <ui-field name="targetRole">
+        <ui-field-label>Target Role</ui-field-label>
+        <ui-input><input id="targetRole" type="text" value="Product Manager" placeholder="e.g. Product Manager, AI Product Manager" required /></ui-input>
+        <ui-field-description>Broad queries like "Product" or "Product Related Jobs" now expand cleanly on discovery.</ui-field-description>
+      </ui-field>
+      <div class="chips" id="roleChips" role="group" aria-label="Suggested product roles">
+        <button type="button" class="chip" data-role="Product Manager">Product Manager</button>
+        <button type="button" class="chip" data-role="Senior Product Manager">Senior Product Manager</button>
+        <button type="button" class="chip" data-role="AI Product Manager">AI Product Manager</button>
+        <button type="button" class="chip" data-role="Product Operations Lead">Product Operations Lead</button>
+        <button type="button" class="chip" data-role="Founder's Office">Founder's Office</button>
+      </div>
+
+      <div class="grid-2">
+        <ui-field name="city">
+          <ui-field-label>Preferred City</ui-field-label>
+          <ui-input><input id="city" type="text" value="Chennai" placeholder="Chennai, Bengaluru, Remote" /></ui-input>
+        </ui-field>
+        <ui-field name="locality">
+          <ui-field-label>Preferred Locality / Corridor</ui-field-label>
+          <ui-input><input id="locality" type="text" placeholder="e.g. Velachery, Guindy, OMR, Whitefield" /></ui-input>
+        </ui-field>
+      </div>
+
+      <div class="grid-2">
+        <ui-field name="years">
+          <ui-field-label>Years of Experience</ui-field-label>
+          <ui-number-input><input id="years" type="number" min="0" max="45" value="7" /></ui-number-input>
+        </ui-field>
+        <ui-field name="workMode">
+          <ui-field-label>Preferred Work Mode</ui-field-label>
+          <select id="workMode" style="padding:8px 10px;border:1px solid var(--ui-border);border-radius:8px;font-size:14px;background:var(--surface);color:var(--ink)">
+            <option value="Any">Any (Remote / Hybrid / Onsite)</option>
+            <option value="Remote">Remote</option>
+            <option value="Hybrid">Hybrid</option>
+            <option value="Onsite">Onsite</option>
+          </select>
+        </ui-field>
+      </div>
+
+      <div class="grid-3">
+        <ui-field name="currentCtc">
+          <ui-field-label>Current CTC (LPA)</ui-field-label>
+          <ui-number-input><input id="currentCtc" type="number" min="0" step="0.5" placeholder="6" /></ui-number-input>
+          <ui-field-description>Never guessed on forms</ui-field-description>
+        </ui-field>
+        <ui-field name="expectedCtc">
+          <ui-field-label>Expected CTC (LPA)</ui-field-label>
+          <ui-number-input><input id="expectedCtc" type="number" min="0" step="0.5" placeholder="12" /></ui-number-input>
+          <ui-field-description>Used for compensation scoring</ui-field-description>
+        </ui-field>
+        <ui-field name="noticePeriod">
+          <ui-field-label>Notice Period</ui-field-label>
+          <select id="noticePeriod" style="padding:8px 10px;border:1px solid var(--ui-border);border-radius:8px;font-size:14px;background:var(--surface);color:var(--ink)">
+            <option value="Immediate" selected>Immediate (0 days)</option>
+            <option value="15 days">15 days</option>
+            <option value="30 days">30 days</option>
+            <option value="60 days">60 days</option>
+            <option value="90 days">90 days</option>
+          </select>
+        </ui-field>
+      </div>
+
+      <div class="actions">
+        <ui-button><button type="button" class="btn-secondary" id="backTo1">&larr; Back</button></ui-button>
+        <ui-button><button type="button" class="btn-primary" id="toStep3">Next: AI Key &amp; Launch &rarr;</button></ui-button>
+      </div>
+    </section>
+
+    <!-- Step 3 -->
+    <section class="panel" data-panel="3" aria-label="AI Key and Launch">
+      <div class="compare-box">
+        <div class="box-free">
+          <h3>Deterministic Script — 0 AI Key Needed</h3>
+          <ul>
+            <li>PDF / Text geometry resume parsing</li>
+            <li>Company ATS JSON + Naukri + Indeed discovery</li>
+            <li>Deterministic 100-pt job scoring &amp; ATS keyword gaps</li>
+            <li>Playwright DOM form filling &amp; OTP / CAPTCHA pause</li>
+          </ul>
+        </div>
+        <div class="box-ai">
+          <h3>Optional BYOK AI Key — Or Use Your Chat Subscription</h3>
+          <ul>
+            <li>Use <strong>Claude Pro / ChatGPT Plus or Pro</strong> via MCP with <strong>₹0 API key cost</strong></li>
+            <li>Or paste a Sarvam / OpenAI key for unattended batch tailoring (<code>/api/tailor</code>)</li>
+            <li>Rewrites CV summary &amp; bullets strictly from Master facts</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--paper);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div>
+          <strong>AI Key Status:</strong> <span id="keyStatusText">Checking local server...</span>
+          <div style="font-size:12px;color:var(--muted)">Keys are stored only in gitignored <code>data/secrets.json</code> — never exposed to browser agents.</div>
+        </div>
+        <a href="settings.html" class="btn-secondary" data-agent-confirm="Open Connections to add or update your BYOK API key">Configure Key in Settings</a>
+      </div>
+
+      <div class="actions">
+        <ui-button><button type="button" class="btn-secondary" id="backTo2">&larr; Back</button></ui-button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <ui-button><button type="button" class="btn-primary" id="saveLaunch">Save Profile &amp; Open Apply Console</button></ui-button>
+        </div>
+      </div>
+      <div id="saveStatus" class="status-line" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => Array.from(document.querySelectorAll(s));
+    let currentStep = 1;
+
+    function goStep(n) {
+      const prev = currentStep;
+      currentStep = Math.max(1, Math.min(3, n));
+      $$(".step-btn").forEach((b) => {
+        b.setAttribute("aria-current", Number(b.dataset.step) === currentStep ? "step" : "false");
+        b.dataset.done = Number(b.dataset.step) < currentStep ? "true" : "false";
+      });
+      $$(".panel").forEach((p) => {
+        p.dataset.active = Number(p.dataset.panel) === currentStep ? "true" : "false";
+        p.dataset.dir = prev > currentStep ? "back" : "fwd";
+      });
+    }
+
+    function autoParseResume(text) {
+      const clean = (text || "").trim();
+      const words = clean ? clean.split(/\s+/).length : 0;
+      const stats = $("#resumeStats");
+      if (stats) stats.textContent = clean ? `${words} words loaded (${clean.length} chars)` : "Paste or load text to auto-detect name, experience years, and skills.";
+      if (!clean) return;
+      const lines = clean.split(/\r?\n|\t/).map((l) => l.trim()).filter(Boolean);
+      if (lines[0] && !$("#fullName").value && lines[0].length < 90 && !/@/.test(lines[0])) {
+        const words = lines[0].split(/\s+/);
+        const nameWords = [];
+        for (const w of words) {
+          if (nameWords.length < 4 && /^[A-Za-z][A-Za-z.'\u2019-]*$/.test(w)) nameWords.push(w);
+          else break;
+        }
+        if (nameWords.length >= 2) $("#fullName").value = nameWords.join(" ");
+      }
+      const mailM = /[\w.+-]+@[\w.-]+\.[a-z]{2,}/i.exec(clean);
+      if (mailM && !$("#email").value) $("#email").value = mailM[0];
+      const yrsM = /\b(\d{1,2})\+?\s*(?:years|yrs)\s+of\s+experience\b/i.exec(clean) || /\b(\d{1,2})\s*(?:yrs|years)\b/i.exec(clean);
+      if (yrsM) $("#years").value = yrsM[1];
+    }
+
+    async function hydrateExisting() {
+      // Load local browser state first, then merge live server state
+      try {
+        const cached = localStorage.getItem("co.masterResume");
+        if (cached) { $("#resumeText").value = cached; autoParseResume(cached); }
+        const ob = JSON.parse(sessionStorage.getItem("co.onboarding") || "null");
+        if (ob) {
+          if (ob.role) $("#targetRole").value = ob.role;
+          if (ob.cities?.[0]) $("#city").value = ob.cities[0];
+          if (ob.years != null) $("#years").value = String(ob.years);
+          if (ob.currentCtcLpa != null) $("#currentCtc").value = String(ob.currentCtcLpa);
+          if (ob.expectedCtcLpa != null) $("#expectedCtc").value = String(ob.expectedCtcLpa);
+          if (ob.noticePeriod) $("#noticePeriod").value = String(ob.noticePeriod);
+          if (ob.preferredLocality) $("#locality").value = String(ob.preferredLocality);
+          if (ob.preferredWorkMode) $("#workMode").value = String(ob.preferredWorkMode);
+          if (ob.fullName) $("#fullName").value = ob.fullName;
+          if (ob.email) $("#email").value = ob.email;
+        }
+      } catch {}
+
+      try {
+        const [pRes, rRes, sRes] = await Promise.all([
+          fetch("/api/profile").then((r) => r.ok ? r.json() : null).catch(() => null),
+          fetch("/api/resume").then((r) => r.ok ? r.json() : null).catch(() => null),
+          fetch("/api/settings").then((r) => r.ok ? r.json() : null).catch(() => null),
+        ]);
+        if (rRes?.text && !$("#resumeText").value) {
+          $("#resumeText").value = rRes.text;
+          autoParseResume(rRes.text);
+        }
+        if (pRes) {
+          if (pRes.role && $("#targetRole").value === "Product Manager") $("#targetRole").value = pRes.role;
+          if (pRes.years) $("#years").value = String(pRes.years);
+          if (pRes.details?.name && !$("#fullName").value) $("#fullName").value = pRes.details.name;
+          if (pRes.details?.email && !$("#email").value) $("#email").value = pRes.details.email;
+          if (pRes.details?.city) $("#city").value = pRes.details.city;
+          if (pRes.details?.noticePeriod) $("#noticePeriod").value = pRes.details.noticePeriod;
+          if (pRes.details?.preferredLocality) $("#locality").value = pRes.details.preferredLocality;
+          if (pRes.details?.preferredWorkMode) $("#workMode").value = pRes.details.preferredWorkMode;
+          if (pRes.details?.currentCtc && !$("#currentCtc").value) $("#currentCtc").value = pRes.details.currentCtc.replace(/[^\d.]/g, "");
+          if (pRes.details?.expectedCtc && !$("#expectedCtc").value) $("#expectedCtc").value = pRes.details.expectedCtc.replace(/[^\d.]/g, "");
+        }
+        const keyNode = $("#keyStatusText");
+        if (sRes) {
+          keyNode.textContent = sRes.hasKey
+            ? `Connected (${sRes.provider || "sarvam"} · ${sRes.model || "sarvam-105b"})`
+            : "No AI key yet — connect Claude/ChatGPT via MCP for ₹0 API cost, or BYOK for /api/tailor";
+        } else {
+          keyNode.textContent = "Server offline — start local server (`pnpm start`) to persist & tailor.";
+        }
+      } catch {}
+    }
+
+    async function saveProfileAndResume() {
+      const status = $("#saveStatus");
+      const role = $("#targetRole").value.trim() || "Product Manager";
+      const city = $("#city").value.trim() || "Chennai";
+      const preferredLocality = $("#locality").value.trim();
+      const preferredWorkMode = $("#workMode").value || "Any";
+      const years = Number($("#years").value || 0);
+      const currentCtcLpa = $("#currentCtc").value ? Number($("#currentCtc").value) : undefined;
+      const expectedCtcLpa = $("#expectedCtc").value ? Number($("#expectedCtc").value) : undefined;
+      const noticePeriod = $("#noticePeriod").value || "Immediate";
+      const fullName = $("#fullName").value.trim();
+      const email = $("#email").value.trim();
+      const text = $("#resumeText").value.trim();
+
+      if (text && text.length < 60) {
+        status.className = "status-line err";
+        status.textContent = "Resume text must be at least 60 characters, or leave it blank to only save preferences.";
+        return { ok: false };
+      }
+
+      const ob = { role, cities: [city], years, currentCtcLpa, expectedCtcLpa, noticePeriod, preferredLocality, preferredWorkMode, fullName, email };
+      try {
+        sessionStorage.setItem("co.onboarding", JSON.stringify(ob));
+        if (text) localStorage.setItem("co.masterResume", text.slice(0, 60000));
+      } catch {}
+
+      status.className = "status-line";
+      status.textContent = "Saving profile & Master Resume to local backend...";
+
+      try {
+        const calls = [
+          fetch("/api/profile", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              role,
+              years: String(years),
+              details: {
+                ...(fullName ? { name: fullName } : {}),
+                ...(email ? { email } : {}),
+                city,
+                noticePeriod,
+                preferredWorkMode,
+                ...(preferredLocality ? { preferredLocality } : {}),
+                ...(currentCtcLpa != null ? { currentCtc: `${currentCtcLpa} LPA` } : {}),
+                ...(expectedCtcLpa != null ? { expectedCtc: `${expectedCtcLpa} LPA` } : {}),
+              },
+            }),
+          }),
+        ];
+        if (text.length >= 60) {
+          calls.push(
+            fetch("/api/resume", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ text, file: "master-resume.txt" }),
+            }),
+          );
+        }
+        const results = await Promise.all(calls);
+        const payloads = await Promise.all(results.map((r) => r.json().catch(() => ({ ok: r.ok }))));
+        if (results.every((r, idx) => r.ok && payloads[idx]?.ok !== false)) {
+          status.className = "status-line ok";
+          status.textContent = "Saved cleanly to data/profile.json & data/resume.json! Opening Apply Console...";
+          setTimeout(() => { location.href = "console.html"; }, 500);
+          return { ok: true, ob };
+        }
+        const errMsg = payloads.find((p) => p?.error)?.error || "Saved to browser storage, but server returned an error.";
+        status.className = "status-line err";
+        status.textContent = errMsg;
+        return { ok: false, ob };
+      } catch {
+        status.className = "status-line ok";
+        status.textContent = "Saved to browser storage (local server offline — start pnpm ui / node scripts/serve.mjs to sync data/).";
+        return { ok: true, offline: true, ob };
+      }
+    }
+
+    // Wire events
+    $$(".step-btn").forEach((b) => b.addEventListener("click", () => goStep(Number(b.dataset.step))));
+    $("#toStep2").addEventListener("click", () => goStep(2));
+    $("#backTo1").addEventListener("click", () => goStep(1));
+    $("#toStep3").addEventListener("click", () => goStep(3));
+    $("#backTo2").addEventListener("click", () => goStep(2));
+    $("#saveLaunch").addEventListener("click", saveProfileAndResume);
+    $("#resumeText").addEventListener("input", (e) => autoParseResume(e.target.value));
+    $("#resumeFile").addEventListener("change", async (e) => {
+      const f = e.target.files?.[0];
+      if (!f) return;
+      const text = await f.text();
+      $("#resumeText").value = text;
+      autoParseResume(text);
+    });
+    $("#roleChips").addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-role]");
+      if (!btn) return;
+      $("#targetRole").value = btn.dataset.role;
+      $$(".chip").forEach((c) => c.setAttribute("aria-pressed", c === btn ? "true" : "false"));
+    });
+
+    // Progressive WebMCP registration (exposes structured tools to browser agents without leaking secrets)
+    try {
+      const mc = navigator.modelContext || window.modelContext;
+      if (mc && typeof mc.registerTool === "function") {
+        mc.registerTool({
+          name: "career_ops_set_onboarding",
+          description: "Populate Career-Ops India express onboarding fields (role, city, preferredLocality, preferredWorkMode, years, currentCtcLpa, expectedCtcLpa, noticePeriod).",
+          inputSchema: {
+            type: "object",
+            properties: {
+              role: { type: "string" },
+              city: { type: "string" },
+              preferredLocality: { type: "string" },
+              preferredWorkMode: { type: "string" },
+              years: { type: "number" },
+              currentCtcLpa: { type: "number" },
+              expectedCtcLpa: { type: "number" },
+              noticePeriod: { type: "string" },
+            },
+          },
+          execute(args) {
+            if (args.role) $("#targetRole").value = String(args.role);
+            if (args.city) $("#city").value = String(args.city);
+            if (args.preferredLocality) $("#locality").value = String(args.preferredLocality);
+            if (args.preferredWorkMode) $("#workMode").value = String(args.preferredWorkMode);
+            if (args.years != null) $("#years").value = String(args.years);
+            if (args.currentCtcLpa != null) $("#currentCtc").value = String(args.currentCtcLpa);
+            if (args.expectedCtcLpa != null) $("#expectedCtc").value = String(args.expectedCtcLpa);
+            if (args.noticePeriod) $("#noticePeriod").value = String(args.noticePeriod);
+            return { ok: true, step: currentStep, role: $("#targetRole").value, city: $("#city").value };
+          },
+        });
+      }
+    } catch {}
+
+    hydrateExisting();
+  </script>
+</body>
+</html>

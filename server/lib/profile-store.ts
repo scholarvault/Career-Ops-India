@@ -16,10 +16,21 @@ export type ContactDetails = {
   email?: string;
   phone?: string;
   city?: string;
+  postalCode?: string;
+  state?: string;
+  country?: string;
   linkedin?: string;
   website?: string;
   currentCompany?: string;
   currentTitle?: string;
+  currentCtc?: string;
+  expectedCtc?: string;
+  noticePeriod?: string;
+  preferredWorkMode?: string;
+  willingToRelocate?: string;
+  workAuthorization?: string;
+  preferredLocality?: string;
+  institution?: string;
 };
 
 export type TargetProfile = {

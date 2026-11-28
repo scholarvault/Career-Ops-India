@@ -1,0 +1,9 @@
+# Codex reads this for a trusted project. Codex already reads AGENTS.md.
+# Elsewhere: codex mcp add career-ops-india -- node --import tsx server/mcp.ts
+
+[mcp_servers.career-ops-india]
+command = "node"
+args = ["--import", "tsx", "server/mcp.ts"]
+startup_timeout_sec = 30
+# search_jobs reads ~40 feeds (about 20 s); tailor_batch makes model calls
+tool_timeout_sec = 300

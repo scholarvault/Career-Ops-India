@@ -62,7 +62,7 @@ Wait for me at each step.
 5. Fill one application form. Stop before submit and show me exactly what it filled.
 
 OPTIONAL
-The repo ships an MCP server (pnpm mcp) with tools for search, scoring, shortlisting, tailoring and applying. If you support MCP, offer to connect it.
+The repo ships an MCP server (pnpm mcp) with tools for search, scoring, shortlisting, tailoring and applying. Claude Code, Codex and Gemini CLI pick it up automatically inside the repo; run `pnpm connect` to use it from anywhere. For Claude Desktop, Settings → AI and agents → Get the plugin builds a plugin zip to upload in Claude (Plugins → Upload a plugin).
 
 WHEN DONE
 Tell me the local URL, what is running, and the single next thing I should do. Keep it short.
@@ -86,6 +86,19 @@ job, and fills the application form — asking you only when it has to.
 No account. No subscription. No telemetry. Your resume, your applications and
 your browser sessions stay in `data/` on your machine.
 
+
+## Why Career-Ops India (vs Cloud Auto-Appliers & Frontier Models Alone)
+
+Frontier models (Claude, Codex, Gemini) can browse sites and rewrite text, while cloud bots charge subscriptions for black-box blasting. Career-Ops India gives both **your UI** and **any AI agent** deterministic infrastructure:
+
+| Strength | What it does differently |
+|---|---|
+| **Deterministic 100-pt Scoring** | Ranks Indian ATS feeds, Naukri, and Indeed reproducibly across role, skills, experience, location, industry, and salary — never hallucinates a match score or burns tokens scanning 1,000+ raw pages in chat. |
+| **Situational Zero-Invention Tailoring** | Decides when to keep your **Original Master Resume** (direct domain matches / thin JDs) vs when to **Tailor** ATS vocabulary, while verifying every employer, role, date, and metric against your baseline (**0 invented facts**). |
+| **Human-in-the-Loop Approval Gate** | Never guesses Current CTC, Notice Period, or custom motivation answers; pauses on OTP/CAPTCHA and uses hash-bound approval (`needsApproval`) before submitting. |
+| **India-Native Execution** | Direct company ATS JSON connectors (Freshworks, ValGenesis, NETGEAR, Swiggy, Meesho, Paytm, Zeta, etc.) + user-session Naukri & Indeed India, duplicate prevention, and daily caps. |
+| **Agent-Native Dual Surface** | One Zod-validated layer powers MCP (`pnpm mcp`), WebMCP (`navigator.modelContext`), `view_screen`/`navigate` context awareness, CLI (`pnpm doctor`), and static `ui-sdk` HTML prototypes. |
+
 ## Who it is for
 
 - Job seekers in India who are tired of applying into a void.
@@ -96,26 +109,21 @@ your browser sessions stay in `data/` on your machine.
 
 ## How it works
 
-```mermaid
-flowchart LR
-  A[Discover] --> B[Score]
-  B --> C[Market]
-  C --> D[Pick]
-  D --> E[Tailor]
-  E --> F[Apply]
-  F --> G[Learn]
-```
+Setup runs once. After that the app is three places, with Settings behind the gear:
 
-- **Discovers** postings from Indian boards, company career pages, ATS feeds and
-  remote job boards.
-- **Scores** every posting against your resume with a fixed 100-point model, so
-  the ranking is the same every time.
-- **Shows the market** for a role: all India, remote, a state, a city, the last
-  seven days, and the role families around it.
-- **Tailors** one resume per job, saved as a PDF.
-- **Applies** with you in the loop: it fills the form, asks only when it must,
-  and records the confirmation the site showed.
-- **Learns** each site, so the next form on that site needs fewer answers.
+| Place | What happens there |
+|---|---|
+| **Find** | One search across every source you have, streamed in as each answers (the first postings in a few seconds). Every posting is scored out of 100 against your resume. Filter by match, posted date, state, city and source; tick postings and **Add to queue**. **Search the web** runs your own Firecrawl or TinyFish search across career sites and Indian boards. |
+| **Queue** | Each job gets **Master** (your resume as it is, no AI call) or **Tailor** (reordered toward the posting), suggested from how many of the posting's terms your resume already shows. Then auto apply fills and submits, and asks you only for an OTP, a captcha or an answer it does not have. |
+| **Results** | What was sent, each with the site's confirmation; interviews; the pipeline; an activity map; and which source each application came from. Jobs already on Naukri's applied list are counted too. |
+
+- **Scores** come from a fixed 100-point model, so the ranking is the same every
+  time. A model writes the explanation, never the number.
+- **Tailoring never invents.** It reorders what your resume already says; a
+  skill or metric you do not have stays missing.
+- **The Career-Ops window.** The app drives its own Chrome, kept out of sight.
+  When a site needs you (a sign-in, an OTP, a captcha, a form to check), that
+  window comes to the middle of your screen; when you are done, it goes back.
 
 ## Screenshots
 
@@ -142,46 +150,38 @@ pnpm start        # app + API on http://localhost:4173, opens your browser
 pnpm stop         # stop it
 ```
 
-`pnpm start` opens **http://localhost:4173/** - the seven-step setup, which ends in the workspace. The apply console is at **http://localhost:4173/console.html**. AI keys and job sources live in **Connections** (the gear in the workspace top bar).
+`pnpm start` opens **http://localhost:4173/**: the seven-step setup the first time, then **Find** every time after. Your profile, AI keys, agents, job-site sign-ins and search keys live in **Settings** (the gear in the top bar).
 
 ```bash
 pnpm demo         # discover, score and plan one real posting, no submit
 pnpm mcp          # MCP server on stdio, for Claude, ChatGPT or Codex
 pnpm typecheck
+pnpm check:doctor # secrets, SourcePolicy contracts & UI persistence invariants
 pnpm test:extract # resume extraction, in a real browser
 ```
 
-## The apply console
+## Signing in to job sites
 
-Seven steps, one screen each:
-
-1. **Connect** — upload your master resume, name the target role, confirm the
-   contact details forms ask for.
-2. **Market** — the funnel for that role, then the role families: core, one step
-   up, adjacent, specialisation, trending.
-3. **Pick** — 10 recommended by default. Every application costs model tokens
-   and your attention, so "all" sits behind a warning.
-4. **Tailor** — one resume per job, saved with a hash.
-5. **Apply** — the queue. An email, a one-time code, a choice or an unknown
-   field is asked in the console, typed into the form, and the run continues.
-6. **Learn** — what the agent remembers per site: flow, fields, answers, wins.
-7. **Overview** — submitted with confirmation, parked, failed, and a CSV export.
-
-The browser opens only for a captcha or a password. It is never the main
-surface.
+Settings → Job sites has a card per site. **Connect** opens the site's own
+sign-in in the Career-Ops window; you sign in there (OTP, email code, Google or
+a password typed on the site), the app notices you are in, and the window
+goes away. Naukri signs in with your phone or email and a one-time code inside
+the app. Advanced: attach your own Chrome, Brave or Edge for chosen sites.
 
 ## What it connects to
 
-| Kind | Sources |
-|---|---|
-| Indian boards | Naukri, Indeed India — through your own signed-in browser session |
-| ATS | Lever, Greenhouse, Ashby, SmartRecruiters |
-| Company career pages | Indian startups and large employers that publish a public feed |
-| Remote boards | Himalayas, Remotive, Remote OK, Jobicy, Working Nomads, Freelancer.com |
-| LinkedIn | Through licensed aggregators with your own key — never scraped |
+| Kind | Sources | How |
+|---|---|---|
+| Your accounts | Naukri, foundit, Indeed India, Wellfound | Your own signed-in session, on this computer |
+| Public pages | Apna | Its public role-and-city page |
+| ATS feeds | Lever, Greenhouse, Ashby, SmartRecruiters | Public JSON boards of Indian employers |
+| Company career pages | Amazon, EPAM, Tesla and more | Their public feeds |
+| Search engines | Firecrawl, TinyFish (your free key) | Single postings from Workday, SuccessFactors, Oracle, iCIMS career sites, and Shine, TimesJobs, Instahyre, Cutshort, Hirist, iimjobs, Internshala |
+| Remote boards | Himalayas, Remotive, Remote OK, Jobicy, Working Nomads, Freelancer.com | Open feeds |
+| LinkedIn | Licensed aggregators with your own key | Filled for you; you press Submit. Never auto-submitted. |
 
-Most sources need no account. A few need a free key you paste once. Nothing in
-the default path costs money.
+Most sources need no account and nothing in the default path costs money.
+Unrelated roles from the company boards are left out, with a count.
 
 ## Guardrails
 
@@ -201,6 +201,8 @@ confirmation, not a click.
 
 The same flow is available without the page:
 
+- **Claude, Codex, Gemini** — already wired inside the repo (`.mcp.json`, `.codex/config.toml`, `.gemini/settings.json`). `pnpm connect` registers it globally, or press Connect in Settings → AI and agents. See [docs/agents.md](docs/agents.md).
+- **Claude Desktop** — Settings → AI and agents → **Get the plugin** builds a plugin zip for Claude's Plugins → Upload a plugin. It starts the server from your clone; it holds no key and no profile.
 - **MCP** — `pnpm mcp` starts a server with tools for search, scoring, the
   market summary, shortlisting, tailoring, running a batch, answering a
   question, resuming a batch and reading site memory.
@@ -219,7 +221,8 @@ the AI provider you configure, and only when you tailor or explain a posting.
 | Tailored PDFs | `data/tailored/` |
 | Site memory | `data/sites.json` |
 | Browser sessions | `data/browser-profile*/` |
-| Application log | `data/audit.jsonl` |
+| Application log | `data/applications.jsonl` |
+| Job-site sign-ins | `data/site-sessions.json` (when; the session itself is in the browser profile) |
 
 `data/` is gitignored. `pnpm check:secrets` fails if a key or a real contact
 detail reaches a tracked file. Enable the pre-commit hook once per clone:
@@ -247,6 +250,7 @@ and feature requests go in [Issues](https://github.com/scholarvault/Career-Ops-I
 
 - [Plan](docs/PLAN.md) — decisions, milestones, risks.
 - [Decisions](docs/decisions.md) — the ADRs behind them.
+- [Agents](docs/agents.md) — Claude, Codex and Gemini setup.
 - [Architecture](docs/architecture/README.md) — packages, contracts, scoring.
 - [Source register](docs/source-register/README.md) — what each platform allows.
 - [Changelog](CHANGELOG.md) — what changed in each release.

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Career-Ops India — Connections</title>
+  <title>Career-Ops India — Settings</title>
 
   <script type="module" src="https://ui-sdk.dev/web.js"></script>
   <link rel="stylesheet" href="https://ui-sdk.dev/web.css" />
@@ -40,7 +40,36 @@
       border-radius: 12px; padding: 18px 20px;
     }
 
-    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .row { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+    .pf-card { display: grid; gap: 18px; }
+    .ub { margin: 0 0 14px; padding: 0 !important; overflow: hidden; }
+    .ub > summary { display: flex; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; list-style: none; }
+    .ub > summary::-webkit-details-marker { display: none; }
+    .ub-t { display: grid; gap: 2px; flex: 1; } .ub-t b { font-size: 14.5px; } .ub-t small { font-size: 12.5px; color: var(--muted); }
+    .ub[data-on="true"] .ub-t small { color: var(--ok); }
+    .ub[open] > summary .ag-chev { transform: rotate(90deg); }
+    .ub-body { display: grid; gap: 10px; padding: 0 18px 16px; }
+    .ub-steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 13px; color: var(--ink-2); }
+    .ub-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ub-b { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 12px; padding: 10px 12px; border-radius: 12px; background: var(--fill); min-width: 220px; }
+    .ub-b b { font-size: 13.5px; } .ub-b small { grid-column: 1; font-size: 12px; color: var(--muted); } .ub-b .btn { grid-row: 1 / span 2; grid-column: 2; }
+    #ubMsg:empty { display: none; }
+    .ub-tick { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--muted); cursor: pointer; }
+    .ub-tick input { accent-color: var(--ink); margin: 0; }
+    .bw-sheet--mini { height: auto !important; }
+    .bw-mini-acts { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 18px 16px; }
+    .bw-mini-acts[hidden] { display: none; }
+    .pf-resume { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+    .pf-r-t { display: grid; gap: 2px; margin-right: auto; }
+    .pf-r-t b { font-size: 14px; } .pf-r-t small { font-size: 12.5px; color: var(--muted); }
+    .pf-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
+    .pf-grid label { display: grid; gap: 5px; font-size: 13px; color: var(--muted); }
+    .pf-grid input, .pf-grid select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font: inherit; font-size: 14px; background: var(--bg); color: var(--ink); }
+    .pf-foot { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; }
+    @media (max-width: 640px) { .pf-grid { grid-template-columns: 1fr; } }
+    /* a field and its buttons sit on one line: the buttons line up with the input, not the label */
+    .row--end { align-items: flex-end; }
+    .row--mid { align-items: center; }
     .row + .row { margin-top: 12px; }
     label.f { display: block; font-size: 13px; color: var(--muted); margin-bottom: 5px; }
     .field { flex: 1 1 220px; min-width: 0; }
@@ -55,7 +84,7 @@
       border-radius: 8px; padding: 9px 16px; font: inherit; font-size: 14px;
       cursor: pointer; color: var(--ink); white-space: nowrap;
     }
-    .btn:hover { background: #f1f3f4; }
+    .btn:hover { background: var(--surface-3); }
     .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
     .btn-primary:hover { background: var(--accent-ink); }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -160,6 +189,66 @@
       .pipe-step:nth-last-child(-n+2) { border-bottom: 0; }
     }
   </style>
+  <link rel="stylesheet" href="fx.css" />
+  <script>try{if(localStorage.getItem("co.theme")==="light")document.documentElement.setAttribute("data-theme","light")}catch(e){}</script>
+  <style id="fx-connectors">
+    .conn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+    .conn {
+      position: relative; display: flex; flex-direction: column; gap: 10px; padding: 16px;
+      border-radius: 16px; background: var(--glass); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 1px 0 #fff inset, 0 0 0 1px rgba(0, 0, 0, 0.06), var(--sh-2);
+      transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 240ms;
+    }
+    .conn:hover { transform: translateY(-2px); box-shadow: 0 1px 0 #fff inset, 0 0 0 1px rgba(243, 107, 43, 0.22), var(--sh-3); }
+    .conn[data-on="true"] { box-shadow: 0 1px 0 #fff inset, 0 0 0 1px rgba(5, 150, 105, 0.35), var(--sh-2); }
+    .conn-top { display: flex; align-items: center; gap: 12px; }
+    .conn-logo {
+      width: 44px; height: 44px; border-radius: 12px; flex: 0 0 auto; display: grid; place-items: center; overflow: hidden;
+      background: var(--surface); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 4px 12px -6px rgba(0, 0, 0, 0.3);
+      font-weight: 750; font-size: 17px; color: #fff;
+    }
+    .conn-logo img { width: 26px; height: 26px; object-fit: contain; }
+    .conn-logo.mono { background: var(--grad); }
+    .conn-name { font-weight: 650; font-size: 14.5px; color: var(--ink); line-height: 1.2; }
+    .conn-kind { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+    .conn-desc { margin: 0; font-size: 12.5px; color: var(--ink-2); line-height: 1.45; flex: 1; }
+    .conn-foot { display: flex; align-items: center; gap: 8px; }
+    .conn-state { font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+    .conn-state i { width: 7px; height: 7px; border-radius: 50%; background: #a8a8a2; }
+    .conn[data-on="true"] .conn-state { color: var(--ok); }
+    .conn[data-on="true"] .conn-state i { background: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+    .conn-foot .btn { margin-left: auto; }
+    .ai-hero .conn-top { flex-wrap: wrap; }
+    .ai-hero .conn-logo { width: 52px; height: 52px; border-radius: 15px; }
+    .ai-hero .conn-name { font-size: 17px; }
+    .ai-hero[data-on="true"] { box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35), 0 0 40px -12px rgba(16, 185, 129, 0.45), var(--sh-2) !important; }
+    .ai-hero[data-on="true"] .ai-state { color: var(--ok); }
+    .ai-hero[data-on="true"] .ai-state i { background: #10b981; animation: fx-ping-ok 2.2s ease-out infinite; }
+    @keyframes fx-ping-ok { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); } 70%, 100% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); } }
+
+    .sheet-back { position: fixed; inset: 0; z-index: 300; background: rgba(0, 0, 0, 0.35); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: grid; place-items: center; padding: 16px; animation: fade 200ms ease; }
+    .sheet {
+      width: min(460px, 100%); border-radius: 22px; padding: 26px; background: var(--glass-strong);
+      -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: var(--sh-4), 0 0 0 1px rgba(255, 255, 255, 0.7);
+      animation: fx-toast-in 420ms cubic-bezier(0.34, 1.4, 0.64, 1); text-align: center;
+    }
+    .sheet .pair { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 18px; }
+    .sheet .pair .conn-logo { width: 56px; height: 56px; border-radius: 16px; }
+    .sheet .pair .wire { width: 70px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, #f36b2b, #ff9a3d); position: relative; overflow: hidden; }
+    .sheet .pair .wire::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, #fff, transparent); animation: fx-travel 1.2s linear infinite; }
+    .sheet[data-step="done"] .pair .wire { background: #10b981; }
+    .sheet h3 { margin: 0 0 6px; font-size: 19px; letter-spacing: -0.02em; }
+    .sheet p { margin: 0 0 16px; color: var(--muted); font-size: 13.5px; line-height: 1.5; }
+    .sheet ol { text-align: left; margin: 0 0 18px; padding-left: 20px; color: var(--ink-2); font-size: 13px; line-height: 1.7; }
+    .sheet .row-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .sheet .manual { margin-top: 14px; display: flex; gap: 8px; }
+    .sheet .manual input { flex: 1; min-width: 0; padding: 9px 11px; border-radius: 10px; border: 1px solid var(--ui-input); font: inherit; font-size: 13px; }
+    .sheet .msg { min-height: 20px; margin-top: 12px; font-size: 13px; }
+    .sheet .msg.ok { color: var(--ok); font-weight: 600; }
+    .sheet .msg.bad { color: var(--bad); }
+    .sheet .spin { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--accent); border-right-color: transparent; animation: spin 700ms linear infinite; vertical-align: -2px; margin-right: 6px; }
+  </style>
+  <script src="design.js" defer></script>
 </head>
 <body>
   <header>
@@ -170,174 +259,135 @@
   </header>
 
   <div class="wrap">
-    <h1>Connections</h1>
-    <p class="sub">What this app can reach, and the key it uses.</p>
+    <h1>Settings</h1>
+    <p class="sub">Your profile, the AI, job sites and search keys. You sign in on the real site; everything stays on this computer.</p>
+    <div id="setupList" style="margin:20px 0 28px" aria-live="polite"></div>
 
-    <div class="pipe" aria-label="The seven stages of the pipeline">
-      <div class="pipe-step done"><b>Discover</b><span>27 ATS boards, 5 free remote APIs, Naukri, Indeed India</span></div>
-      <div class="pipe-step done"><b>Analyse</b><span>Read the JD, extract the real requirements</span></div>
-      <div class="pipe-step done"><b>Recommend</b><span>100-point score, matched vs other</span></div>
-      <div class="pipe-step done"><b>Prepare</b><span>Tailor the CV, fill the form</span></div>
-      <div class="pipe-step now"><b>Apply</b><span>You approve, then it submits</span></div>
-      <div class="pipe-step"><b>Track</b><span>Every application, with evidence</span></div>
-      <div class="pipe-step"><b>Improve</b><span>Learn from what got replies</span></div>
+    <!-- ---------------- profile ---------------- -->
+    <h2 id="profile">Profile</h2>
+    <p class="hint">What scoring and every application form use. Setup ran once; change anything here. Auto apply uses only what you typed: it never guesses a CTC or a notice period.</p>
+    <div class="card pf-card">
+      <div class="pf-resume">
+        <span class="pf-r-t"><b>Master resume</b><small id="pfResume">Checking…</small></span>
+        <a class="btn btn--sm" href="index.html#edit-3">Replace or read again</a>
+        <a class="btn btn--sm btn--ghost" href="map.html">Career map</a>
+      </div>
+      <form class="pf-grid" id="pfForm" autocomplete="off">
+        <label>Target role<input name="role" required></label>
+        <label>Years of experience<input name="years" inputmode="numeric"></label>
+        <label>Full name<input name="d.name"></label>
+        <label>Phone<input name="d.phone" inputmode="tel"></label>
+        <label>Email<input name="d.email" type="email"></label>
+        <label>LinkedIn<input name="d.linkedin"></label>
+        <label>City<input name="d.city"></label>
+        <label>Preferred locality<input name="d.preferredLocality"></label>
+        <label>Work mode<select name="d.preferredWorkMode"><option>Any</option><option>Onsite</option><option>Hybrid</option><option>Remote</option></select></label>
+        <label>Willing to relocate<select name="d.willingToRelocate"><option value="">Not said</option><option>Yes</option><option>No</option></select></label>
+        <label>Current company<input name="d.currentCompany"></label>
+        <label>Current title<input name="d.currentTitle"></label>
+        <label>Notice period<input name="d.noticePeriod" placeholder="Immediate, 30 days…"></label>
+        <label>Current CTC<input name="d.currentCtc" placeholder="Only if you want forms to get it"></label>
+        <label>Expected CTC<input name="d.expectedCtc"></label>
+        <label>Website or portfolio<input name="d.website"></label>
+        <div class="pf-foot"><button class="btn" type="submit" id="pfSave">Save profile</button><span class="meta" id="pfMsg"></span></div>
+      </form>
     </div>
-    <p class="hint" style="margin-top:10px">Green is built and running. Navy is the step you are on. The last two are the next milestone.</p>
 
-    <!-- ---------------- AI ---------------- -->
-    <div class="aihead">
-      <h2>AI provider</h2>
-      <span class="keypill" id="keyPill" data-s="check">
-        <span class="star" aria-hidden="true">★</span>
-        <span id="keyPillText">Checking…</span>
-      </span>
-    </div>
-    <p class="hint">Pick a provider and paste your key. Without one, scoring still works - only the written explanation and resume tailoring are skipped.</p>
+    <!-- ---------------- AI and agents ---------------- -->
+    <h2>AI and agents</h2>
+    <p class="hint">The model that writes explanations and tailors resumes, and the agents that can drive this app. Each agent connects over MCP on this computer.</p>
+    <span id="keyPill" hidden><span id="keyPillText"></span></span>
 
-    <div class="card">
-      <div class="row">
-        <div class="field">
-          <label class="f" for="provider">Provider</label>
-          <select id="provider"></select>
+    <div class="ag-list" id="agList">
+      <details class="ag-row" id="aiHero" data-on="false">
+        <summary>
+          <span class="conn-logo mono" id="aiLogo">AI</span>
+          <span class="ag-text"><b id="aiName">AI provider</b><span class="ag-sub"><span id="aiState">Checking…</span> · <span id="aiModel"></span></span></span>
+          <svg class="ag-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </summary>
+        <div class="ag-body">
+          <div class="ag-line"><p class="conn-desc" id="aiNote"></p><button class="btn btn--sm" id="aiTest" type="button">Test</button></div>
+          <div class="ai-quick">
+            <a class="btn btn--sm btn--primary" id="aiOpenRouter" href="/api/ai/connect/openrouter">Sign in with OpenRouter</a>
+            <button class="btn btn--sm" id="aiGetKey" type="button">Get a key</button>
+            <span class="meta" id="aiQuickNote">OpenRouter signs you in and connects in one step, with DeepSeek, Claude, GPT and Gemini models on your own account. Or get a key from your provider; copy it, come back, and it is saved.</span>
+          </div>
+        <div class="card">
+          <div class="row">
+            <div class="field">
+              <label class="f" for="provider">Provider</label>
+              <select id="provider"></select>
+            </div>
+            <div class="field">
+              <label class="f" for="model">Model</label>
+              <input id="model" type="text" spellcheck="false" />
+              <div class="hint" style="margin-top:6px">Sarvam accepts <code>sarvam-105b</code> and <code>sarvam-105b-conversations</code>.</div>
+            </div>
+          </div>
+          <div class="row" id="baseRow" style="display:none">
+            <div class="field">
+              <label class="f" for="baseUrl">Base URL (OpenAI-compatible)</label>
+              <input id="baseUrl" type="text" spellcheck="false" placeholder="https://your-host/v1" />
+            </div>
+          </div>
+          <div class="row row--end">
+            <div class="field">
+              <label class="f" for="key">API key</label>
+              <input id="key" type="password" spellcheck="false" placeholder="Paste your API key" />
+            </div>
+            <button class="btn" id="saveKey" type="button">Save key</button>
+            <button class="btn" id="clearKey" type="button">Remove</button>
+          </div>
+          <div class="row row--mid">
+            <button class="btn" id="test" type="button">Test connection</button>
+            <span class="meta" id="keyState">Checking…</span>
+          </div>
+          <div class="status" id="aiStatus"></div>
+          <p class="note">
+            The key is stored server-side in <code>data/secrets.json</code> and is never sent back to the page.
+            It is not written to the database, the repo, or any log.
+          </p>
         </div>
-        <div class="field">
-          <label class="f" for="model">Model</label>
-          <input id="model" type="text" spellcheck="false" />
-          <div class="hint" style="margin-top:6px">Sarvam accepts <code>sarvam-105b</code> and <code>sarvam-105b-conversations</code>.</div>
         </div>
-      </div>
-      <div class="row" id="baseRow" style="display:none">
-        <div class="field">
-          <label class="f" for="baseUrl">Base URL (OpenAI-compatible)</label>
-          <input id="baseUrl" type="text" spellcheck="false" placeholder="https://your-host/v1" />
-        </div>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label class="f" for="key">API key</label>
-          <input id="key" type="password" spellcheck="false" placeholder="Paste your API key" />
-        </div>
-        <button class="btn" id="saveKey" type="button">Save key</button>
-        <button class="btn" id="clearKey" type="button">Remove</button>
-      </div>
-      <div class="row">
-        <button class="btn btn-primary" id="test" type="button">Test connection</button>
-        <span class="meta" id="keyState">Checking…</span>
-      </div>
-      <div class="status" id="aiStatus"></div>
-      <p class="note">
-        The key is stored server-side in <code>data/secrets.json</code> and is never sent back to the page.
-        It is not written to the database, the repo, or any log.
-      </p>
+      </details>
+      <div id="agRows"><div class="ag-loading meta">Looking for agents on this computer…</div></div>
     </div>
 
-    <!-- ---------------- connectors ---------------- -->
-    <h2>Job connectors</h2>
-    <p class="hint">Live status, checked just now. These are public employer feeds — no login, no key, no scraping.</p>
-
-    <div class="card">
-      <table class="conn-table">
-        <thead>
-          <tr><th>Source</th><th>Status</th><th>Postings</th><th>In India</th><th>Latency</th></tr>
-        </thead>
-        <tbody id="connBody">
-          <tr><td colspan="5" class="meta">Checking each feed…</td></tr>
-        </tbody>
-      </table>
-      <div class="row" style="margin-top:14px">
-        <button class="btn" id="refresh" type="button">Re-check</button>
-        <span class="meta" id="connSummary"></span>
+    <!-- ---------------- job sites ---------------- -->
+    <h2>Job sites</h2>
+    <p class="hint">Connect opens the site in the Career-Ops window, a real browser that comes to the front when you are needed. You sign in there; the session stays on this computer and the app never sees a password.</p>
+    <details class="card ub" id="ubCard">
+      <summary><span class="ub-t"><b>Advanced: attach my own Chrome or Brave</b><small id="ubState">Off. The Career-Ops window handles sign-in, OTPs and checks without this.</small></span><svg class="ag-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></summary>
+      <div class="ub-body">
+        <p class="conn-desc">Your Chrome, Brave or Edge is already signed in and looks like you, so sites like foundit and Naukri let it through. Tick <b>Use my browser</b> on a site below and the app opens that site in a new tab of your browser, for signing in and for auto apply. It never touches your other tabs, never reads a saved password and never copies your cookies. It disconnects after 15 quiet minutes.</p>
+        <ol class="ub-steps">
+          <li>In your browser, open <code id="ubUrl">chrome://inspect/#remote-debugging</code> <button class="btn btn--sm btn--ghost" type="button" id="ubCopy">Copy</button> and turn on remote debugging.</li>
+          <li>Press <b>Connect</b> below, then click <b>Allow</b> in your browser.</li>
+        </ol>
+        <div class="ub-row" id="ubRow"></div>
+        <p class="meta" id="ubMsg"></p>
+        <p class="meta">While connected, other programs on this computer could also control that browser. Disconnect when you are done.</p>
+      </div>
+    </details>
+    <div class="conn-grid" id="siteCards">
+      <div class="conn site" id="siteNaukri" data-on="false">
+        <div class="conn-top">
+          <div class="conn-logo"><img alt="" src="https://icons.duckduckgo.com/ip3/naukri.com.ico" onerror="this.parentNode.classList.add('mono');this.parentNode.textContent='N'"></div>
+          <div><div class="conn-name">Naukri</div><div class="conn-kind">Search and apply · phone or email, then a one-time code</div></div>
+        </div>
+        <div class="nk-body" id="nkBody"><p class="conn-desc">Checking…</p></div>
+        <div class="conn-foot"><span class="conn-state"><i></i><span id="nkState">Checking…</span></span><a class="ag-more" href="naukri.html">Log and search</a></div>
       </div>
     </div>
+    <h3 class="site-group">More Indian job sites</h3>
+    <p class="hint">Firecrawl or TinyFish finds their postings, from the search index only. Sign in once so that opening and applying on the site uses your account.</p>
+    <div class="conn-grid" id="moreSites"><div class="meta">Checking…</div></div>
 
-    <h2>Free sources — no key, no signup</h2>
-    <p class="hint">
-      These six publish an open JSON endpoint. They are the only job sources that work the moment you
-      clone the repo. The five remote boards are global, so each posting is kept only when its location
-      allows India, APAC or “worldwide”. Freelancer.com is a project marketplace: contracts, not
-      salaries, and open to India.
-    </p>
-
-    <div class="card">
-      <table>
-        <thead><tr><th>Source</th><th>Endpoint</th><th>Cost</th></tr></thead>
-        <tbody>
-          <tr><td class="name">Himalayas</td><td class="meta">himalayas.app/jobs/api</td><td><span class="tag ok">free</span></td></tr>
-          <tr><td class="name">Remotive</td><td class="meta">remotive.com/api/remote-jobs</td><td><span class="tag ok">free</span></td></tr>
-          <tr><td class="name">Remote OK</td><td class="meta">remoteok.com/api</td><td><span class="tag ok">free</span></td></tr>
-          <tr><td class="name">Jobicy</td><td class="meta">jobicy.com/api/v2/remote-jobs</td><td><span class="tag ok">free</span></td></tr>
-          <tr><td class="name">Working Nomads</td><td class="meta">workingnomads.com/api/exposed_jobs</td><td><span class="tag ok">free</span></td></tr>
-          <tr><td class="name">Freelancer.com</td><td class="meta">freelancer.com/api/projects/0.1</td><td><span class="tag ok">free</span></td></tr>
-        </tbody>
-      </table>
-      <p class="note">
-        Also free and already wired: 30 employer sources — 27 ATS boards (Lever, Greenhouse, Ashby,
-        SmartRecruiters) plus the Tesla, EPAM and Amazon career portals, and Workday when enabled
-        with CAREER_OPS_WORKDAY=1 — and Naukri through your own Chrome profile. No key is needed
-        for any of them.
-      </p>
-      <p class="note">
-        Checked and not usable without payment or a scrape: Upwork and Guru RSS return 403; Fiverr,
-        PeoplePerHour, Truelancer, Twine and Contra publish HTML only. Fiverr is a gig marketplace —
-        sellers list services — so it is not a job source at all.
-      </p>
-    </div>
-
-    <h2>Free keys — optional</h2>
-    <p class="hint">
-      LinkedIn has no public jobs API, and scraping it breaks their terms. These aggregators already hold
-      a licence to redistribute the listings — including LinkedIn-sourced ones — so a key here is the
-      legal way to widen coverage. All three are free; each stays dormant until you paste a key.
-    </p>
-
-    <div class="card" id="sourceCards">
+    <!-- ---------------- search connectors ---------------- -->
+    <h2>Search connectors</h2>
+    <p class="hint">More postings from more places. <b>Connect</b> opens the provider’s page; copy your key there and come back, and it is checked and saved on this computer.</p>
+    <div class="conn-grid" id="sourceCards">
       <div class="meta">Checking…</div>
-    </div>
-
-    <h2>Paid — not used</h2>
-    <p class="hint">These charge per call or after a trial, so this app does not call them.</p>
-
-    <div class="card">
-      <table>
-        <thead><tr><th>Service</th><th>Why it is excluded</th><th>Cost</th></tr></thead>
-        <tbody>
-          <tr><td class="name">Adzuna</td><td class="meta">25 free calls, then billed monthly</td><td><span class="tag bad">£8/month</span></td></tr>
-          <tr><td class="name">Careerjet Job Data API</td><td class="meta">Structured salary, billed per call</td><td><span class="tag bad">$2 / 1k</span></td></tr>
-          <tr><td class="name">LinkedIn Talent Solutions</td><td class="meta">Enterprise contract only</td><td><span class="tag bad">quoted</span></td></tr>
-          <tr><td class="name">Indeed Publisher</td><td class="meta">Programme closed to new applicants</td><td><span class="tag bad">n/a</span></td></tr>
-          <tr><td class="name">Glassdoor API</td><td class="meta">Partner-only, no public access</td><td><span class="tag bad">n/a</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h2>Sources that need your session</h2>
-    <p class="hint">These have no public feed. The app opens the real site and you sign in there; it never sees your password.</p>
-
-    <div class="card">
-      <table>
-        <thead><tr><th>Source</th><th>How it would work</th><th>State</th></tr></thead>
-        <tbody id="manualBody"></tbody>
-      </table>
-    </div>
-
-    <!-- ---------------- one-time sign-in ---------------- -->
-    <h2>Sign in once</h2>
-    <p class="hint">Auto apply drives the same Chrome profile you sign in with here. Sign in to each portal once; the cookie stays on this machine and no password is stored. If a run meets an OTP, a captcha or a login wall, it pauses and asks you in the browser panel.</p>
-
-    <div class="card">
-      <div class="signin-row">
-        <div><b>Naukri</b><span class="hint">Sign in with Google or your Naukri account.</span></div>
-        <button class="btn" type="button" data-open="https://www.naukri.com/nlogin/login" data-profile="default">Open sign-in</button>
-      </div>
-      <div class="signin-row">
-        <div><b>Indeed India</b><span class="hint">Sign in with Google. Indeed keeps its own profile.</span></div>
-        <button class="btn" type="button" data-open="https://in.indeed.com/account/login" data-profile="indeed">Open sign-in</button>
-      </div>
-      <div class="signin-row">
-        <div><b>LinkedIn</b><span class="hint">Opened and prefilled only; auto apply never submits here.</span></div>
-        <button class="btn" type="button" data-open="https://www.linkedin.com/login" data-profile="default">Open sign-in</button>
-      </div>
-      <p class="note">After signing in, open the browser panel to confirm the session. Every job on that site reuses it.</p>
     </div>
 
     <!-- ---------------- remembered forms ---------------- -->
@@ -350,51 +400,10 @@
         <tbody id="formBody"><tr><td colspan="4" class="hint">No forms remembered yet.</td></tr></tbody>
       </table>
     </div>
-
-    <!-- ---------------- MCP ---------------- -->
-    <h2>MCP server</h2>
-    <p class="hint">This install ships its own MCP server. Point Claude Desktop, Cursor or any MCP client at it and the agent can search Indian postings, score a CV and build an application plan.</p>
-
-    <div class="card">
-      <table>
-        <thead><tr><th>Server</th><th>What it gives</th><th>State</th></tr></thead>
-        <tbody id="mcpBody"></tbody>
-      </table>
-      <p class="note">
-        The server speaks JSON-RPC over stdio and never writes anything except protocol messages to stdout.
-        It uses the same discovery and scoring code as this page, so a tool call and a page load cannot disagree.
-      </p>
-      <div style="margin-top:14px">
-        <div class="hint" style="margin-bottom:6px">Add this to your MCP client config:</div>
-        <pre id="mcpConfig" style="background:#0f172a;color:#e2e8f0;border-radius:10px;padding:14px 16px;font-size:12.5px;line-height:1.55;overflow:auto;margin:0"></pre>
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <button class="btn" id="copyMcp" type="button">Copy config</button>
-          <span class="hint" id="copyNote" style="align-self:center"></span>
-        </div>
-      </div>
-    </div>
   </div>
 
   <script>
     const $ = (s) => document.querySelector(s);
-
-    const MANUAL = [
-      { name: "Naukri", how: "Discovery runs in your local Chrome profile. You sign in there; the agent reads the page and never sees the password.", state: "live" },
-      { name: "Indeed India", how: "Discovery runs in a real Chrome profile. Cloudflare clears on the first visit, so no sign-in is needed to search. The posting page is read on demand for the full description; Apply usually hands off to the employer's own ATS, which we fill.", state: "live" },
-      { name: "LinkedIn", how: "No public jobs API, and scraping breaks their terms. Covered legally through the licensed APIs above.", state: "via aggregator" },
-      { name: "Apna", how: "You sign in; the agent fills the form, you submit.", state: "not built" },
-      { name: "Instahyre", how: "You sign in; the agent fills the form, you submit.", state: "not built" },
-      { name: "Cutshort", how: "You sign in; the agent fills the form, you submit.", state: "not built" },
-      { name: "Hirist", how: "You sign in; the agent fills the form, you submit.", state: "not built" },
-      { name: "iimjobs", how: "You sign in; the agent fills the form, you submit.", state: "not built" },
-      { name: "Internshala", how: "You sign in; the agent fills the form, you submit.", state: "not built" }
-    ];
-
-    const MCP = [
-      { name: "career-ops-india", what: "search_jobs · score_job · list_connectors · plan_application", state: "live" },
-      { name: "playwright", what: "Drives the browser for a site with no API.", state: "built in" },
-      { name: "sarvam", what: "sarvam-105b for explanations and tailoring; Sarvam Vision for scanned resumes.", state: "live" }
-    ];
 
     function tag(state) {
       const cls =
@@ -427,78 +436,305 @@
       paintKey(s.hasKey);
       $("#clearKey").disabled = !s.hasKey;
       $("#test").disabled = s.provider === "none";
+      paintAiHero(s, providers);
 
       renderSources(s.sources || []);
     }
 
+    /* ---------- AI provider status card ---------- */
+
+    const AI_DOMAIN = { sarvam: "sarvam.ai", openai: "openai.com", anthropic: "anthropic.com", google: "gemini.google.com", openrouter: "openrouter.ai" };
+    function paintAiHero(s, providers) {
+      const p = providers[s.provider] || { label: s.provider };
+      const on = Boolean(s.hasKey) && s.provider !== "none";
+      const hero = $("#aiHero");
+      hero.dataset.on = String(on);
+      $("#aiName").textContent = p.label;
+      $("#aiModel").textContent = s.provider === "none" ? "Scoring only — no model calls" : `Model · ${s.model || p.model || "default"}`;
+      $("#aiState").textContent = on ? "Connected" : s.provider === "none" ? "Off" : "Not connected";
+      $("#aiNote").textContent = on
+        ? "Writes the score explanations and tailors one resume per job. Your key stays on this machine."
+        : "Add a key below to turn on explanations and tailoring. Scoring works without one.";
+      const logo = $("#aiLogo");
+      const d = AI_DOMAIN[s.provider];
+      if (d) {
+        logo.className = "conn-logo";
+        logo.innerHTML = `<img alt="" src="https://icons.duckduckgo.com/ip3/${d}.ico">`;
+        logo.querySelector("img").onerror = () => { logo.className = "conn-logo mono"; logo.textContent = (p.label || "AI")[0]; };
+      } else {
+        logo.className = "conn-logo mono";
+        logo.textContent = "AI";
+      }
+      $("#aiTest").disabled = !on;
+      const gk = $("#aiGetKey");
+      if (gk) gk.textContent = p.keyUrl ? `Get a ${p.label} key` : "Paste a key";
+      $("#aiOpenRouter")?.classList.toggle("btn--primary", !on);
+      const row = $("#aiHero");
+      if (row && !on && !row.dataset.touched) { row.open = true; row.dataset.touched = "1"; }
+    }
+    /* Get a key: open the provider's key page, pick the key up from the
+       clipboard when the user comes back, save it and test it. */
+    let keyWatch = false;
+    $("#aiGetKey").addEventListener("click", () => {
+      const p = providers[$("#provider").value] || {};
+      if (!p.keyUrl) { $("#key").focus(); return; }
+      window.open(p.keyUrl, "_blank", "noopener");
+      keyWatch = true;
+      $("#aiQuickNote").textContent = `Copy your ${p.label} key there, then come back here.`;
+    });
+    addEventListener("focus", () => {
+      if (!keyWatch) return;
+      setTimeout(async () => {
+        let text = "";
+        try { text = (await navigator.clipboard.readText()).trim(); } catch { $("#aiQuickNote").textContent = "Paste the key into the API key box below."; $("#key").focus(); return; }
+        if (!/^[A-Za-z0-9_\-.:]{20,200}$/.test(text)) return;
+        keyWatch = false;
+        $("#aiQuickNote").textContent = "Checking the key…";
+        const r = await fetch("/api/settings/key", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ apiKey: text }) }).then((x) => x.json()).catch(() => ({}));
+        if (!r.ok) { $("#aiQuickNote").textContent = r.error || "Could not save that key."; return; }
+        await loadSettings();
+        $("#aiQuickNote").textContent = "Saved. Testing it…";
+        $("#aiTest").click();
+      }, 250);
+    });
+    /* back from the OpenRouter sign-in */
+    {
+      const q = new URLSearchParams(location.search).get("ai");
+      if (q) {
+        const row = $("#aiHero");
+        if (row) row.open = true;
+        const t = window.CO && window.CO.ui && window.CO.ui.toast;
+        const msg = q === "connected" ? "OpenRouter is connected. Explanations and tailoring now run on your account."
+          : q === "cancelled" ? "OpenRouter sign-in was cancelled. Nothing changed." : "OpenRouter did not return a key. Try again.";
+        if (t) t(msg, { kind: q === "connected" ? "ok" : "warn" }); else $("#aiQuickNote").textContent = msg;
+        history.replaceState(null, "", location.pathname + "#ai");
+      }
+    }
+
+    $("#aiTest").addEventListener("click", async () => {
+      const b = $("#aiTest");
+      b.disabled = true;
+      $("#aiState").textContent = "Testing…";
+      try {
+        const r = await fetch("/api/ai/test", { method: "POST" }).then((x) => x.json());
+        $("#aiState").textContent = r.ok ? "Connected · answered" : "Key needs attention";
+        $("#aiNote").textContent = r.ok ? (r.message || "The model answered a test prompt.") : (r.error || r.message || "The provider did not answer.");
+        $("#aiHero").dataset.on = String(Boolean(r.ok));
+      } catch {
+        $("#aiState").textContent = "Could not reach the app";
+      } finally {
+        b.disabled = false;
+      }
+    });
+
     /* ---------- licensed job APIs ---------- */
 
+    /* ---------- connector gallery ---------- */
+
+    const CONN_META = {
+      firecrawl: { domain: "firecrawl.dev", kind: "Career-site search", key: /\bfc-[A-Za-z0-9]{20,}\b/ },
+      tinyfish: { domain: "tinyfish.ai", kind: "Career-site search", key: /^(?!fc-)(sk-tinyfish-)?[A-Za-z0-9_\-.]{24,200}$/ },
+      jooble: { domain: "jooble.org", kind: "Job aggregator", key: /^[A-Za-z0-9\-]{20,80}$/ },
+      careerjet: { domain: "careerjet.co.in", kind: "Job aggregator", key: /^[A-Za-z0-9]{16,64}$/ },
+      jsearch: { domain: "rapidapi.com", kind: "LinkedIn + Indeed listings", key: /^[A-Za-z0-9]{40,60}$/ },
+    };
+    const logo = (id, label) => {
+      const m = CONN_META[id];
+      const letter = (label || id).trim()[0].toUpperCase();
+      return m
+        ? `<div class="conn-logo"><img alt="" src="https://icons.duckduckgo.com/ip3/${m.domain}.ico" onerror="this.parentNode.classList.add('mono');this.parentNode.textContent='${letter}'"></div>`
+        : `<div class="conn-logo mono">${letter}</div>`;
+    };
+
     function renderSources(list) {
+      window.__sources = list;
       const box = $("#sourceCards");
       if (!list.length) {
-        box.innerHTML = `<div class="meta">No licensed sources configured.</div>`;
+        box.innerHTML = `<div class="meta">No sources configured.</div>`;
         return;
       }
-      box.innerHTML = list
-        .map(
-          (s) => `
-        <div class="src-row" data-src="${s.id}" style="padding:14px 0;border-bottom:1px solid var(--border)">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <b style="font-size:14px">${s.label}</b>
-            <span class="tag ${s.hasKey ? "ok" : "warn"}">${s.hasKey ? "key stored" : "needs key"}</span>
-            <span class="meta" style="margin-left:auto">${s.free}</span>
+      box.innerHTML = list.map((s) => `
+        <div class="conn" data-src="${s.id}" data-on="${s.hasKey}" data-spot>
+          <div class="conn-top">
+            ${logo(s.id, s.label)}
+            <div><div class="conn-name">${s.label.split(" — ")[0]}</div><div class="conn-kind">${(CONN_META[s.id] || {}).kind || "Source"} · ${s.free}</div></div>
           </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-            ${s.fields
-              .map(
-                (f) => `<input class="src-in" data-field="${f.key}" type="text" spellcheck="false"
-                  placeholder="${f.label}" style="flex:1;min-width:150px;padding:8px 11px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:13px" />`
-              )
-              .join("")}
-            <button class="btn btn-primary" data-act="save" type="button">Save</button>
-            <button class="btn" data-act="clear" type="button" ${s.hasKey ? "" : "disabled"}>Remove</button>
-            <a class="btn" href="${s.signup}" target="_blank" rel="noopener" style="text-decoration:none">Get a key</a>
+          <p class="conn-desc">${s.blurb || s.label.split(" — ")[1] || ""}</p>
+          <div class="conn-foot">
+            <span class="conn-state"><i></i><span data-state>${s.hasKey ? "Connected" : "Not connected"}</span></span>
+            ${s.hasKey
+              ? `<button class="btn btn--sm" data-act="disconnect" type="button">Disconnect</button>`
+              : `<button class="btn btn--sm" data-act="connect" type="button">Connect</button>`}
           </div>
-          <div class="status" data-status></div>
-        </div>`
-        )
-        .join("");
+        </div>`).join("");
 
-      box.querySelectorAll(".src-row").forEach((row) => {
-        const id = row.dataset.src;
-        const status = row.querySelector("[data-status]");
-        row.querySelector('[data-act="save"]').addEventListener("click", async () => {
-          const values = {};
-          row.querySelectorAll(".src-in").forEach((i) => {
-            if (i.value.trim()) values[i.dataset.field] = i.value.trim();
-          });
-          if (!Object.keys(values).length) {
-            status.className = "status show bad";
-            status.textContent = "Paste a key first.";
-            return;
-          }
-          const r = await fetch("/api/settings/source-key", {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({ source: id, values })
-          });
-          const j = await r.json();
-          if (!j.ok) {
-            status.className = "status show bad";
-            status.textContent = j.error || "Could not save.";
-            return;
-          }
-          status.className = "status show ok";
-          status.textContent = "Saved. It runs on the next live search.";
-          row.querySelectorAll(".src-in").forEach((i) => (i.value = ""));
-          loadSettings();
-        });
-        row.querySelector('[data-act="clear"]').addEventListener("click", async () => {
+      box.querySelectorAll(".conn").forEach((card) => {
+        const id = card.dataset.src;
+        const src = list.find((x) => x.id === id);
+        card.querySelector('[data-act="connect"]')?.addEventListener("click", () => openConnect(src));
+        card.querySelector('[data-act="disconnect"]')?.addEventListener("click", async () => {
           await fetch(`/api/settings/source-key?source=${encodeURIComponent(id)}`, { method: "DELETE" });
           loadSettings();
         });
+        /* a connected source shows what it has left, e.g. Firecrawl credits */
+        if (src.hasKey && src.canTest) {
+          testSource(id).then((t) => {
+            const el = card.querySelector("[data-state]");
+            if (el) el.textContent = t.ok ? t.message.replace(/^Connected\.\s*/, "") || "Connected" : "Key needs attention";
+          });
+        }
       });
     }
+
+    async function testSource(id) {
+      return fetch("/api/settings/source-test", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ source: id })
+      }).then((r) => r.json()).catch(() => ({ ok: false, error: "Could not reach the app." }));
+    }
+
+    async function saveSource(src, value) {
+      const field = src.fields[0].key;
+      const r = await fetch("/api/settings/source-key", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ source: src.id, values: { [field]: value } })
+      }).then((x) => x.json()).catch(() => ({ ok: false, error: "Could not reach the app." }));
+      if (!r.ok) return { ok: false, error: r.error || "Could not save." };
+      if (!src.canTest) return { ok: true, message: "Connected. It runs on the next live search." };
+      const t = await testSource(src.id);
+      if (!t.ok) {
+        await fetch(`/api/settings/source-key?source=${encodeURIComponent(src.id)}`, { method: "DELETE" });
+        return { ok: false, error: t.error };
+      }
+      return t;
+    }
+
+    /* Connect, in place: the button says Connecting while the provider's own
+       page is open; when the user comes back with the key copied, it is
+       checked, the button folds away and the card says what it connected,
+       with a check. A refusal shakes the button and says why under the
+       description. The app never sees a password. */
+    function openConnect(src) {
+      const meta = CONN_META[src.id] || {};
+      const name = src.label.split(" — ")[0];
+      const card = document.querySelector('.conn[data-src="' + src.id + '"]');
+      if (!card) return;
+      if (card.dataset.flow === "connecting") return;
+      const btn = card.querySelector('[data-act="connect"]');
+      const stateEl = card.querySelector("[data-state]");
+      const ui = window.CO && window.CO.ui;
+      card.querySelector(".cn-panel")?.remove();
+      card.querySelector(".cn-err")?.remove();
+      const panel = document.createElement("div");
+      panel.className = "cn-panel";
+      panel.innerHTML = `<div>
+          <ol class="cn-steps"><li>Sign in to ${name} on the tab that opened. Google sign-in works.</li><li>On the API keys page, press <b>Copy</b>.</li><li>Come back here and press <kbd>Ctrl</kbd>+<kbd>V</kbd>. The key is checked and saved.</li></ol>
+          <div class="cn-manual"><input data-in type="text" spellcheck="false" autocomplete="off" placeholder="Paste your ${name} key here" aria-label="${src.fields[0].label}"><button class="btn btn--sm" data-save type="button">Connect</button><button class="btn btn--sm btn--ghost" data-x type="button">Cancel</button></div>
+          <p class="cn-wait" data-wait>Waiting for your key.</p>
+        </div>`;
+      card.querySelector(".conn-desc").after(panel);
+      let done = false;
+      const setBtn = (html) => { if (!btn) return; const w = btn.offsetWidth; btn.style.width = ""; btn.innerHTML = html; const w2 = btn.offsetWidth; btn.style.width = w + "px"; void btn.offsetWidth; btn.style.width = w2 + "px"; setTimeout(() => { btn.style.width = ""; }, 340); };
+      const reset = () => {
+        done = true;
+        window.removeEventListener("focus", onFocus);
+        if (activeConnect === tryKey) activeConnect = null;
+        card.dataset.flow = "";
+        panel.dataset.open = "false";
+        setTimeout(() => panel.remove(), 320);
+        setBtn("Connect");
+        if (btn) btn.disabled = false;
+      };
+      const fail = (why) => {
+        if (btn) {
+          btn.disabled = false;
+          setBtn("Try again");
+          btn.classList.remove("sb-shake"); void btn.offsetWidth; btn.classList.add("sb-shake");
+        }
+        card.dataset.flow = "error";
+        let err = card.querySelector(".cn-err");
+        if (!err) { err = document.createElement("p"); err.className = "cn-err"; card.querySelector(".conn-desc").after(err); }
+        err.textContent = why || "That key did not work.";
+      };
+
+      async function tryKey(value, fromClipboard) {
+        if (done || !value) return;
+        value = value.trim();
+        if (fromClipboard && meta.key && !meta.key.test(value)) {
+          const w = panel.querySelector("[data-wait]");
+          if (w) w.textContent = `That does not look like a ${name} key. Copy the key itself, then press Ctrl+V here.`;
+          return;
+        }
+        const m = value.match(/\bfc-[A-Za-z0-9]{20,}\b/);
+        if (src.id === "firecrawl" && m) value = m[0];
+        setBtn('<span class="sb-mark"><span class="spinner" aria-hidden="true"></span></span>Checking');
+        const r = await saveSource(src, value);
+        if (!r.ok) return fail(r.error);
+        done = true;
+        window.removeEventListener("focus", onFocus);
+        if (activeConnect === tryKey) activeConnect = null;
+        card.dataset.flow = "done";
+        card.dataset.on = "true";
+        card.querySelector(".cn-err")?.remove();
+        panel.dataset.open = "false";
+        if (btn) btn.classList.add("cn-gone");
+        if (stateEl) {
+          stateEl.innerHTML = '<svg class="cx-check" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg>' +
+            (String(r.message || "Connected").replace(/^Connected\.\s*/, "") || "Connected");
+        }
+        ui?.toast?.(name + " is connected. It runs with every live search.", { kind: "ok" });
+        /* refresh the cards only when no other card is mid-connect, or its flow is lost */
+        const refresh = () => (document.querySelector('.conn[data-flow="connecting"], .conn[data-flow="error"]') ? setTimeout(refresh, 1500) : loadSettings());
+        setTimeout(refresh, 1800);
+      }
+      /* Reading the clipboard without a click is blocked by Brave, Safari and
+         Firefox, so it is only a shortcut. The sure path is a real paste:
+         Ctrl+V anywhere on this page, or into the box. */
+      async function readClipboard() {
+        try { await tryKey(await navigator.clipboard.readText(), true); }
+        catch {
+          const w = panel.querySelector("[data-wait]");
+          if (w && !done) w.innerHTML = `Copied the key? Press <kbd>Ctrl</kbd>+<kbd>V</kbd> on this page.`;
+        }
+      }
+      /* only the card opened last listens, so one key never lands in two cards */
+      function onFocus() { if (!done && activeConnect === tryKey) setTimeout(readClipboard, 250); }
+
+      card.dataset.flow = "connecting";
+      activeConnect = tryKey;
+      if (btn) btn.disabled = true;
+      setBtn('<span class="sb-mark"><span class="spinner" aria-hidden="true"></span></span>Waiting for key');
+      requestAnimationFrame(() => { panel.dataset.open = "true"; });
+      window.open(src.signup, "_blank", "noopener");
+      window.addEventListener("focus", onFocus);
+      panel.querySelector("[data-x]").addEventListener("click", reset);
+      panel.querySelector("[data-save]").addEventListener("click", () => { done = false; tryKey(panel.querySelector("[data-in]").value, false); });
+      panel.querySelector("[data-in]").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); done = false; tryKey(e.target.value, false); } if (e.key === "Escape") reset(); });
+      /* a key pasted into the box connects at once */
+      panel.querySelector("[data-in]").addEventListener("paste", (e) => {
+        const text = (e.clipboardData && e.clipboardData.getData("text")) || "";
+        if (!text.trim()) return;
+        e.preventDefault();
+        e.stopPropagation();
+        e.target.value = text.trim();
+        done = false;
+        tryKey(text, false);
+      });
+    }
+
+    /* Ctrl+V anywhere on the page goes to the card that is waiting for a key */
+    let activeConnect = null;
+    document.addEventListener("paste", (e) => {
+      if (!activeConnect) return;
+      const t = e.target;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA") && !t.matches("[data-in]")) return;
+      const text = (e.clipboardData && e.clipboardData.getData("text")) || "";
+      if (!text.trim()) return;
+      e.preventDefault();
+      activeConnect(text, true);
+    });
 
     $("#provider").addEventListener("change", async (e) => {
       const p = providers[e.target.value];
@@ -538,7 +774,7 @@
       const pill = $("#keyPill");
       if (!pill) return;
       pill.dataset.s = has ? "on" : "off";
-      $("#keyPillText").textContent = has ? "Connected · your key" : "Included key";
+      $("#keyPillText").textContent = has ? "Connected · your key" : "No key · BYOK (deterministic only)";
     }
 
     $("#saveKey").addEventListener("click", async () => {
@@ -582,35 +818,6 @@
       }
     });
 
-    /* ---------- connectors ---------- */
-
-    async function loadConnectors() {
-      const body = $("#connBody");
-      body.innerHTML = `<tr><td colspan="5" class="meta">Checking each feed…</td></tr>`;
-      $("#connSummary").textContent = "";
-      try {
-        const r = await fetch("/api/connectors");
-        const j = await r.json();
-        const rows = j.connectors || [];
-        body.innerHTML = rows.map((c) => `
-          <tr>
-            <td><span class="name">${c.company}</span><div class="meta">${c.kind} · ${c.id}</div></td>
-            <td><span class="dot ${c.ok ? "ok" : "bad"}"></span>${c.ok ? "live" : c.kind === "api" ? "needs key" : "error"}</td>
-            <td>${c.count ?? "—"}</td>
-            <td>${c.india ?? "—"}</td>
-            <td class="meta">${c.ms ? c.ms + " ms" : "—"}</td>
-          </tr>`).join("");
-        const ok = rows.filter((c) => c.ok).length;
-        const total = rows.reduce((a, c) => a + (c.count || 0), 0);
-        const india = rows.reduce((a, c) => a + (c.india || 0), 0);
-        $("#connSummary").textContent = `${ok} of ${rows.length} live · ${total} postings · ${india} in India`;
-      } catch (e) {
-        body.innerHTML = `<tr><td colspan="5" class="meta">Server not reachable. Run <code>pnpm ui</code>.</td></tr>`;
-      }
-    }
-
-    $("#refresh").addEventListener("click", loadConnectors);
-
     /* ---------- remembered forms ---------- */
 
     async function loadForms() {
@@ -650,79 +857,501 @@
 
     loadForms();
 
-    /* ---------- static tables ---------- */
+    /* ---------- AI agents: one row each, connected over MCP ---------- */
 
-    $("#manualBody").innerHTML = MANUAL.map((m) => `
-      <tr>
-        <td class="name">${m.name}</td>
-        <td class="meta">${m.how}</td>
-        <td>${tag(m.state)}</td>
-      </tr>`).join("");
-
-    $("#mcpBody").innerHTML = MCP.map((m) => `
-      <tr>
-        <td class="name">${m.name}</td>
-        <td class="meta">${m.what}</td>
-        <td>${tag(m.state)}</td>
-      </tr>`).join("");
-
-    /* The config is generated from the page's own origin so it points at the
-       folder this install actually runs from. */
-    const mcpConfig = {
-      mcpServers: {
-        "career-ops-india": {
-          command: "node",
-          args: ["node_modules/tsx/dist/cli.mjs", "server/mcp.ts"],
-          cwd: "<absolute path to this repo>"
-        }
-      }
+    const AGENT_LOGO = {
+      "claude-code": "https://cdn.simpleicons.org/claude/d97757",
+      "claude-desktop": "https://cdn.simpleicons.org/claude/d97757",
+      gemini: "https://cdn.simpleicons.org/googlegemini/8e75b2",
+      cursor: "https://cdn.simpleicons.org/cursor/888888",
+      chatgpt: "https://icons.duckduckgo.com/ip3/chatgpt.com.ico",
     };
-    $("#mcpConfig").textContent = JSON.stringify(mcpConfig, null, 2);
+    const STATE_TEXT = { connected: "Connected", "not-connected": "Not connected", "not-installed": "Not installed", "needs-url": "Needs a public URL" };
+    const escH = (t) => String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-    $("#copyMcp").addEventListener("click", async () => {
+    function paintAgents(list) {
+      const box = $("#agRows");
+      box.innerHTML = list.map((a) => {
+        const logo = AGENT_LOGO[a.id]
+          ? `<span class="conn-logo"><img alt="" src="${AGENT_LOGO[a.id]}" onerror="this.parentNode.classList.add('mono');this.parentNode.textContent='${escH(a.name[0])}'"></span>`
+          : `<span class="conn-logo mono ag-glyph">&gt;_</span>`;
+        const action = a.canConnect
+          ? `<button class="btn btn--sm btn--primary" type="button" data-agent="${escH(a.id)}">${escH(a.action || "Connect " + a.name)}</button>`
+          : a.state === "connected"
+            ? `<button class="btn btn--sm" type="button" data-agent-check>Check again</button>`
+            : "";
+        const body = a.state === "not-installed"
+          ? `Install ${escH(a.name)}, then come back and connect it here.`
+          : a.state === "needs-url"
+            ? escH(a.note || "")
+            : a.state === "connected"
+              ? `${escH(a.name)} can search, score, shortlist, tailor and apply through Career-Ops. ${escH(a.note || "")}`
+              : a.id === "claude-desktop"
+                ? "Get the plugin builds career-ops-india-plugin.zip and shows it in Explorer. In Claude open Plugins → Upload a plugin, drop the zip there and press Upload. It then appears in your plugins with an on and off switch."
+                : `One click registers the Career-Ops tools with ${escH(a.name)}. It adds one entry named career-ops-india and changes nothing else.`;
+        return `<details class="ag-row" data-state="${escH(a.state)}">
+          <summary>${logo}<span class="ag-text"><b>${escH(a.name)}</b><span class="ag-sub">${STATE_TEXT[a.state] || a.state} · ${escH(a.kind)}</span></span>
+            <svg class="ag-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></summary>
+          <div class="ag-body"><p class="conn-desc">${body}</p>
+            ${a.command ? `<code class="ag-cmd">${escH(a.command)}</code>` : ""}
+            <div class="ag-line">${action}${a.download && a.state !== "not-installed" ? `<a class="ag-more" href="${escH(a.download)}" download>Download the plugin</a>${a.id === "claude-desktop" ? `<a class="ag-more" href="/api/agents/bundle" download>Extension file (.mcpb)</a>` : ""}` : ""}<span class="meta" data-agent-msg></span></div></div>
+        </details>`;
+      }).join("");
+      box.querySelectorAll("[data-agent]").forEach((b) => b.addEventListener("click", async () => {
+        const msg = b.parentNode.querySelector("[data-agent-msg]");
+        const ui = window.CO && window.CO.ui;
+        const go = async () => {
+          const r = await fetch("/api/agents/connect", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: b.dataset.agent }) }).then((x) => x.json());
+          if (!r.ok) throw new Error(r.message || "It did not register.");
+          msg.textContent = r.message;
+          setTimeout(() => paintAgents(r.agents || []), 1200);
+        };
+        try { if (ui) await ui.withButton(b, go, { loading: b.dataset.agent === "claude-desktop" ? "Building" : "Connecting", success: b.dataset.agent === "claude-desktop" ? "Ready" : "Connected", error: "Try again" }); else await go(); }
+        catch (e) { msg.textContent = e.message; }
+      }));
+      box.querySelectorAll("[data-agent-check]").forEach((b) => b.addEventListener("click", () => loadAgents(true)));
+    }
+    async function loadAgents(fresh) {
       try {
-        await navigator.clipboard.writeText($("#mcpConfig").textContent);
-        $("#copyNote").textContent = "Copied";
+        const r = await fetch("/api/agents" + (fresh ? "?fresh=1" : "")).then((x) => x.json());
+        paintAgents(r.agents || []);
       } catch {
-        $("#copyNote").textContent = "Select the text and copy it";
+        $("#agRows").innerHTML = `<div class="ag-loading meta">Could not check the agents. Is the app running?</div>`;
       }
-      setTimeout(() => { $("#copyNote").textContent = ""; }, 2500);
-    });
+    }
 
-    /* One-time portal sign-in. The Chrome window is visible, so the user signs
-       in there; the browser panel is opened as a second view of the same page. */
-    document.querySelectorAll("[data-open]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const label = btn.textContent;
-        btn.disabled = true;
-        btn.textContent = "Opening…";
+    /* ---------- Naukri: phone or email, then the one-time code ---------- */
+
+    let nkUser = "", nkMobile = false;
+    function nkPaint(st) {
+      const card = $("#siteNaukri");
+      const body = $("#nkBody");
+      card.dataset.on = String(Boolean(st && st.signedIn));
+      if (st && st.signedIn) {
+        $("#nkState").textContent = "Signed in";
+        body.innerHTML = `<p class="conn-desc">The session token is saved on this computer${st.savedAt ? ` since ${escH(new Date(st.savedAt).toLocaleDateString())}` : ""}. Discovery and apply use it.</p>
+          <div class="ag-line"><button class="btn btn--sm" type="button" id="nkOut">Sign out</button></div>`;
+        $("#nkOut").addEventListener("click", async () => { await fetch("/api/naukri/logout", { method: "POST" }).catch(() => {}); loadNaukri(); });
+        return;
+      }
+      $("#nkState").textContent = "Not signed in";
+      body.innerHTML = `<form class="nk-form" id="nkLogin" autocomplete="on">
+          <input id="nkUser" type="text" autocomplete="username" inputmode="email" placeholder="98XXXXXXXX or you@example.com" aria-label="Phone or email on your Naukri account">
+          <button class="btn btn--sm btn--primary" type="submit" id="nkSend">Send code</button>
+        </form>
+        <form class="nk-form" id="nkOtpForm" hidden>
+          <ui-otp-input id="nkOtp" max-length="6" aria-label="One-time code">
+            <ui-otp-input-group><ui-otp-input-slot></ui-otp-input-slot><ui-otp-input-slot></ui-otp-input-slot><ui-otp-input-slot></ui-otp-input-slot></ui-otp-input-group>
+            <ui-otp-input-separator><svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></ui-otp-input-separator>
+            <ui-otp-input-group><ui-otp-input-slot></ui-otp-input-slot><ui-otp-input-slot></ui-otp-input-slot><ui-otp-input-slot></ui-otp-input-slot></ui-otp-input-group>
+          </ui-otp-input>
+          <div class="ag-line"><button class="btn btn--sm btn--primary" type="submit" id="nkVerify">Verify</button><button class="btn btn--sm" type="button" id="nkResend">Resend</button></div>
+        </form>
+        <p class="meta" id="nkMsg" aria-live="polite">No password. Naukri sends a code to your phone or email.</p>`;
+      const msg = $("#nkMsg");
+      const ui = window.CO && window.CO.ui;
+      $("#nkLogin").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = $("#nkUser").value.trim();
+        if (!username) { msg.textContent = "Enter the phone number or email on your Naukri account."; return; }
+        nkUser = username;
+        const b = $("#nkSend"); b.disabled = true; b.textContent = "Sending…";
         try {
-          const r = await fetch("/api/browser/open", {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({
-              url: btn.dataset.open,
-              profile: btn.dataset.profile === "indeed" ? "indeed" : undefined,
-            }),
-          });
-          const d = await r.json();
-          if (!d.ok) {
-            btn.textContent = label;
-            alert(d.message || "Could not open the browser.");
+          const d = await fetch("/api/naukri/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ username }) }).then((x) => x.json());
+          if (d.ok) { loadNaukri(); return; }
+          if (d.needsOtp) {
+            if (d.username) nkUser = d.username;
+            nkMobile = Boolean(d.isMobile);
+            $("#nkLogin").hidden = true; $("#nkOtpForm").hidden = false;
+            msg.textContent = d.message || "Naukri sent a code. Enter it here.";
+            setTimeout(() => $("#nkOtp")?.focus?.(), 60);
+            ui?.resendTimer($("#nkResend"), 30);
+          } else if (d.needsBrowser) {
+            msg.innerHTML = `Naukri wants a captcha before it sends a code. The app never solves one. Wait a few minutes and try again, or see <a href="naukri.html">other ways to sign in</a>.`;
           } else {
-            btn.textContent = "Sign in there";
-            window.open("browser.html", "_blank", "noopener");
+            msg.textContent = d.message || "Naukri did not send a code.";
           }
-        } catch {
-          btn.textContent = label;
-          alert("Could not reach the server.");
-        }
-        btn.disabled = false;
+        } catch { msg.textContent = "Could not reach the app."; }
+        finally { b.disabled = false; b.textContent = "Send code"; }
       });
+      const otp = () => $("#nkOtp");
+      $("#nkOtpForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const code = String(otp().value || "").replace(/\D/g, "");
+        if (code.length < 4) { msg.textContent = "Enter the code Naukri sent."; return; }
+        ui?.codeState(otp(), "checking");
+        try {
+          const d = await fetch("/api/naukri/otp", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ otp: code, username: nkUser, isMobile: nkMobile }) }).then((x) => x.json());
+          if (d.ok) { ui?.codeState(otp(), "verified"); msg.textContent = "Verified. You are signed in."; setTimeout(loadNaukri, 1000); }
+          else { ui?.codeState(otp(), "wrong"); msg.textContent = d.message || "That code was not accepted."; }
+        } catch { ui?.codeState(otp(), ""); msg.textContent = "Could not reach the app."; }
+      });
+      otp().addEventListener("valuecommit", () => $("#nkOtpForm").requestSubmit());
+      $("#nkResend").addEventListener("click", async () => {
+        const d = await fetch("/api/naukri/otp", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ resend: true, username: nkUser, isMobile: nkMobile }) }).then((x) => x.json()).catch(() => ({}));
+        msg.textContent = d.message || (d.ok ? "A new code was sent." : "Could not resend.");
+        if (d.ok) ui?.resendTimer($("#nkResend"), 30);
+      });
+    }
+    async function loadNaukri() {
+      try { nkPaint(await fetch("/api/naukri/status").then((x) => x.json())); }
+      catch { $("#nkState").textContent = "App not reachable"; }
+    }
+
+    /* ---------- Job sites: sign in once, in a popup ----------
+       The popup streams the site's own sign-in page from the app browser.
+       Whatever the site asks (an OTP, an email code, Google, a password) goes
+       to the site. The app only watches for the moment you are in, then
+       closes the popup and turns the card green. */
+    const APPLY_TEXT = { auto: "Auto apply", prefill: "Prefill, you submit", fill: "Fill, you submit", open: "Opens the posting" };
+    const fmtDay = (iso) => new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+    let SITES = [];
+
+    function siteCard(x) {
+      const on = Boolean(x.signedInAt);
+      return `<div class="conn site" data-site="${escH(x.id)}" data-on="${on}">
+        <div class="conn-top">
+          <div class="conn-logo"><img alt="" src="https://icons.duckduckgo.com/ip3/${escH(x.host)}.ico" onerror="this.parentNode.classList.add('mono');this.parentNode.textContent='${escH(x.name[0])}'"></div>
+          <div><div class="conn-name">${escH(x.name)}</div><div class="conn-kind">Sign in: ${escH(x.signin)}</div></div>
+        </div>
+        <div class="site-tags"><span class="site-tag">${escH(APPLY_TEXT[x.apply] || x.apply)}</span>${x.live ? "" : `<span class="site-tag site-tag--soon">Found through search</span>`}</div>
+        ${x.note ? `<p class="conn-desc">${escH(x.note)}</p>` : ""}
+        ${x.mine || (typeof UB !== "undefined" && UB.connected) ? `<label class="ub-tick"><input type="checkbox" data-mine ${x.mine ? "checked" : ""}> Use my own browser</label>` : ""}
+        <div class="conn-foot"><span class="conn-state"><i></i><span>${on ? "Signed in · " + fmtDay(x.signedInAt) : "Not signed in"}</span></span>
+          ${on
+            ? `<span class="site-acts"><button class="btn btn--sm btn--ghost" type="button" data-site-out>Sign out</button><button class="btn btn--sm" type="button" data-site-in>Open</button></span>`
+            : `<button class="btn btn--sm" type="button" data-site-in>Connect</button>`}</div>
+      </div>`;
+    }
+    function paintSites() {
+      const live = SITES.filter((x) => x.live), more = SITES.filter((x) => !x.live);
+      document.querySelectorAll("#siteCards .site[data-site]").forEach((n) => n.remove());
+      $("#siteCards").insertAdjacentHTML("beforeend", live.map(siteCard).join(""));
+      $("#moreSites").innerHTML = more.map(siteCard).join("");
+      document.querySelectorAll(".site[data-site]").forEach((card) => {
+        const x = SITES.find((y) => y.id === card.dataset.site);
+        card.querySelector("[data-site-in]")?.addEventListener("click", () => openSignin(x));
+        card.querySelector("[data-mine]")?.addEventListener("change", async (e) => {
+          x.mine = e.target.checked;
+          const r = await fetch("/api/user-browser/sites", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sites: SITES.filter((y) => y.mine).map((y) => y.id) }) }).then((v) => v.json()).catch(() => ({}));
+          if (r.ok) paintUb(r);
+          window.CO?.ui?.toast?.(x.mine ? `${x.name} now opens in your own browser.` : `${x.name} uses the app’s browser again.`, { kind: "ok" });
+        });
+        card.querySelector("[data-site-out]")?.addEventListener("click", async (e) => {
+          const b = e.currentTarget;
+          const go = async () => {
+            const r = await fetch("/api/job-sites/signout", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: x.id }) }).then((v) => v.json());
+            if (!r.ok) throw new Error(r.message);
+            window.CO?.ui?.toast?.(r.message, { kind: "ok" });
+            await loadSites();
+          };
+          try { if (window.CO?.ui?.withButton) await window.CO.ui.withButton(b, go, { loading: "Signing out", success: "Signed out", error: "Try again" }); else await go(); }
+          catch (err) { window.CO?.ui?.toast?.(err.message, { kind: "error" }); }
+        });
+      });
+    }
+    /* A site routed through the user's own browser: the tab opens there, in
+       their window, already signed in if they were. This sheet only waits. */
+    async function openSigninMine(x) {
+      const back = document.createElement("div");
+      back.className = "bw-back";
+      back.innerHTML = `<div class="bw-sheet bw-sheet--mini" role="dialog" aria-modal="true" aria-label="Sign in to ${escH(x.name)}">
+          <div class="bw-head">
+            <span class="conn-logo bw-logo"><img alt="" src="https://icons.duckduckgo.com/ip3/${escH(x.host)}.ico"></span>
+            <span class="bw-title"><b>${escH(x.name)} in your browser</b><span class="meta" data-meta>Checking your browser…</span></span>
+            <span class="bw-status" data-status="wait"><i></i><span>Checking…</span></span>
+            <button class="btn btn--sm btn--primary" type="button" data-done>Close</button>
+          </div>
+          <div class="bw-mini-acts" data-acts hidden>
+            <button class="btn btn--sm btn--primary" type="button" data-retry>Try again</button>
+            <button class="btn btn--sm btn--ghost" type="button" data-appbrowser>Use the app’s browser instead</button>
+          </div>
+        </div>`;
+      document.body.appendChild(back);
+      requestAnimationFrame(() => back.classList.add("on"));
+      const status = back.querySelector(".bw-status");
+      const say = (st, t) => { status.dataset.status = st; status.lastElementChild.textContent = t; };
+      const meta = (t) => { back.querySelector("[data-meta]").textContent = t; };
+      const acts = back.querySelector("[data-acts]");
+      const post = (u, b) => fetch(u, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(b) }).then((v) => v.json()).catch(() => ({ ok: false, message: "The app did not answer." }));
+      let closed = false, first = true, timer = null;
+      const close = () => { if (closed) return; closed = true; if (timer) clearInterval(timer); back.classList.remove("on"); setTimeout(() => back.remove(), 260); document.removeEventListener("keydown", onKey); };
+      const onKey = (e) => { if (e.key === "Escape") close(); };
+      document.addEventListener("keydown", onKey);
+      back.querySelector("[data-done]").addEventListener("click", close);
+      back.addEventListener("click", (e) => { if (e.target === back) close(); });
+      const stuck = (state, text, why) => { say(state, text); meta(why); acts.hidden = false; };
+      back.querySelector("[data-retry]").addEventListener("click", () => { acts.hidden = true; run(); });
+      back.querySelector("[data-appbrowser]").addEventListener("click", async () => {
+        x.mine = false;
+        await post("/api/user-browser/sites", { sites: SITES.filter((y) => y.mine).map((y) => y.id) });
+        paintSites();
+        close();
+        openSignin(x);
+      });
+
+      async function run() {
+        /* 1. your browser must be attached: attach it here, not "above" */
+        const st = await fetch("/api/user-browser").then((v) => v.json()).catch(() => ({}));
+        paintUb(st);
+        if (!st.connected) {
+          const ready = (st.browsers || []).filter((b) => b.debugging);
+          const pick = ready.find((b) => b.id === st.preferred) || ready[0];
+          if (!pick) {
+            const inst = (st.browsers || []).find((b) => b.installed);
+            const scheme = inst && inst.id === "brave" ? "brave" : inst && inst.id === "edge" ? "edge" : "chrome";
+            return stuck("err", "Remote debugging is off", `In your browser, open ${scheme}://inspect/#remote-debugging and turn it on, then press Try again.`);
+          }
+          say("wait", `Click Allow in ${pick.name}`);
+          meta(`${pick.name} is asking whether to allow this connection. It may be behind this window.`);
+          const c = await post("/api/user-browser/connect", { id: pick.id });
+          paintUb(c);
+          if (closed) return;
+          if (!c.ok) return stuck("err", "Not connected", c.message || "The browser did not connect.");
+        }
+        /* 2. a new tab there, on the site's sign-in */
+        say("wait", "Opening…");
+        meta("Opening a new tab in your browser…");
+        const o = await post("/api/browser/open", { url: x.loginUrl, profile: "mine" });
+        if (closed) return;
+        if (!o.ok) return stuck("err", "Could not open it", (o.message || "The tab did not open.").slice(0, 160));
+        say("wait", "Waiting for you to sign in");
+        meta("A new tab opened in your browser. Sign in there if you are not already; this closes by itself.");
+        /* 3. wait for the sign-in */
+        first = true;
+        if (timer) clearInterval(timer);
+        timer = setInterval(async () => {
+          if (closed) return;
+          const r = await post("/api/job-sites/check", { id: x.id, start: first });
+          first = false;
+          if (r.signedIn === true) {
+            clearInterval(timer);
+            say("ok", "Signed in");
+            x.signedInAt = r.signedInAt;
+            paintSites();
+            setTimeout(close, 1200);
+            window.CO?.ui?.toast?.(`Signed in to ${x.name}, in your own browser.`, { kind: "ok" });
+          }
+        }, 2000);
+      }
+      run();
+    }
+
+    /* ---------- your own browser: connect, pick, disconnect ---------- */
+    function paintUb(st) {
+      const row = $("#ubRow");
+      const list = st.browsers || UB.browsers || [];
+      UB = { ...UB, ...st, browsers: list };
+      const routed = (UB.sites || []).length;
+      $("#ubState").textContent = UB.connected
+        ? `Connected to ${UB.name}${routed ? ` · ${routed} site${routed === 1 ? "" : "s"} use it` : " · tick a site below"}`
+        : `${routed ? routed + " site" + (routed === 1 ? "" : "s") + " set to use it; connect to use them." : "Off. The Career-Ops window handles sign-in, OTPs and checks without this."}`;
+      if (typeof SITES !== "undefined" && SITES.length) paintSites();
+      $("#ubCard").dataset.on = String(Boolean(UB.connected));
+      row.innerHTML = list.filter((b) => b.installed).map((b) => {
+        const on = UB.connected && UB.browser === b.id;
+        return `<div class="ub-b" data-id="${b.id}"><b>${b.name}</b><small>${on ? "Connected" : b.debugging ? "Remote debugging is on" : "Remote debugging is off"}</small>
+          ${on ? `<button class="btn btn--sm" type="button" data-ub-off>Disconnect</button>` : `<button class="btn btn--sm" type="button" data-ub-on ${b.debugging ? "" : "disabled title=\"Turn on remote debugging first\""}>Connect</button>`}</div>`;
+      }).join("") || `<p class="meta">No Chrome, Brave or Edge found on this computer.</p>`;
+      row.querySelectorAll("[data-ub-on]").forEach((b) => b.addEventListener("click", async () => {
+        const id = b.closest(".ub-b").dataset.id;
+        b.disabled = true; b.textContent = "Click Allow in your browser…";
+        const r = await fetch("/api/user-browser/connect", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id }) }).then((v) => v.json()).catch(() => ({ ok: false, message: "The app did not answer." }));
+        $("#ubMsg").textContent = r.message || "";
+        paintUb(r);
+      }));
+      row.querySelectorAll("[data-ub-off]").forEach((b) => b.addEventListener("click", async () => {
+        const r = await fetch("/api/user-browser/disconnect", { method: "POST" }).then((v) => v.json()).catch(() => ({}));
+        $("#ubMsg").textContent = "Disconnected. The tabs the app opened were closed; your browser stays open.";
+        paintUb(r);
+      }));
+    }
+    let UB = {};
+    async function loadUb() {
+      try { paintUb(await fetch("/api/user-browser").then((v) => v.json())); } catch {}
+    }
+    $("#ubCopy").addEventListener("click", async () => {
+      const id = UB.preferred || "chrome";
+      const url = (id === "brave" ? "brave" : id === "edge" ? "edge" : "chrome") + "://inspect/#remote-debugging";
+      try { await navigator.clipboard.writeText(url); window.CO?.ui?.toast?.("Copied. Paste it into your browser’s address bar.", { kind: "ok" }); } catch {}
     });
+    /* recheck when the user comes back from turning debugging on */
+    addEventListener("focus", () => { if ($("#ubCard").open) loadUb(); });
+    loadUb();
+
+    async function loadSites() {
+      try { SITES = (await fetch("/api/job-sites").then((v) => v.json())).sites || []; paintSites(); }
+      catch { $("#moreSites").innerHTML = `<div class="meta">Could not reach the app.</div>`; }
+    }
+
+    /* Sign in to a job site in the app's own browser, shown as a real window
+       (ADR-033): sharp, native typing and paste, and any check is the user's
+       to pass. This sheet only waits, then parks the window again. The old
+       screenshot stream is gone from here. */
+    function openSignin(x) {
+      if (x.mine && typeof UB !== "undefined" && UB.connected) return openSigninMine(x);
+      const profile = x.profile === "indeed" ? "indeed" : "default";
+      const back = document.createElement("div");
+      back.className = "bw-back";
+      back.innerHTML = `<div class="bw-sheet bw-sheet--mini" role="dialog" aria-modal="true" aria-label="Sign in to ${escH(x.name)}">
+          <div class="bw-head">
+            <span class="conn-logo bw-logo"><img alt="" src="https://icons.duckduckgo.com/ip3/${escH(x.host)}.ico" onerror="this.parentNode.classList.add('mono');this.parentNode.textContent='${escH(x.name[0])}'"></span>
+            <span class="bw-title"><b>Sign in to ${escH(x.name)}</b><span class="meta" data-meta>Opening ${escH(x.name)} in the Career-Ops window…</span></span>
+            <span class="bw-status" data-status="wait"><i></i><span>Opening…</span></span>
+            <button class="btn btn--sm btn--primary" type="button" data-done>Close</button>
+          </div>
+          <div class="bw-mini-acts">
+            <button class="btn btn--sm" type="button" data-show>Show the window</button>
+            <span class="meta">${escH(x.signin)}. It goes to ${escH(x.name)} only. If it shows a check, solve it there.</span>
+          </div>
+        </div>`;
+      document.body.appendChild(back);
+      requestAnimationFrame(() => back.classList.add("on"));
+      const status = back.querySelector(".bw-status");
+      const say = (st, t) => { status.dataset.status = st; status.lastElementChild.textContent = t; };
+      const meta = (t) => { back.querySelector("[data-meta]").textContent = t; };
+      const post = (u, b) => fetch(u, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(b || {}) }).then((v) => v.json()).catch(() => ({ ok: false, message: "The app did not answer." }));
+      let closed = false, done = false, first = true, timer = null;
+      const show = async () => {
+        const s = await post("/api/browser/show", { profile });
+        if (!s.ok) { say("err", "Could not show it"); meta(s.message || "The window did not open."); }
+        return s.ok;
+      };
+      async function close() {
+        if (closed) return;
+        closed = true;
+        if (timer) clearInterval(timer);
+        if (!done) {
+          const r = await post("/api/job-sites/check", { id: x.id });
+          if (r.signedIn === true) { done = true; x.signedInAt = r.signedInAt; paintSites(); }
+        }
+        post("/api/browser/hide");
+        back.classList.remove("on");
+        setTimeout(() => back.remove(), 260);
+        document.removeEventListener("keydown", onKey);
+        const t = window.CO?.ui?.toast;
+        if (done) t?.(`Signed in to ${x.name}. The session stays on this computer.`, { kind: "ok" });
+        else t?.(`${x.name} did not show a sign-in the app could see. If you did sign in, mark it.`, {
+          action: { label: "I signed in", onClick: async () => { const m = await post("/api/job-sites/mark", { id: x.id }); if (m.ok) { x.signedInAt = m.signedInAt; paintSites(); } } },
+        });
+      }
+      const onKey = (e) => { if (e.key === "Escape") close(); };
+      document.addEventListener("keydown", onKey);
+      back.querySelector("[data-done]").addEventListener("click", () => close());
+      back.addEventListener("click", (e) => { if (e.target === back) close(); });
+      back.querySelector("[data-show]").addEventListener("click", show);
+
+      (async () => {
+        const o = await post("/api/browser/open", { url: x.loginUrl, profile: profile === "indeed" ? "indeed" : "" });
+        if (closed) return;
+        if (!o.ok) { say("err", "Could not open it"); meta((o.message || "The browser did not start.").slice(0, 160)); return; }
+        if (!(await show())) return;
+        say("wait", "Waiting for you to sign in");
+        meta(`${x.name} is open in the Career-Ops window. Sign in there; this closes by itself.`);
+        timer = setInterval(async () => {
+          if (closed || done) return;
+          const r = await post("/api/job-sites/check", { id: x.id, start: first });
+          first = false;
+          if (r.blocked) { say("err", `${x.name} shows a check`); meta("Solve it in the Career-Ops window. Nothing gets around it for you."); }
+          if (r.signedIn === true) {
+            done = true;
+            clearInterval(timer);
+            say("ok", "Signed in");
+            meta(`Signed in to ${x.name}. The window goes back out of sight.`);
+            x.signedInAt = r.signedInAt;
+            paintSites();
+            setTimeout(close, 1400);
+          }
+        }, 2000);
+      })();
+    }
+
+    /* ---------- profile: read from and saved to data/profile.json ---------- */
+    async function loadProfile() {
+      const f = $("#pfForm");
+      try {
+        const pr = await fetch("/api/profile").then((r) => r.json());
+        const d = pr.details || {};
+        for (const el of f.elements) {
+          if (!el.name) continue;
+          const v = el.name.startsWith("d.") ? d[el.name.slice(2)] : pr[el.name];
+          if (v != null) el.value = String(v);
+        }
+      } catch { $("#pfMsg").textContent = "Could not read the profile."; }
+      try {
+        const r = await fetch("/api/resume").then((x) => x.json());
+        const when = r.savedAt ? new Date(r.savedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "";
+        $("#pfResume").textContent = r.text || r.hasPdf ? `${r.file ? r.file + " · " : ""}${r.hasPdf ? "PDF kept" : "text only"}${when ? " · saved " + when : ""}` : "Not added yet";
+      } catch { $("#pfResume").textContent = "Could not read the resume."; }
+    }
+    $("#pfForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const f = e.currentTarget, details = {}, body = { details };
+      for (const el of f.elements) {
+        if (!el.name) continue;
+        const v = String(el.value || "").trim();
+        if (el.name.startsWith("d.")) details[el.name.slice(2)] = v;
+        else if (el.name === "years") { if (v) body.years = Number(v) || v; }
+        else body[el.name] = v;
+      }
+      const go = async () => {
+        const r = await fetch("/api/profile", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }).then((x) => x.json());
+        if (!r.ok) throw new Error("Not saved.");
+        $("#pfMsg").textContent = "Saved. New scores use it on the next search.";
+      };
+      try { if (window.CO?.ui?.withButton) await window.CO.ui.withButton($("#pfSave"), go, { loading: "Saving", success: "Saved", error: "Try again" }); else await go(); }
+      catch (err) { $("#pfMsg").textContent = err.message; }
+    });
+    loadProfile();
 
     loadSettings();
-    loadConnectors();
+    loadAgents();
+    loadNaukri();
+    loadSites();
+  </script>
+  <script>
+  /* Setup checklist: what is connected, read from the server, with the next
+     task open and its one button. Built by CO.ui.checklist (design.js). */
+  (function () {
+    const box = document.getElementById("setupList");
+    async function build() {
+      const ui = window.CO && window.CO.ui;
+      if (!ui || !box) return;
+      const get = (u) => fetch(u).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+      const [settings, naukri, agents, prof, resume, results] = await Promise.all([get("/api/settings"), get("/api/naukri/status"), get("/api/agents"), get("/api/profile"), get("/api/resume"), get("/api/results")]);
+      const agentOn = ((agents && agents.agents) || []).filter((a) => a.state === "connected");
+      const src = (id) => ((settings && settings.sources) || []).find((x) => x.id === id);
+      const profile = Boolean(prof && prof.role && resume && (resume.exists || resume.text));
+      let queued = 0;
+      try { queued = (JSON.parse(localStorage.getItem("co.console.picks") || "[]") || []).length; } catch {}
+      const applied = (results && results.applied) || 0;
+      const openSource = (id) => () => {
+        const card = document.querySelector('.conn[data-src="' + id + '"]');
+        if (!card) return;
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+        const b = card.querySelector('[data-act="connect"]');
+        if (b) b.click();
+      };
+      const fc = src("firecrawl");
+      ui.checklist(box, [
+        { id: "profile", title: "Set up your profile", why: "Your resume, target role and preferences. Every score starts here.",
+          done: profile, note: "Done", action: { label: "Start setup", href: "index.html?setup=1" } },
+        { id: "ai", title: "Connect an AI", why: "An AI key, or an agent such as Claude or Codex, writes the why-this-score text and tailors one resume per job. Scoring works without it.",
+          done: Boolean(settings && settings.hasKey) || agentOn.length > 0,
+          note: settings && settings.hasKey ? "Key connected" : agentOn.length ? agentOn.map((a) => a.name).join(", ") : "Connected",
+          action: { label: "Add a key", onClick: () => { const k = document.getElementById("key"); document.getElementById("aiHero")?.scrollIntoView({ behavior: "smooth", block: "center" }); setTimeout(() => k && k.focus(), 400); } } },
+        { id: "naukri", title: "Sign in to Naukri", why: "Your phone or email, then the one-time code Naukri sends. No password, no browser.",
+          done: Boolean(naukri && naukri.signedIn), note: "Signed in", action: { label: "Sign in with a code", href: "naukri.html" } },
+        { id: "firecrawl", title: "Add advanced search", why: "Firecrawl finds Fortune 500 roles on Workday, SuccessFactors and Taleo career sites. Free, no card.",
+          done: Boolean(fc && fc.hasKey), note: "Connected", action: fc ? { label: "Connect Firecrawl", onClick: openSource("firecrawl") } : null },
+        { id: "first", title: "Queue your first job", why: "Open Find, read why a posting scored what it did, and add the ones worth a resume to your queue.",
+          done: queued > 0 || applied > 0, note: applied ? applied + " applied" : queued + " in your queue", action: { label: "Open Find", href: "workspace.html#jobs" } },
+      ], { title: "Get set up", doneTitle: "You’re all set" });
+    }
+    if (document.readyState === "complete") build(); else addEventListener("load", build);
+    /* a connection made further down the page updates the list */
+    addEventListener("focus", build);
+  })();
   </script>
 </body>
 </html>

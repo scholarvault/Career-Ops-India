@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "career-ops-india": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["--import", "tsx", "server/mcp.ts"],
+      "env": {}
+    }
+  }
+}

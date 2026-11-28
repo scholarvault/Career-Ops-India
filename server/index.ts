@@ -10,50 +10,37 @@
 // Run with: pnpm ui   (tsx server/index.ts)
 
 import { createServer } from "node:http";
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir, rename } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import {
-  BOARDS,
-  discoverJobs,
-  inIndia,
-  profileFor,
-  prefsFor,
-  runBoard,
-  scoreOne,
-  warmBoards,
-  type JobRequest,
-} from "./lib/discovery";
+import { BOARDS, discoverJobs, inIndia, profileFor, prefsFor, runBoard, scoreOne, warmBoards, type JobRequest, type ScoredJob } from "./lib/discovery";
+import type { Job } from "@career-ops/contracts";
 import { AGGREGATORS } from "./connectors/aggregators";
 import { COMPANY_PORTALS, WORKDAY_PORTALS, runCompanyPortal } from "./connectors/companies";
 import { REMOTE_SOURCES, runRemote } from "./connectors/remote";
 import { discoverFreelance } from "./connectors/freelance";
 import { fillApplication, closeFillWindow, FILLABLE_SOURCES } from "./connectors/fill";
 import { fetchIndeedDetail } from "./connectors/indeed";
-import {
-  NAUKRI_API_POLICY,
-  NaukriApiError,
-  applyJob as naukriApply,
-  applicationHistory as naukriHistory,
-  clearSession as naukriLogout,
-  importFromBrowser as naukriImport,
-  loadSession as naukriLoad,
-  login as naukriLogin,
-  searchJobs as naukriSearch,
-  sendOtp as naukriSendOtp,
-  status as naukriStatus,
-  verifyOtp as naukriVerifyOtp,
-} from "./connectors/naukriApi";
+import { NAUKRI_API_POLICY, NaukriApiError, applyJob as naukriApply, applicationHistory as naukriHistory, clearSession as naukriLogout, importFromBrowser as naukriImport, loadSession as naukriLoad, startOtpLogin as naukriStartOtp, searchJobs as naukriSearch, sendOtp as naukriSendOtp, status as naukriStatus, verifyOtp as naukriVerifyOtp } from "./connectors/naukriApi";
 import { assertCanApply, capState, readAudit, recordApply } from "./lib/audit";
 import { keywordGap } from "./lib/ats";
-import { appearsIn, mentions, resumeBaseline } from "./lib/baseline";
+import { appearsIn, mentions, resumeBaseline, checkBulletProvenance } from "./lib/baseline";
 import { cacheSummary, forgetForm } from "./lib/formcache";
+import { agentStatus, connectAgent } from "./lib/agents";
+import { BUNDLE_NAME, PLUGIN_FILE, buildBundle, buildPlugin } from "./lib/mcpb";
+import { JOB_SITES, checkSignin, listJobSites, markSignedIn, signOutSite } from "./lib/jobsites";
+import { USER_BROWSER, attachUserBrowser, detachUserBrowser, detectUserBrowsers, loadUserBrowserConfig, saveUserBrowserConfig, userBrowserState, type UserBrowserId } from "./lib/user-browser";
+import { resumePhoto } from "./lib/resume-photo";
+import { webSearch } from "./connectors/websearch";
+import { createHash, randomBytes } from "node:crypto";
 import {
   HAS_CHROME,
   back,
   closeBrowser,
+  currentModes,
+  reapOrphanBrowsers,
   currentPage,
   frame,
   isPaused,
@@ -61,14 +48,20 @@ import {
   openVisible,
   pageState,
   sendInput,
+  setMode,
   setPaused,
+  type BrowserMode,
+  showWindow,
+  hideWindow,
 } from "./lib/browser";
-import { loadTailored, saveTailored } from "./lib/tailored";
-import { queueState, resumeQueue, retryJob, startQueue, stopQueue, subscribeQueue } from "./lib/autoapply";
-import { answerAsk, askState } from "./lib/asks";
+import { loadTailored, saveTailored, saveTailoredPdfBytes } from "./lib/tailored";
+import { clearResolvedAsk, queueState, resumeQueue, retryJob, startQueue, stopQueue, subscribeQueue, reconcileEarlier } from "./lib/autoapply";
+import { answerAsk, askState, toAgentChallenge } from "./lib/asks";
 import { forgetSite, listSites } from "./lib/sites";
 import { marketSummary } from "./lib/market";
 import { getProfile, getResume, saveProfile, saveResume } from "./lib/profile-store";
+import { renderTailoredResumeHtml } from "./lib/resume-html";
+import { dispatchMcpRpc, PROTOCOL, SERVER_INFO, TOOLS } from "./mcp";
 
 /* Load .env when present. Node >= 20.6 does this natively; a missing file is
    not an error, so a fresh clone still starts with no configuration. */
@@ -80,7 +73,10 @@ try {
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const UI = join(ROOT, "ui");
-const DATA = join(ROOT, "data");
+/* CAREER_OPS_DATA points the app at another data folder (tests use a scratch one) */
+const DATA = process.env.CAREER_OPS_DATA ? normalize(process.env.CAREER_OPS_DATA) : join(ROOT, "data");
+void loadUserBrowserConfig(DATA);
+let naukriAppliedCache: { at: number; ids: string[] } = { at: 0, ids: [] };
 const PORT = Number(process.env.PORT || 4173);
 
 /* ------------------------------------------------------------------ */
@@ -90,11 +86,15 @@ const PORT = Number(process.env.PORT || 4173);
 type Settings = { provider: string; model: string; baseUrl: string };
 type Secrets = {
   apiKey?: string;
+  mcpToken?: string;
   adzunaAppId?: string;
   adzunaAppKey?: string;
   joobleKey?: string;
   careerjetKey?: string;
   careerjetDataKey?: string;
+  jsearchKey?: string;
+  firecrawlKey?: string;
+  tinyfishKey?: string;
 };
 
 const DEFAULT_SETTINGS: Settings = {
@@ -121,11 +121,38 @@ async function readJson<T>(file: string, fallback: T): Promise<T> {
   }
 }
 
+/* Atomic: write a temp file, then rename over the old one, so a reader never
+   sees half a file. */
 async function writeJson(file: string, value: unknown): Promise<void> {
   await mkdir(DATA, { recursive: true });
-  await writeFile(file, JSON.stringify(value, null, 2), "utf8");
+  const tmp = `${file}.${process.pid}.${Date.now()}.tmp`;
+  await writeFile(tmp, JSON.stringify(value, null, 2), "utf8");
+  await rename(tmp, file);
 }
 
+/* Every change to data/secrets.json goes through here, one at a time. Two
+   connectors saved at once used to read-modify-write over each other, and a
+   read that met a half-written file returned {}, which wiped the AI key.
+   A file that exists but does not parse now stops the write instead. */
+let secretsQueue: Promise<unknown> = Promise.resolve();
+function updateSecrets(change: (sec: Secrets) => Secrets | void): Promise<Secrets> {
+  const run = secretsQueue.then(async () => {
+    let stored: Secrets = {};
+    try {
+      stored = JSON.parse(await readFile(secretsFile, "utf8")) as Secrets;
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException)?.code !== "ENOENT") throw new Error("data/secrets.json could not be read; nothing was changed.");
+    }
+    const next = change({ ...stored }) || stored;
+    await writeJson(secretsFile, next);
+    return next;
+  });
+  secretsQueue = run.catch(() => {});
+  return run;
+}
+
+/* OpenRouter sign-in: PKCE verifiers waiting for their callback, by state */
+const orPending = new Map<string, { verifier: string; at: number }>();
 const settingsFile = join(DATA, "settings.json");
 const secretsFile = join(DATA, "secrets.json");
 
@@ -223,8 +250,9 @@ function pickJson(s: string): any | null {
 }
 
 /* A model that hits its token limit stops mid-object. Close the string and
-   the brackets it left open so the part it did write can still be used. */
-function repairJson(s: string): string {
+   the brackets it left open — and if it cut inside a key, colon or partial
+   literal, trim back to the last complete delimiter so JSON.parse succeeds. */
+function closeTruncatedJson(s: string): string {
   let inStr = false;
   let esc = false;
   const stack: string[] = [];
@@ -239,10 +267,39 @@ function repairJson(s: string): string {
     else if (ch === "{" || ch === "[") stack.push(ch);
     else if (ch === "}" || ch === "]") stack.pop();
   }
-  let out = s.replace(/,\s*$/, "");
-  if (inStr) out += '"';
+  let out = s;
+  if (inStr) {
+    if (esc) out = out.slice(0, -1);
+    out += '"';
+  }
+  out = out.replace(/,\s*$/, "");
   for (let i = stack.length - 1; i >= 0; i--) out += stack[i] === "{" ? "}" : "]";
   return out;
+}
+
+function repairJson(s: string): string {
+  let candidate = closeTruncatedJson(s);
+  try {
+    JSON.parse(candidate);
+    return candidate;
+  } catch {}
+
+  /* Trim back across partial keys, dangling colons or incomplete array items. */
+  let cur = s.trimEnd();
+  for (let step = 0; step < 12 && cur.length > 2; step++) {
+    const cutComma = cur.lastIndexOf(",");
+    const cutBrace = cur.lastIndexOf("{");
+    const cutBracket = cur.lastIndexOf("[");
+    const cut = Math.max(cutComma, cutBrace, cutBracket);
+    if (cut <= 0) break;
+    cur = cur[cut] === "," ? cur.slice(0, cut) : cur.slice(0, cut + 1);
+    candidate = closeTruncatedJson(cur);
+    try {
+      JSON.parse(candidate);
+      return candidate;
+    } catch {}
+  }
+  return closeTruncatedJson(s);
 }
 
 /* ---------- summary quality ---------- */
@@ -316,10 +373,12 @@ const server = createServer(async (req, res) => {
     /* ---------------- API ---------------- */
 
     if (path === "/api/connectors") {
+      const capMs = <T,>(p: Promise<T>, fallback: T, ms = 7500): Promise<T> =>
+        Promise.race([p, new Promise<T>((r) => setTimeout(() => r(fallback), ms))]);
       const [results, remoteRuns, freelanceRun] = await Promise.all([
-        Promise.all(BOARDS.map(runBoard)),
-        Promise.all(REMOTE_SOURCES.map(async (s) => ({ source: s, result: await runRemote(s, "") }))),
-        discoverFreelance("product manager", 10),
+        Promise.all(BOARDS.map((b) => capMs(runBoard(b), { board: b, jobs: [], ms: 7500, error: "Timed out after 7.5s" }))),
+        Promise.all(REMOTE_SOURCES.map(async (s) => ({ source: s, result: await capMs(runRemote(s, ""), { jobs: [], ms: 7500, error: "Timed out after 7.5s" }) }))),
+        capMs(discoverFreelance("product manager", 10), { jobs: [], ms: 7500, error: "Timed out after 7.5s" }),
       ]);
       const sec = await loadSecrets();
       const chrome = [
@@ -401,8 +460,59 @@ const server = createServer(async (req, res) => {
       });
     }
 
+    /* The same search, streamed: one JSON line per source as it answers,
+       then the full, sorted, de-duplicated result (ADR-035). */
+    if (path === "/api/jobs/stream" && req.method === "POST") {
+      const reqBody = (await body(req)) as JobRequest;
+      if (reqBody.years == null || !Number.isFinite(Number(reqBody.years))) {
+        const y = Number((await getProfile(ROOT)).years);
+        if (Number.isFinite(y) && y > 0) reqBody.years = y;
+      }
+      const sec = await loadSecrets();
+      res.writeHead(200, { "content-type": "application/x-ndjson; charset=utf-8", "cache-control": "no-store", "x-accel-buffering": "no" });
+      const line = (o: unknown) => { try { res.write(JSON.stringify(o) + "\n"); } catch { /* the page went away */ } };
+      line({ type: "start", at: new Date().toISOString() });
+      try {
+        const result = await discoverJobs({
+          ...reqBody,
+          profileDir: join(DATA, "browser-profile"),
+          sourceKeys: {
+            adzunaAppId: sec.adzunaAppId, adzunaAppKey: sec.adzunaAppKey, joobleKey: sec.joobleKey,
+            careerjetKey: sec.careerjetKey, careerjetDataKey: sec.careerjetDataKey, jsearchKey: sec.jsearchKey,
+            firecrawlKey: sec.firecrawlKey, tinyfishKey: sec.tinyfishKey,
+          },
+          onBatch: (b) => line({ type: "batch", ...b }),
+        });
+        line({ type: "done", ok: true, ...result });
+      } catch (e) {
+        line({ type: "done", ok: false, error: e instanceof Error ? e.message : String(e) });
+      }
+      return res.end();
+    }
+
+    /* Find → Search the web: the user's words through Firecrawl or TinyFish,
+       limited to career sites, the Indian boards, or one board. */
+    if (path === "/api/websearch" && req.method === "POST") {
+      const b = (await body(req)) as { query?: string; where?: string; engine?: string; days?: number; role?: string; cities?: string[] };
+      const query = String(b.query || "").trim();
+      if (query.length < 2) return send(res, 400, { ok: false, error: "Type what to search for." });
+      const sec = await loadSecrets();
+      const engine = (["firecrawl", "tinyfish", "both"].includes(String(b.engine)) ? b.engine : "both") as "firecrawl" | "tinyfish" | "both";
+      const r = await webSearch({ query, where: String(b.where || "all"), engine, city: b.cities?.[0] || String((await getProfile(ROOT)).details?.city || "") || undefined, ...(Number(b.days) > 0 ? { days: Number(b.days) } : {}) }, { firecrawlKey: sec.firecrawlKey, tinyfishKey: sec.tinyfishKey });
+      /* scored like Live, against the saved profile */
+      const prof = await getProfile(ROOT);
+      const jr: JobRequest = { role: b.role || prof.role || query, cities: b.cities?.length ? b.cities : prof.details?.city ? [String(prof.details.city)] : [], ...(Number(prof.years) > 0 ? { years: Number(prof.years) } : {}) };
+      const pr = profileFor(jr), pf = prefsFor(jr);
+      const jobs = r.jobs.map((j) => scoreOne(j, jr, pr, pf)).sort((x, y) => Number(y.matched) - Number(x.matched) || y.score - x.score);
+      return send(res, 200, { ok: r.ran.some((x) => x.ok), jobs, ran: r.ran });
+    }
+
     if (path === "/api/jobs" && req.method === "POST") {
       const reqBody = (await body(req)) as JobRequest;
+      if (reqBody.years == null || !Number.isFinite(Number(reqBody.years))) {
+        const y = Number((await getProfile(ROOT)).years);
+        if (Number.isFinite(y) && y > 0) reqBody.years = y;
+      }
       const sec = await loadSecrets();
       const result = await discoverJobs({
         ...reqBody,
@@ -414,6 +524,8 @@ const server = createServer(async (req, res) => {
           careerjetKey: sec.careerjetKey,
           careerjetDataKey: sec.careerjetDataKey,
           jsearchKey: sec.jsearchKey,
+          firecrawlKey: sec.firecrawlKey,
+          tinyfishKey: sec.tinyfishKey,
         },
       });
       return send(res, 200, { ok: true, ...result });
@@ -433,6 +545,8 @@ const server = createServer(async (req, res) => {
           signup: a.signup,
           free: a.free,
           hasKey: a.hasKey(sec),
+          canTest: Boolean(a.test),
+          ...(a.blurb ? { blurb: a.blurb } : {}),
         })),
       });
     }
@@ -453,13 +567,12 @@ const server = createServer(async (req, res) => {
       const b = (await body(req)) as { apiKey?: string };
       if (!b.apiKey || b.apiKey.length < 8) return send(res, 400, { ok: false, error: "Key looks too short." });
       /* merge: the same file holds the job-source keys */
-      await writeJson(secretsFile, { ...(await loadSecrets()), apiKey: b.apiKey });
+      await updateSecrets((sec) => ({ ...sec, apiKey: b.apiKey }));
       return send(res, 200, { ok: true, hasKey: true });
     }
 
     if (path === "/api/settings/key" && req.method === "DELETE") {
-      const { apiKey: _drop, ...rest } = await loadSecrets();
-      await writeJson(secretsFile, rest);
+      await updateSecrets((sec) => { const { apiKey: _drop, ...rest } = sec; return rest; });
       return send(res, 200, { ok: true, hasKey: false });
     }
 
@@ -469,22 +582,110 @@ const server = createServer(async (req, res) => {
       const b = (await body(req)) as { source?: string; values?: Record<string, string> };
       const agg = AGGREGATORS.find((a) => a.id === b.source);
       if (!agg) return send(res, 400, { ok: false, error: "Unknown source." });
-      const sec = await loadSecrets();
-      for (const f of agg.fields) {
-        const v = String(b.values?.[f.key] ?? "").trim();
-        if (v) (sec as Record<string, unknown>)[f.key] = v;
-      }
-      await writeJson(secretsFile, sec);
+      const sec = await updateSecrets((s0) => {
+        for (const f of agg.fields) {
+          const v = String(b.values?.[f.key] ?? "").trim();
+          if (v) (s0 as Record<string, unknown>)[f.key] = v;
+        }
+        return s0;
+      });
       return send(res, 200, { ok: true, hasKey: agg.hasKey(sec) });
+    }
+
+    /* Proves a stored key works with one cheap call (Firecrawl: the credit
+       balance; TinyFish: a free search). The key itself never comes back. */
+    /* One-click AI sign-in: OpenRouter's OAuth PKCE flow hands back a key for
+       the user's own account. The verifier stays in this process; the key is
+       saved exactly like a pasted one and never returned to the page. */
+    if (path === "/api/ai/connect/openrouter" && req.method === "GET") {
+      const verifier = randomBytes(32).toString("base64url");
+      const state = randomBytes(16).toString("base64url");
+      const challenge = createHash("sha256").update(verifier).digest("base64url");
+      orPending.set(state, { verifier, at: Date.now() });
+      for (const [k, v] of orPending) if (Date.now() - v.at > 15 * 60_000) orPending.delete(k);
+      const host = req.headers.host && /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(req.headers.host) ? req.headers.host : "localhost:4173";
+      const callback = `http://${host}/api/ai/connect/openrouter/callback`;
+      const to = `https://openrouter.ai/auth?callback_url=${encodeURIComponent(callback)}&code_challenge=${challenge}&code_challenge_method=S256&state=${state}`;
+      res.writeHead(302, { location: to });
+      return res.end();
+    }
+    if (path === "/api/ai/connect/openrouter/callback" && req.method === "GET") {
+      const code = url.searchParams.get("code") || "";
+      const state = url.searchParams.get("state") || "";
+      const pending = orPending.get(state);
+      orPending.delete(state);
+      const back = (q: string) => { res.writeHead(302, { location: `/settings.html${q}#ai` }); res.end(); };
+      if (!code || !pending) return back("?ai=cancelled");
+      try {
+        const r = await fetch("https://openrouter.ai/api/v1/auth/keys", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ code, code_verifier: pending.verifier, code_challenge_method: "S256" }),
+        });
+        const d = (await r.json().catch(() => ({}))) as { key?: string };
+        if (!r.ok || !d.key) return back("?ai=failed");
+        const p = PROVIDERS.openrouter!;
+        await writeJson(settingsFile, { provider: "openrouter", model: p.model, baseUrl: p.baseUrl });
+        await updateSecrets((sec) => ({ ...sec, apiKey: d.key }));
+        return back("?ai=connected");
+      } catch {
+        return back("?ai=failed");
+      }
+    }
+
+    /* AI agents on this machine and whether Career-Ops is registered with each */
+    if (path === "/api/agents" && req.method === "GET") {
+      return send(res, 200, { ok: true, agents: await agentStatus(url.searchParams.get("fresh") === "1") });
+    }
+    /* The Claude Desktop extension, built for this folder, as a download.
+       It holds a launcher and a manifest: no key, no profile, no session. */
+    if (path === "/api/agents/bundle" && req.method === "GET") {
+      const pkg = JSON.parse(await readFile(join(ROOT, "package.json"), "utf8")) as { version?: string };
+      const b = await buildBundle(ROOT, DATA, pkg.version || "0.0.0");
+      const buf = await readFile(b.file);
+      res.writeHead(200, {
+        "content-type": "application/zip",
+        "content-disposition": `attachment; filename="${BUNDLE_NAME}.mcpb"`,
+        "content-length": buf.length,
+        "cache-control": "no-store",
+      });
+      return res.end(buf);
+    }
+    /* The same launcher as a Claude plugin zip (Plugins → Upload a plugin). */
+    if (path === "/api/agents/plugin" && req.method === "GET") {
+      const pkg = JSON.parse(await readFile(join(ROOT, "package.json"), "utf8")) as { version?: string };
+      const b = await buildPlugin(ROOT, DATA, pkg.version || "0.0.0");
+      const buf = await readFile(b.file);
+      res.writeHead(200, {
+        "content-type": "application/zip",
+        "content-disposition": `attachment; filename="${PLUGIN_FILE}"`,
+        "content-length": buf.length,
+        "cache-control": "no-store",
+      });
+      return res.end(buf);
+    }
+    if (path === "/api/agents/connect" && req.method === "POST") {
+      const b = (await body(req)) as { id?: string };
+      const r = await connectAgent(String(b.id || ""));
+      return send(res, 200, { ...r, agents: await agentStatus(true) });
+    }
+    if (path === "/api/settings/source-test" && req.method === "POST") {
+      const b = (await body(req)) as { source?: string };
+      const agg = AGGREGATORS.find((a) => a.id === b.source);
+      if (!agg?.test) return send(res, 400, { ok: false, error: "That source has no test." });
+      try {
+        const message = await agg.test(await loadSecrets());
+        return send(res, 200, { ok: true, message });
+      } catch (e) {
+        return send(res, 200, { ok: false, error: e instanceof Error ? e.message : String(e) });
+      }
     }
 
     if (path === "/api/settings/source-key" && req.method === "DELETE") {
       const source = url.searchParams.get("source") ?? "";
       const agg = AGGREGATORS.find((a) => a.id === source);
       if (!agg) return send(res, 400, { ok: false, error: "Unknown source." });
-      const sec = await loadSecrets() as Record<string, unknown>;
-      for (const f of agg.fields) delete sec[f.key];
-      await writeJson(secretsFile, sec);
+      await updateSecrets((sec) => { for (const f of agg.fields) delete (sec as Record<string, unknown>)[f.key]; return sec; });
       return send(res, 200, { ok: true, hasKey: false });
     }
 
@@ -650,6 +851,7 @@ const server = createServer(async (req, res) => {
            answers the same JSON in under a second with no reasoning. */
         const tailorModel = s.model === "sarvam-105b" ? "sarvam-105b-conversations" : s.model;
 
+        let lastMeta = { finishReason: "", len: 0, tail: "" };
         const callModel = async (content: string, maxTokens = 8000) => {
           const r = await fetch(`${s.baseUrl.replace(/\/$/, "")}/chat/completions`, {
             method: "POST",
@@ -666,6 +868,11 @@ const server = createServer(async (req, res) => {
           if (!r.ok) throw new Error(text.slice(0, 240));
           const j = JSON.parse(text);
           const out = String(j?.choices?.[0]?.message?.content ?? "").trim();
+          lastMeta = {
+            finishReason: String(j?.choices?.[0]?.finish_reason ?? ""),
+            len: out.length,
+            tail: out.slice(-160),
+          };
           if (!out) throw new Error("The model returned no text.");
           return out;
         };
@@ -701,7 +908,7 @@ const server = createServer(async (req, res) => {
           return baseline.roles
             .filter((b) => {
               const tokens = b.line.toLowerCase().split(/\s+/).filter((t) => t.length > 3);
-              return !got.some((g) => tokens.filter((t) => g.includes(t)).length >= Math.min(2, tokens.length));
+              return !got.some((g: string) => tokens.filter((t) => g.includes(t)).length >= Math.min(2, tokens.length));
             })
             .map((b) => b.line);
         };
@@ -757,8 +964,23 @@ const server = createServer(async (req, res) => {
           summaryIssue = parsed ? summaryProblem(str(parsed.summary), baseline.summary) : "missing";
         }
         if (!parsed) {
-          console.error("[tailor] unparseable model output:", out.slice(0, 400));
-          return send(res, 200, { ok: false, reason: "not-json", error: "Sarvam returned an incomplete answer. Try again." });
+          /* One concise pass prevents token/stream cutoffs on long multi-role CVs. */
+          try {
+            out = await ask(
+              "Your previous reply cut off before finishing JSON. Keep each role to 2 concise bullets (max 16 words each) and top 10 keywords so the single JSON object completes cleanly."
+            );
+            parsed = parseOut(out);
+          } catch {
+            /* fall through to diagnostic error */
+          }
+        }
+        if (!parsed) {
+          console.error("[tailor] unparseable model output:", { ...lastMeta, head: out.slice(0, 300) });
+          return send(res, 200, {
+            ok: false,
+            reason: "not-json",
+            error: `Sarvam returned incomplete JSON (finish=${lastMeta.finishReason || "unknown"}, len=${lastMeta.len}). Try again or use "Use original PDF".`,
+          });
         }
         if (!Array.isArray(parsed.experience) || parsed.experience.length === 0) {
           return send(res, 200, {
@@ -831,7 +1053,7 @@ const server = createServer(async (req, res) => {
           const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
           const parts = r.split(/\s+[—–-]\s+|\s+at\s+/i);
           if (parts.length >= 2) {
-            const tail = parts[parts.length - 1].trim();
+            const tail = (parts[parts.length - 1] ?? "").trim();
             const head = parts.slice(0, -1).join(" — ").trim();
             if (head && (!c || norm(tail) === norm(c) || norm(c).includes(norm(tail)) || norm(tail).includes(norm(c)))) {
               return { role: head, company: c || tail };
@@ -853,6 +1075,15 @@ const server = createServer(async (req, res) => {
           })
           .filter((r: any) => r.role && r.lines.length)
           .slice(0, 10);
+
+        /* A number belongs to the job it happened in. The model once moved
+           "100,000+ indexed records" from Technoarete to ScholarVault: every
+           employer existed, so the role check passed, yet the claim was false.
+           Each metric in a bullet must appear in that same role's section of
+           the master resume; a bullet that fails is dropped and reported. */
+        const provenance = checkBulletProvenance(resume, baseline.roles, experience);
+        experience.forEach((r: any, i: number) => { r.lines = provenance.kept[i] ?? r.lines; });
+        const bulletsDropped = provenance.dropped;
 
         const skillsRaw = arr(parsed.skills)
           .map((g: any) => ({
@@ -940,7 +1171,7 @@ const server = createServer(async (req, res) => {
           if (looksCert) {
             /* keep a specialization that the model split off from its degree */
             if (/speciali[sz]ation/i.test(e.degree) && educationClean.length) {
-              const prev = educationClean[educationClean.length - 1];
+              const prev = educationClean[educationClean.length - 1]!;
               prev.detail = [prev.detail, e.degree].filter(Boolean).join(" · ");
               if (!prev.dates && e.dates) prev.dates = e.dates;
             }
@@ -971,6 +1202,54 @@ const server = createServer(async (req, res) => {
         const bullets = experience.map((r: any) => ({ role: r.role, company: r.company, lines: r.lines }));
         const competencies = arr(parsed.competencies).map(str).filter(Boolean).slice(0, 8);
         const covered = keywords.filter((k: any) => k.inResume).length;
+
+        /* Enforce, not just flag: a sentence or bullet that names a hard skill
+           the posting wants and the resume does not show is removed. Seen on
+           2026-11-28: "Demonstrated strong Jira and Confluence experience" and
+           "Expertise spans presales, RFP, RFI" for a CV with none of them.
+           Hard = a tool, acronym or named practice; generic phrasing such as
+           "stakeholder management" stays and is only flagged below. */
+        const claimsRemoved: Array<{ where: string; text: string; terms: string[] }> = [];
+        {
+          const GENERIC = /^(management|product management|stakeholder management|people management|project management|transformation|digital transformation|documentation|definitions|monitoring|certification|quality standards|communication|leadership|strategy|delivery|software delivery|product ownership|ownership|operations|analytics|life ?cycle( management)?|product life ?cycle management|cross[- ]functional.*|creating .*|working with .*|ensure .*)$/i;
+          const initials = (t: string) => t.split(/\s+/).map((w) => w[0] ?? "").join("").toLowerCase();
+          const resumeHas = (t: string) =>
+            appearsIn(resume, t) ||
+            (t.trim().split(/\s+/).length > 1 && new RegExp(`\\b${initials(t)}\\b`, "i").test(resume));
+          /* Tools and methods a model adds on its own even when the posting
+             never named them ("Agile" on 2026-11-28). Checked against the
+             resume regardless of the posting's keyword list. */
+          const COMMON_HARD = [
+            "Jira", "Confluence", "Figma", "Agile", "Scrum", "Kanban", "SQL", "Python", "Java", "JavaScript",
+            "AWS", "Azure", "GCP", "Salesforce", "SAP", "Power BI", "Excel", "Kubernetes", "Docker",
+            "Mixpanel", "Amplitude", "Looker", "Snowflake", "dbt", "Airflow", "Presales", "RFP", "RFI",
+          ];
+          const hard = [
+            ...keywords.filter((k: any) => !k.inResume).map((k: any) => String(k.term)),
+            ...COMMON_HARD,
+          ]
+            .filter((t: string, i: number, all: string[]) => all.findIndex((x) => x.toLowerCase() === t.toLowerCase()) === i)
+            .filter((t: string) => t.trim().split(/\s+/).length <= 3 && /[A-Z]/.test(t) && !GENERIC.test(t.trim()) && !resumeHas(t));
+          const termsIn = (s: string) => hard.filter((t: string) => mentions(s, t));
+          if (hard.length) {
+            const sentences = str(parsed.summary).split(/(?<=[.!?])\s+/).filter(Boolean);
+            const keptSentences = sentences.filter((s: string) => {
+              const t = termsIn(s);
+              if (t.length) claimsRemoved.push({ where: "summary", text: s, terms: t });
+              return !t.length;
+            });
+            if (keptSentences.length !== sentences.length) {
+              parsed.summary = keptSentences.length >= 2 ? keptSentences.join(" ") : baseline.summary;
+            }
+            for (const r of experience) {
+              r.lines = r.lines.filter((l: string) => {
+                const t = termsIn(l);
+                if (t.length) claimsRemoved.push({ where: r.company || r.role, text: l, terms: t });
+                return !t.length;
+              });
+            }
+          }
+        }
 
         /* The model sometimes slips a missing term into the summary anyway
            ("SQL-adjacent" when SQL is a gap). Flag it instead of hiding it. */
@@ -1047,6 +1326,8 @@ const server = createServer(async (req, res) => {
           missingRoles: missing,
           missingFacts: missingFactList,
           claimsGaps,
+          bulletsDropped,
+          claimsRemoved,
           model: tailorModel,
           ms: Date.now() - t0,
         });
@@ -1133,16 +1414,80 @@ const server = createServer(async (req, res) => {
 
     /* ---------------- tailored resume store ---------------- */
 
+    const masterPdfPath = join(DATA, "master-resume.pdf");
+
+    const reqOrigin = (r: any): string => {
+      const proto = (String(r.headers["x-forwarded-proto"] || "http").split(",")[0] ?? "").trim() || "http";
+      return `${proto}://${r.headers.host || `127.0.0.1:${PORT}`}`;
+    };
+
     if (path === "/api/tailored/save" && req.method === "POST") {
-      const b = (await body(req)) as { jobId?: string; data?: any; html?: string };
+      const b = (await body(req)) as { jobId?: string; data?: any; html?: string; mode?: "tailored" | "original" };
       const jobId = String(b.jobId || "");
       if (!jobId) return send(res, 400, { ok: false, error: "jobId is required." });
       if (!b.html || String(b.html).length < 200) {
         return send(res, 400, { ok: false, error: "The resume HTML is missing." });
       }
       try {
-        const rec = await saveTailored(ROOT, jobId, b.data ?? {}, String(b.html));
-        return send(res, 200, { ok: true, jobId: rec.jobId, pdf: rec.pdf, pdfSha256: rec.pdfSha256, savedAt: rec.savedAt });
+        const rec = await saveTailored(ROOT, jobId, b.data ?? {}, String(b.html), b.mode === "original" ? "original" : "tailored");
+        return send(res, 200, { ok: true, jobId: rec.jobId, mode: rec.mode, pdf: rec.pdf, pdfSha256: rec.pdfSha256, savedAt: rec.savedAt });
+      } catch (e) {
+        return send(res, 200, { ok: false, error: e instanceof Error ? e.message : String(e) });
+      }
+    }
+
+    if (path === "/api/tailored/use-original" && req.method === "POST") {
+      const b = (await body(req)) as {
+        jobId?: string;
+        job?: { title?: string; company?: string };
+        profile?: Record<string, any>;
+        resumeText?: string;
+      };
+      const jobId = String(b.jobId || "");
+      if (!jobId) return send(res, 400, { ok: false, error: "jobId is required." });
+      try {
+        if (existsSync(masterPdfPath)) {
+          const pdfBytes = await readFile(masterPdfPath);
+          const rec = await saveTailoredPdfBytes(
+            ROOT,
+            jobId,
+            { mode: "original", headline: b.profile?.title || b.job?.title || "", summary: "Original uploaded master PDF (unchanged)." },
+            pdfBytes,
+            "original",
+          );
+          return send(res, 200, { ok: true, jobId: rec.jobId, mode: rec.mode, pdf: rec.pdf, pdfSha256: rec.pdfSha256, savedAt: rec.savedAt });
+        }
+        const storedResume = await getResume(ROOT);
+        const text = String(b.resumeText || storedResume?.text || "").trim();
+        if (text.length < 60) {
+          return send(res, 400, { ok: false, error: "Upload the master resume first." });
+        }
+        const storedProfile = await getProfile(ROOT);
+        const det = storedProfile.details || {};
+        const p = b.profile || {};
+        const baseline = resumeBaseline(text);
+        const structured = {
+          mode: "original",
+          headline: p.title || det.currentTitle || storedProfile.role || "Product & Operations",
+          summary: baseline.summary || text.slice(0, 600),
+          skills: baseline.skills.slice(0, 32),
+          experience: baseline.roles.map((r) => ({ role: r.line, dates: r.dates, lines: [] })),
+          certifications: baseline.certifications,
+          languages: baseline.languages,
+        };
+        const html = renderTailoredResumeHtml(
+          structured,
+          {
+            fullName: p.fullName || p.name || det.name,
+            email: p.email || det.email,
+            phone: p.phone || det.phone,
+            city: p.city || p.location || det.city,
+            links: { linkedin: p.linkedin || det.linkedin, portfolio: p.website || det.website },
+          },
+          { company: b.job?.company, title: b.job?.title },
+        );
+        const rec = await saveTailored(ROOT, jobId, structured, html, "original");
+        return send(res, 200, { ok: true, jobId: rec.jobId, mode: rec.mode, pdf: rec.pdf, pdfSha256: rec.pdfSha256, savedAt: rec.savedAt });
       } catch (e) {
         return send(res, 200, { ok: false, error: e instanceof Error ? e.message : String(e) });
       }
@@ -1152,7 +1497,7 @@ const server = createServer(async (req, res) => {
       const id = decodeURIComponent(path.slice("/api/tailored/".length));
       const rec = await loadTailored(ROOT, id);
       if (!rec) return send(res, 200, { ok: false, exists: false });
-      return send(res, 200, { ok: true, exists: true, jobId: rec.jobId, savedAt: rec.savedAt, data: rec.data, pdf: rec.pdf });
+      return send(res, 200, { ok: true, exists: true, jobId: rec.jobId, mode: rec.mode || "tailored", savedAt: rec.savedAt, data: rec.data, pdf: rec.pdf });
     }
 
     /* ---------------- auto apply ---------------- */
@@ -1162,20 +1507,41 @@ const server = createServer(async (req, res) => {
         jobs?: any[];
         mode?: string;
         cap?: number;
+        deferBlocked?: boolean;
         profile?: any;
       };
       const jobs = Array.isArray(b.jobs) ? b.jobs : [];
       const mode = b.mode === "submit" ? "submit" : "fill";
+      const storedProfile = await getProfile(ROOT);
+      const det = storedProfile.details || {};
+      const storedYears = Number(String(storedProfile.years ?? "").replace(/[^0-9.]/g, ""));
       /* The console sends `name` and `location`; an MCP client sends
-         `fullName` and `city`. Accept both, or the most basic fields get
-         asked back to the user as if the profile were empty. */
+         `fullName` and `city`. Merge saved readiness fields underneath so
+         Notice Period & CTC are never lost across surfaces. */
       const p = (b.profile ?? {}) as Record<string, any>;
       const profile = {
+        ...det,
         ...p,
-        fullName: p.fullName || p.name || "",
-        city: p.city || p.location || "",
-        currentCompany: p.currentCompany || p.company || "",
-        currentTitle: p.currentTitle || p.title || "",
+        fullName: p.fullName || p.name || det.name || "",
+        email: p.email || det.email || "",
+        phone: p.phone || det.phone || "",
+        city: p.city || p.location || det.city || "",
+        postalCode: p.postalCode || det.postalCode || undefined,
+        state: p.state || det.state || undefined,
+        country: p.country || det.country || undefined,
+        linkedin: p.linkedin || det.linkedin || "",
+        website: p.website || det.website || "",
+        currentCompany: p.currentCompany || p.company || det.currentCompany || "",
+        currentTitle: p.currentTitle || p.title || det.currentTitle || "",
+        years: p.years ?? (Number.isFinite(storedYears) && storedYears > 0 ? storedYears : undefined),
+        currentCtc: p.currentCtc || det.currentCtc || undefined,
+        expectedCtc: p.expectedCtc || det.expectedCtc || undefined,
+        noticePeriod: p.noticePeriod || det.noticePeriod || undefined,
+        preferredWorkMode: p.preferredWorkMode || det.preferredWorkMode || undefined,
+        willingToRelocate: p.willingToRelocate || det.willingToRelocate || undefined,
+        workAuthorization: p.workAuthorization || det.workAuthorization || undefined,
+        preferredLocality: p.preferredLocality || det.preferredLocality || undefined,
+        institution: p.institution || det.institution || undefined,
       };
       const r = await startQueue({
         root: ROOT,
@@ -1184,12 +1550,30 @@ const server = createServer(async (req, res) => {
         jobs,
         mode,
         cap: b.cap,
+        deferBlocked: b.deferBlocked !== undefined ? Boolean(b.deferBlocked) : jobs.length > 1,
       });
       return send(res, 200, r);
     }
 
     if (path === "/api/autoapply/status" && req.method === "GET") {
-      return send(res, 200, { ok: true, state: queueState() });
+      await reconcileEarlier(ROOT).catch(() => 0);
+      const st = queueState();
+      const origin = reqOrigin(req);
+      return send(res, 200, {
+        ok: true,
+        state: st,
+        challenge: st.ask ? toAgentChallenge(st.ask, origin) : null,
+      });
+    }
+
+    if (path === "/api/challenges" && req.method === "GET") {
+      const st = queueState();
+      const origin = reqOrigin(req);
+      return send(res, 200, {
+        ok: true,
+        challenge: st.ask ? toAgentChallenge(st.ask, origin) : null,
+        asks: askState(),
+      });
     }
 
     if (path === "/api/autoapply/stop" && req.method === "POST") {
@@ -1208,6 +1592,7 @@ const server = createServer(async (req, res) => {
       const b = (await body(req)) as { id?: string; value?: string };
       if (!b.id) return send(res, 400, { ok: false, error: "id is required" });
       const r = answerAsk(String(b.id), String(b.value ?? ""));
+      if (r.ok) clearResolvedAsk(String(b.id));
       return send(res, r.ok ? 200 : 409, { ...r, state: queueState() });
     }
 
@@ -1226,15 +1611,16 @@ const server = createServer(async (req, res) => {
         Connection: "keep-alive",
         "X-Accel-Buffering": "no",
       });
-      const write = (s: unknown) => {
+      const origin = reqOrigin(req);
+      const write = (s: any) => {
         try {
-          res.write(`data: ${JSON.stringify(s)}\n\n`);
+          res.write(`data: ${JSON.stringify({ ...s, challenge: s?.ask ? toAgentChallenge(s.ask, origin) : null, asks: askState() })}\n\n`);
         } catch {
           /* client went away */
         }
       };
-      write({ ...queueState(), asks: askState() });
-      const off = subscribeQueue((s) => write({ ...s, asks: askState() }));
+      write(queueState());
+      const off = subscribeQueue((s) => write(s));
       const beat = setInterval(() => {
         try {
           res.write(": ping\n\n");
@@ -1256,17 +1642,82 @@ const server = createServer(async (req, res) => {
 
     if (path === "/api/resume" && req.method === "GET") {
       const rec = await getResume(ROOT);
-      return send(res, 200, rec ? { ok: true, exists: true, ...rec } : { ok: true, exists: false });
+      const hasPdf = existsSync(masterPdfPath);
+      return send(res, 200, rec ? { ok: true, exists: true, hasPdf, ...rec } : { ok: true, exists: false, hasPdf });
     }
 
     if (path === "/api/resume" && req.method === "POST") {
-      const b = (await body(req)) as { text?: string; file?: string };
+      const b = (await body(req)) as { text?: string; file?: string; fileName?: string; pdfBase64?: string };
       const text = String(b.text || "");
       if (text.trim().length < 60) {
         return send(res, 400, { ok: false, error: "That resume text is too short to use." });
       }
-      const rec = await saveResume(ROOT, text, b.file ? String(b.file) : undefined);
-      return send(res, 200, { ok: true, ...rec });
+      const fileLabel = b.file || b.fileName;
+      let hasPdf = existsSync(masterPdfPath);
+      if (typeof b.pdfBase64 === "string" && b.pdfBase64.length > 0 && b.pdfBase64.length <= 8_500_000) {
+        try {
+          const cleanB64 = b.pdfBase64.replace(/^data:application\/pdf;base64,/i, "");
+          const buf = Buffer.from(cleanB64, "base64");
+          if (buf.subarray(0, 5).toString("ascii") === "%PDF-") {
+            await mkdir(DATA, { recursive: true });
+            await writeFile(masterPdfPath, buf);
+            hasPdf = true;
+          }
+        } catch {
+          /* ignore malformed optional binary */
+        }
+      }
+      const rec = await saveResume(ROOT, text, fileLabel ? String(fileLabel) : undefined);
+      return send(res, 200, { ok: true, hasPdf, ...rec });
+    }
+
+    /* Results: what auto apply sent, from the server's own log. Only rows with
+       a confirmation count as applied (AGENTS.md: never on a click alone).
+       No screenshot path or URL query leaves this route beyond the posting link. */
+    if (path === "/api/results" && req.method === "GET") {
+      type Row = { at?: string; id?: string; title?: string; company?: string; source?: string; url?: string; resumeMode?: string; confirmation?: unknown; earlier?: boolean };
+      let rows: Row[] = [];
+      try {
+        rows = (await readFile(join(DATA, "applications.jsonl"), "utf8")).split("\n").filter((l) => l.trim()).flatMap((l) => { try { return [JSON.parse(l) as Row]; } catch { return []; } });
+      } catch { /* none yet */ }
+      const confirmed = rows.filter((r) => r.confirmation);
+      const weekAgo = Date.now() - 7 * 86400000;
+      const bySource: Record<string, number> = {};
+      for (const r of confirmed) bySource[r.source || "other"] = (bySource[r.source || "other"] || 0) + 1;
+      /* Naukri's own applied list (signed in), so a job applied there by hand
+         or by an earlier run is known too; cached for five minutes */
+      let naukriApplied: string[] = [];
+      try {
+        if (Date.now() - naukriAppliedCache.at > 300_000) {
+          await naukriLoad(DATA).catch(() => null);
+          const h = naukriStatus().signedIn ? await naukriHistory(90, 100) : [];
+          naukriAppliedCache = { at: Date.now(), ids: h.map((x) => `naukri:${x.jobId}`) };
+        }
+        naukriApplied = naukriAppliedCache.ids;
+      } catch { /* Naukri not reachable: the log alone */ }
+      return send(res, 200, {
+        ok: true,
+        ids: [...new Set([...confirmed.map((r) => String(r.id || "")).filter(Boolean), ...naukriApplied])],
+        applied: confirmed.length,
+        /* on Naukri's own applied list but not sent by this app (or before its log) */
+        naukriOnly: naukriApplied.filter((id) => !confirmed.some((r) => String(r.id) === id)).length,
+        thisWeek: confirmed.filter((r) => !r.earlier && Date.parse(r.at || "") > weekAgo).length,
+        master: confirmed.filter((r) => r.resumeMode === "original").length,
+        bySource,
+        recent: confirmed.slice(-20).reverse().map((r) => ({
+          at: r.at, id: r.id, title: r.title, company: r.company, source: r.source,
+          url: r.url, resume: r.resumeMode === "original" ? "master" : "tailored", ...(r.earlier ? { earlier: true } : {}),
+          proof: typeof r.confirmation === "string" ? r.confirmation.slice(0, 120) : "Confirmed",
+        })),
+      });
+    }
+
+    /* The photo in the master resume PDF, if it has one, for the avatar. */
+    if (path === "/api/resume/photo" && req.method === "GET") {
+      const ph = await resumePhoto(join(DATA, "master-resume.pdf"));
+      if (!ph) { res.writeHead(204, { "cache-control": "no-store" }); return res.end(); }
+      res.writeHead(200, { "content-type": "image/jpeg", "content-length": ph.jpeg.length, "cache-control": "no-store" });
+      return res.end(ph.jpeg);
     }
 
     if (path === "/api/profile" && req.method === "GET") {
@@ -1285,6 +1736,44 @@ const server = createServer(async (req, res) => {
 
     /* ---------------- site memory ---------------- */
 
+    /* Your own Chrome, Brave or Edge for chosen sites (ADR-032). */
+    if (path === "/api/user-browser" && req.method === "GET") {
+      return send(res, 200, { ok: true, ...userBrowserState(), browsers: detectUserBrowsers() });
+    }
+    if (path === "/api/user-browser/connect" && req.method === "POST") {
+      const b = (await body(req)) as { id?: string };
+      const r = await attachUserBrowser(String(b.id || "chrome") as UserBrowserId);
+      return send(res, 200, { ...r, ...userBrowserState(), browsers: detectUserBrowsers() });
+    }
+    if (path === "/api/user-browser/disconnect" && req.method === "POST") {
+      await detachUserBrowser();
+      return send(res, 200, { ok: true, ...userBrowserState(), browsers: detectUserBrowsers() });
+    }
+    if (path === "/api/user-browser/sites" && req.method === "POST") {
+      const b = (await body(req)) as { sites?: string[] };
+      const want = new Set((b.sites || []).map(String));
+      const cur = userBrowserState();
+      await saveUserBrowserConfig(DATA, { ...(cur.preferred ? { browser: cur.preferred } : {}), sites: JOB_SITES.filter((s) => want.has(s.id)).map((s) => ({ id: s.id, host: s.host })) });
+      return send(res, 200, { ok: true, ...userBrowserState() });
+    }
+
+    /* Job sites the user signs in to once, in the app's browser popup. */
+    if (path === "/api/job-sites" && req.method === "GET") {
+      return send(res, 200, { ok: true, sites: await listJobSites(DATA) });
+    }
+    if (path === "/api/job-sites/check" && req.method === "POST") {
+      const b = (await body(req)) as { id?: string; start?: boolean };
+      return send(res, 200, await checkSignin(DATA, String(b.id || ""), Boolean(b.start)));
+    }
+    if (path === "/api/job-sites/mark" && req.method === "POST") {
+      const b = (await body(req)) as { id?: string };
+      return send(res, 200, await markSignedIn(DATA, String(b.id || "")));
+    }
+    if (path === "/api/job-sites/signout" && req.method === "POST") {
+      const b = (await body(req)) as { id?: string };
+      return send(res, 200, await signOutSite(DATA, String(b.id || "")));
+    }
+
     if (path === "/api/sites" && req.method === "GET") {
       return send(res, 200, { ok: true, sites: await listSites(DATA) });
     }
@@ -1302,7 +1791,9 @@ const server = createServer(async (req, res) => {
         role?: string;
         state?: string;
         city?: string;
+        locality?: string;
         remote?: boolean;
+        maxAgeDays?: number;
         limit?: number;
         jobs?: any[];
       };
@@ -1316,11 +1807,109 @@ const server = createServer(async (req, res) => {
             role: String(b.role || ""),
             state: b.state ? String(b.state) : undefined,
             city: b.city ? String(b.city) : undefined,
+            locality: b.locality ? String(b.locality) : undefined,
             remote: Boolean(b.remote),
+            ...(typeof b.maxAgeDays === "number" ? { maxAgeDays: b.maxAgeDays } : {}),
             limit: b.limit,
           }),
         }
       );
+    }
+
+    if (path === "/api/geo/heatmap" && (req.method === "GET" || req.method === "POST")) {
+      const b = req.method === "POST" ? ((await body(req)) as Record<string, any>) : {};
+      const role = String(b.role ?? url.searchParams.get("role") ?? "Product Manager");
+      const state = b.state ?? url.searchParams.get("state") ?? undefined;
+      const city = b.city ?? url.searchParams.get("city") ?? undefined;
+      const locality = b.locality ?? url.searchParams.get("locality") ?? undefined;
+      const remote = b.remote !== undefined ? Boolean(b.remote) : url.searchParams.get("remote") === "1";
+      const ageRaw = b.maxAgeDays ?? url.searchParams.get("maxAgeDays");
+      const maxAgeDays = ageRaw !== null && ageRaw !== undefined && ageRaw !== "" ? Number(ageRaw) : 30;
+      let jobs = Array.isArray(b.jobs) ? (b.jobs as ScoredJob[]) : [];
+      if (!jobs.length) {
+        const resJobs = await discoverJobs({
+          role,
+          cities: city ? [String(city)] : [],
+          sources: ["public"],
+          profileDir: join(DATA, "browser-profile"),
+          maxAgeDays: Number.isFinite(maxAgeDays) && maxAgeDays > 0 ? maxAgeDays : 30,
+          limit: 250,
+        });
+        jobs = resJobs.jobs;
+      }
+      const sum = marketSummary(jobs, {
+        role,
+        state: state ? String(state) : undefined,
+        city: city ? String(city) : undefined,
+        locality: locality ? String(locality) : undefined,
+        remote,
+        ...(Number.isFinite(maxAgeDays) && maxAgeDays > 0 ? { maxAgeDays } : {}),
+        limit: 25,
+      });
+      return send(res, 200, { ok: true, ...sum });
+    }
+
+    if (path === "/api/openapi.json" && req.method === "GET") {
+      const origin = reqOrigin(req);
+      return send(res, 200, {
+        openapi: "3.1.0",
+        info: { title: "Career-Ops India Local API", version: "0.2.1" },
+        servers: [{ url: origin }],
+        paths: {
+          "/api/profile": { get: { summary: "Read candidate profile & readiness fields" }, post: { summary: "Save role, CTC, Notice Period (e.g. Immediate), locality" } },
+          "/api/jobs": { post: { summary: "Discover & score Indian jobs with maxAgeDays freshness filter" } },
+          "/api/geo/heatmap": { get: { summary: "India -> State -> City -> Locality intensity heatmap" }, post: { summary: "Compute geo heatmap from supplied or live jobs" } },
+          "/api/market/summary": { post: { summary: "Market funnel, families & locality breakdown" } },
+          "/api/tailored/use-original": { post: { summary: "Attach verified original Master Resume PDF (zero AI rewrite) for a job" } },
+          "/api/autoapply/start": { post: { summary: "Start supervised auto-apply batch" } },
+          "/api/autoapply/status": { get: { summary: "Queue status + machine-readable challenge envelope (CAPTCHA_GATE / OTP_REQUIRED / SCREENING_QUESTION)" } },
+          "/api/challenges": { get: { summary: "Active human-in-the-loop challenge & pause reason" } },
+          "/api/autoapply/answer": { post: { summary: "Submit OTP/field answer or 'done' after browser handover" } },
+          "/api/mcp": { get: { summary: "MCP server metadata & tool count" }, post: { summary: "Streamable HTTP JSON-RPC MCP endpoint (tools/list, tools/call)" } },
+        },
+      });
+    }
+
+    if (path === "/api/mcp") {
+      if (req.method === "OPTIONS") {
+        res.writeHead(204, {
+          "access-control-allow-origin": "*",
+          "access-control-allow-headers": "content-type, authorization",
+          "access-control-allow-methods": "GET, POST, OPTIONS",
+        });
+        return res.end();
+      }
+      if (req.method === "GET") {
+        return send(res, 200, {
+          ok: true,
+          ...SERVER_INFO,
+          protocolVersion: PROTOCOL,
+          tools: TOOLS.length,
+          endpoint: "/api/mcp",
+        });
+      }
+      if (req.method === "POST") {
+        const ra = req.socket?.remoteAddress || "";
+        const isLocal = ra === "127.0.0.1" || ra === "::1" || ra === "::ffff:127.0.0.1";
+        if (!isLocal) {
+          const sec = await loadSecrets();
+          const auth = String(req.headers.authorization || "");
+          if (!sec.mcpToken || auth !== `Bearer ${sec.mcpToken}`) {
+            return send(res, 401, { ok: false, error: "Remote /api/mcp requires Bearer token configured in data/secrets.json (mcpToken)." });
+          }
+        }
+        const msg = await body(req);
+        const out = Array.isArray(msg)
+          ? (await Promise.all(msg.map((m) => dispatchMcpRpc(m)))).filter((x) => x !== undefined)
+          : await dispatchMcpRpc(msg);
+        const empty = out === undefined || (Array.isArray(out) && out.length === 0);
+        res.writeHead(empty ? 204 : 200, {
+          "content-type": "application/json; charset=utf-8",
+          "access-control-allow-origin": "*",
+          "cache-control": "no-store",
+        });
+        return res.end(empty ? undefined : JSON.stringify(out));
+      }
     }
 
     /* ---------------- Naukri API (no browser) ---------------- */
@@ -1333,15 +1922,20 @@ const server = createServer(async (req, res) => {
       return send(res, 200, { ...naukriStatus(), policy: NAUKRI_API_POLICY });
     }
 
+    /* ADR-003: no password is accepted here, ever. Sign-in is an email or
+       phone plus the one-time code Naukri sends; a captcha is a hand-off. */
     if (path === "/api/naukri/login" && req.method === "POST") {
       const b = (await body(req)) as { username?: string; password?: string };
-      const username = String(b.username || "").trim();
-      const password = String(b.password || "");
-      if (!username || !password) {
-        return send(res, 400, { ok: false, message: "Email (or phone) and password are both required." });
+      if (b.password) {
+        return send(res, 410, {
+          ok: false,
+          message: "Password sign-in was removed. Send a one-time code to your email or phone instead.",
+        });
       }
+      const username = String(b.username || "").trim();
+      if (!username) return send(res, 400, { ok: false, message: "Enter the email or mobile number on your Naukri account." });
       try {
-        const r = await naukriLogin(DATA, username, password);
+        const r = await naukriStartOtp(username);
         return send(res, 200, r);
       } catch (e) {
         const err = e instanceof NaukriApiError ? e : null;
@@ -1398,12 +1992,17 @@ const server = createServer(async (req, res) => {
     }
 
     if (path === "/api/naukri/search" && req.method === "POST") {
-      const b = (await body(req)) as { role?: string; city?: string; limit?: number; jobAge?: number; page?: number };
+      const b = (await body(req)) as { role?: string; city?: string; limit?: number; jobAge?: number; page?: number; experience?: number };
       const role = String(b.role || "").trim();
       if (!role) return send(res, 400, { ok: false, message: "A role is required." });
+      /* Without an experience value Naukri searches as a fresher and returns
+         internships. Fall back to the years on the saved profile. */
+      const profileYears = Number((await getProfile(ROOT)).years);
+      const experience = typeof b.experience === "number" ? b.experience : Number.isFinite(profileYears) ? profileYears : undefined;
       try {
         const r = await naukriSearch({
           role,
+          ...(experience !== undefined ? { experience } : {}),
           ...(b.city ? { city: String(b.city) } : {}),
           ...(b.limit ? { limit: Number(b.limit) } : {}),
           ...(b.jobAge ? { jobAge: Number(b.jobAge) } : {}),
@@ -1554,7 +2153,30 @@ const server = createServer(async (req, res) => {
         url: p ? p.url() : null,
         title: p ? await p.title().catch(() => "") : null,
         pageState: state,
+        modes: currentModes(),
       });
+    }
+
+    /* headless | offscreen | window, per profile. A relaunch keeps the
+       sign-in (cookies are on disk) and reopens the page the user was on. */
+    if (path === "/api/browser/mode" && req.method === "POST") {
+      const b = (await body(req)) as { mode?: string; profile?: string };
+      const mode = String(b.mode || "") as BrowserMode;
+      if (!["headless", "offscreen", "window"].includes(mode)) {
+        return send(res, 400, { ok: false, message: "mode must be headless, offscreen or window." });
+      }
+      const profile = b.profile === "mine" ? USER_BROWSER : b.profile === "indeed" ? join(DATA, "browser-profile-indeed") : join(DATA, "browser-profile");
+      return send(res, 200, await setMode(profile, mode));
+    }
+
+    /* the real window: shown for the user, parked after (ADR-033) */
+    if (path === "/api/browser/show" && req.method === "POST") {
+      const b = (await body(req)) as { profile?: string };
+      const profile = b.profile === "indeed" ? join(DATA, "browser-profile-indeed") : b.profile ? join(DATA, "browser-profile") : undefined;
+      return send(res, 200, await showWindow(profile));
+    }
+    if (path === "/api/browser/hide" && req.method === "POST") {
+      return send(res, 200, await hideWindow());
     }
 
     if (path === "/api/browser/control" && req.method === "POST") {
@@ -1569,7 +2191,7 @@ const server = createServer(async (req, res) => {
       if (!/^https?:\/\//i.test(url)) {
         return send(res, 400, { ok: false, error: "A full http(s) URL is required." });
       }
-      const profile = b.profile === "indeed" ? join(DATA, "browser-profile-indeed") : join(DATA, "browser-profile");
+      const profile = b.profile === "mine" ? USER_BROWSER : b.profile === "indeed" ? join(DATA, "browser-profile-indeed") : join(DATA, "browser-profile");
       const r = await openVisible(profile, url);
       return send(res, 200, r);
     }
@@ -1660,6 +2282,19 @@ const server = createServer(async (req, res) => {
 
     /* ---------------- static ---------------- */
 
+    /* A finished setup (a saved role and a master resume) opens straight on
+       Jobs; setup stays one click away at /index.html or /?setup=1. */
+    if (path === "/" && url.searchParams.get("setup") !== "1") {
+      try {
+        const prof = await getProfile(ROOT);
+        const resume = await readJson<{ text?: string }>(join(DATA, "resume.json"), {});
+        if (prof && (prof as { role?: string }).role && resume.text) {
+          /* a returning user starts on Find (the owner's call, 2026-11-28) */
+          res.writeHead(302, { location: "/workspace.html#jobs" });
+          return res.end();
+        }
+      } catch { /* fall through to setup */ }
+    }
     let file = path === "/" ? "/index.html" : path;
     const full = normalize(join(UI, file));
     if (!full.startsWith(normalize(UI))) return send(res, 403, "Forbidden", "text/plain");
@@ -1675,6 +2310,23 @@ const server = createServer(async (req, res) => {
     send(res, 500, { error: e instanceof Error ? e.message : String(e) });
   }
 });
+
+/* The Naukri token lives on disk. Load it now, or a search after a restart
+   reports "not signed in" until something happens to read the status. */
+void naukriLoad(DATA).catch(() => {});
+
+/* A Chrome orphaned by the last run holds the profile lock; clear it first. */
+void reapOrphanBrowsers(DATA).then((n) => {
+  if (n) console.log(`  closed ${n} browser(s) left over from the last run`);
+});
+
+/* Close our Chrome with us, so a Ctrl+C does not leave one behind. */
+for (const sig of ["SIGINT", "SIGTERM", "SIGBREAK"] as const) {
+  process.once(sig, () => {
+    void closeBrowser().finally(() => process.exit(0));
+    setTimeout(() => process.exit(0), 3000).unref();
+  });
+}
 
 server.listen(PORT, () => {
   console.log(`career-ops india on http://localhost:${PORT}`);

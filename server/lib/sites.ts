@@ -71,6 +71,9 @@ export function keyFor(label: string): string {
   if (/\bwhy (this|the) (role|job|company)|cover letter|motivation\b/.test(l)) return "why_role";
   if (/\blinkedin\b/.test(l)) return "linkedin";
   if (/\b(github|portfolio|website|personal site)\b/.test(l)) return "website";
+  if (/\b(country|nation)\b/.test(l) && !/\b(code|dial|phone|authori[sz]ed|eligible|citizen)\b/.test(l)) return "country";
+  if (/\b(state|province|region)\b/.test(l) && !/\b(statement|status|relocat)\b/.test(l)) return "state";
+  if (/\b(pin\s*code|postal\s*code|zip\s*code|pincode)\b/.test(l)) return "postal_code";
   if (/\b(city|location|where are you based)\b/.test(l)) return "city";
   if (/\b(years|total experience)\b/.test(l)) return "years";
   if (/\b(current|present) (company|employer)\b/.test(l)) return "current_company";
@@ -154,6 +157,35 @@ export async function forgetSite(dataDir: string, host: string): Promise<boolean
   delete store[host];
   await writeStore(dataDir, store);
   return true;
+}
+
+const PORTABLE_KEYS = new Set([
+  "country",
+  "state",
+  "postal_code",
+  "city",
+  "years",
+  "education",
+  "work_authorisation",
+  "willing_to_relocate",
+]);
+
+/** Look up an answer on this host first, then safe non-sensitive geographic/profile keys taught on other sites. */
+export async function lookupAnswer(
+  dataDir: string,
+  host: string,
+  key: string
+): Promise<{ value: string; crossSite: boolean } | null> {
+  const store = await readStore(dataDir);
+  const exact = store[host]?.answers?.[key];
+  if (exact) return { value: exact, crossSite: false };
+  if (!PORTABLE_KEYS.has(key)) return null;
+  for (const rec of Object.values(store)) {
+    if (rec.host === host) continue;
+    const v = rec.answers?.[key];
+    if (v) return { value: v, crossSite: true };
+  }
+  return null;
 }
 
 /** Infer the sign-in flow from what the page did. */

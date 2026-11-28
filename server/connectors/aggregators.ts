@@ -11,6 +11,7 @@
 // All three endpoints exist and answer; none of them work without a key.
 
 import type { Job } from "@career-ops/contracts";
+import { fromFirecrawl, fromTinyfish, testFirecrawl, testTinyfish } from "./websearch";
 
 export type SourceKeys = {
   adzunaAppId?: string;
@@ -19,6 +20,8 @@ export type SourceKeys = {
   careerjetKey?: string;
   careerjetDataKey?: string;
   jsearchKey?: string;
+  firecrawlKey?: string;
+  tinyfishKey?: string;
 };
 
 export type AggregatorResult = { jobs: Job[]; ms: number; error?: string };
@@ -176,8 +179,10 @@ export function formatSalary(
   currency: unknown,
   type: unknown,
 ): string | undefined {
-  const lo = typeof min === "number" ? min : Number(min);
-  const hi = typeof max === "number" ? max : Number(max);
+  const rawLo = typeof min === "number" ? min : Number(min);
+  const rawHi = typeof max === "number" ? max : Number(max);
+  const lo = Number.isFinite(rawLo) && rawLo > 0 ? rawLo : NaN;
+  const hi = Number.isFinite(rawHi) && rawHi > 0 ? rawHi : NaN;
   if (!Number.isFinite(lo) && !Number.isFinite(hi)) return undefined;
   const cur = String(currency ?? "").toUpperCase();
   const period = SALARY_PERIOD[String(type ?? "Y").toUpperCase()] ?? "year";
@@ -359,7 +364,7 @@ export async function fromJSearch(
 /* ------------------------------------------------------------------ */
 
 export type Aggregator = {
-  id: "adzuna" | "jooble" | "careerjet" | "careerjet-data" | "jsearch";
+  id: "adzuna" | "jooble" | "careerjet" | "careerjet-data" | "jsearch" | "firecrawl" | "tinyfish";
   label: string;
   /** What the user has to paste. */
   fields: Array<{ key: keyof SourceKeys; label: string }>;
@@ -369,9 +374,35 @@ export type Aggregator = {
   paid?: boolean;
   run: (role: string, city: string | undefined, keys: SourceKeys) => Promise<Job[]>;
   hasKey: (keys: SourceKeys) => boolean;
+  /** A cheap call that proves the key works; returns one line for the user. */
+  test?: (keys: SourceKeys) => Promise<string>;
+  /** Shown above the key box: what this source adds. */
+  blurb?: string;
 };
 
 export const AGGREGATORS: Aggregator[] = [
+  {
+    id: "firecrawl",
+    label: "Firecrawl — Fortune 500 career sites",
+    fields: [{ key: "firecrawlKey", label: "API key (fc-...)" }],
+    signup: "https://www.firecrawl.dev/app/api-keys",
+    free: "Free plan: 1,000 credits a month, no card",
+    blurb: "Searches Workday, SuccessFactors, Oracle, Taleo, iCIMS, Eightfold and Phenom pages — where most Fortune 500 India roles live.",
+    run: fromFirecrawl,
+    hasKey: (k) => Boolean(k.firecrawlKey),
+    test: testFirecrawl,
+  },
+  {
+    id: "tinyfish",
+    label: "TinyFish — career-site search",
+    fields: [{ key: "tinyfishKey", label: "API key" }],
+    signup: "https://agent.tinyfish.ai/api-keys",
+    free: "Search is free within a daily allowance",
+    blurb: "Same career-site coverage through TinyFish's search index. Use either one, or both.",
+    run: fromTinyfish,
+    hasKey: (k) => Boolean(k.tinyfishKey),
+    test: testTinyfish,
+  },
   {
     id: "adzuna",
     label: "Adzuna",
@@ -439,3 +470,13 @@ export async function runAggregator(
     return { jobs: [], ms: Date.now() - t0, error: e instanceof Error ? e.message : String(e) };
   }
 }
+
+export const AGGREGATORS_POLICY = {
+  id: "aggregators",
+  name: "Keyed sources (Firecrawl, TinyFish, Adzuna, Jooble, Careerjet, JSearch)",
+  tier: 1 as const,
+  discovery: "api" as const,
+  submission: "user-directed" as const,
+  auth: ["sso"] as const,
+  notes: "Runs only when the user stores their own free/publisher API key; links hand off to employer postings.",
+};

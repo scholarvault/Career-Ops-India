@@ -14,7 +14,7 @@
 // to stdout except protocol messages; logs go to stderr.
 
 import { createInterface } from "node:readline";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFile } from "node:fs/promises";
 
@@ -32,6 +32,11 @@ import {
 import { marketSummary } from "./lib/market";
 import { forgetSite, listSites } from "./lib/sites";
 import { getProfile, getResume, saveProfile, saveResume } from "./lib/profile-store";
+import { chooseResumeStrategy } from "./lib/situational";
+import { SHARED_ACTIONS, executeAction } from "./lib/actions";
+import { JOB_CATEGORIES, STARTUP_RADAR_SEEDS, syncStartupIndex } from "./lib/startup-radar";
+import { PORTAL_AUTH_PROFILES } from "./lib/portal-auth";
+import { toAgentChallenge } from "./lib/asks";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const PROFILE_DIR = join(ROOT, "data", "browser-profile");
@@ -42,18 +47,60 @@ const DATA = join(ROOT, "data");
  *  answer or inspect a run talk to it over its own JSON API. */
 const SERVER = String(process.env.CAREER_OPS_URL || "http://127.0.0.1:4173").replace(/\/$/, "");
 
+/* An agent should not have to tell the user "run pnpm start first". When the
+   app is local and down, start it the same way `pnpm start` does (detached,
+   logs in logs/), without popping a window: the agent shows the URL instead.
+   A remote CAREER_OPS_URL is never started from here. */
+let starting: Promise<boolean> | null = null;
+async function ensureServer(): Promise<boolean> {
+  const alive = async () => {
+    try {
+      const r = await fetch(SERVER + "/api/browser/status", { signal: AbortSignal.timeout(2000) });
+      return r.status < 500;
+    } catch {
+      return false;
+    }
+  };
+  if (await alive()) return true;
+  if (!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(SERVER) || process.env.CAREER_OPS_NO_AUTOSTART) return false;
+  starting ??= (async () => {
+    const { spawn } = await import("node:child_process");
+    console.error(`career-ops: app not running, starting it at ${SERVER}`);
+    spawn(process.execPath, [join(ROOT, "scripts", "serve.mjs")], {
+      cwd: ROOT,
+      detached: true,
+      stdio: "ignore",
+      windowsHide: true,
+      env: { ...process.env, NO_OPEN: "1" },
+    }).unref();
+    for (let i = 0; i < 40; i++) {
+      await new Promise((r) => setTimeout(r, 500));
+      if (await alive()) return true;
+    }
+    return false;
+  })().finally(() => {
+    starting = null;
+  });
+  return starting;
+}
+
 async function serverApi(path: string, body?: unknown, method?: string): Promise<any> {
   let r: Response;
-  try {
-    r = await fetch(SERVER + path, {
+  const call = () =>
+    fetch(SERVER + path, {
       method: method || (body === undefined ? "GET" : "POST"),
       headers: body === undefined ? undefined : { "content-type": "application/json" },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+  try {
+    r = await call();
   } catch {
-    throw new Error(
-      `The Career-Ops app is not running at ${SERVER}. Start it with \`node scripts/serve.mjs\`, then retry.`
-    );
+    if (!(await ensureServer())) {
+      throw new Error(
+        `The Career-Ops app is not running at ${SERVER} and could not be started. Run \`pnpm start\` in the repo, then retry.`
+      );
+    }
+    r = await call();
   }
   let d: any = null;
   try {
@@ -75,14 +122,24 @@ async function sourceKeys() {
       joobleKey: s.joobleKey,
       careerjetKey: s.careerjetKey,
       careerjetDataKey: s.careerjetDataKey,
+      jsearchKey: s.jsearchKey,
+      firecrawlKey: s.firecrawlKey,
+      tinyfishKey: s.tinyfishKey,
     };
   } catch {
     return {};
   }
 }
 
-const SERVER_INFO = { name: "career-ops-india", version: "0.1.0" };
-const PROTOCOL = "2024-11-05";
+export const SERVER_INFO = { name: "career-ops-india", version: "0.3.0" };
+export const PROTOCOL = "2024-11-05";
+/** Versions this server speaks. Claude Code, Codex and Gemini CLI each send
+ *  their newest; answering with the one they asked for (when we support it)
+ *  avoids a needless downgrade. Tools-only, so the differences do not touch us. */
+export const SUPPORTED_PROTOCOLS = ["2025-06-18", "2025-03-26", "2024-11-05"];
+export function negotiateProtocol(requested: unknown): string {
+  return typeof requested === "string" && SUPPORTED_PROTOCOLS.includes(requested) ? requested : PROTOCOL;
+}
 
 /* ------------------------------------------------------------------ */
 /* tools                                                               */
@@ -94,7 +151,7 @@ type Tool = {
   inputSchema: Record<string, unknown>;
 };
 
-const TOOLS: Tool[] = [
+export const TOOLS: Tool[] = [
   {
     name: "search_jobs",
     description:
@@ -107,6 +164,8 @@ const TOOLS: Tool[] = [
         cities: { type: "array", items: { type: "string" }, description: "Several cities." },
         skills: { type: "array", items: { type: "string" }, description: "Skills from the CV." },
         years: { type: "number", description: "Years of experience." },
+        maxAgeDays: { type: "number", description: "Only return postings newer than N days (e.g. 7, 14, 30)." },
+        minSalaryLpa: { type: "number", description: "Minimum stated salary floor in LPA, when disclosed." },
         limit: { type: "number", description: "Max postings to return (default 20)." },
         sources: {
           type: "array",
@@ -218,6 +277,13 @@ const TOOLS: Tool[] = [
             website: { type: "string" },
             currentCompany: { type: "string" },
             currentTitle: { type: "string" },
+            currentCtc: { type: "string", description: "Explicit Current CTC (e.g. '10 LPA'). Never guessed." },
+            expectedCtc: { type: "string", description: "Explicit Expected CTC (e.g. '15 LPA'). Never guessed." },
+            noticePeriod: { type: "string", description: "Explicit Notice Period (e.g. 'Immediate', '30 days'). Never guessed." },
+            preferredWorkMode: { type: "string", description: "e.g. 'Any', 'Remote', 'Hybrid', 'Onsite'." },
+            willingToRelocate: { type: "string", description: "e.g. 'Yes' or 'No'." },
+            preferredLocality: { type: "string", description: "Sub-city locality or corridor, e.g. 'Velachery', 'OMR', 'Whitefield'." },
+            workAuthorization: { type: "string", description: "Work eligibility statement, e.g. 'Authorized to work in India'." },
           },
         },
       },
@@ -227,19 +293,37 @@ const TOOLS: Tool[] = [
   {
     name: "market_summary",
     description:
-      "The funnel for a role: how many postings exist in India, remote, in a state, in a city and in the last 7 days, plus role families (core, one step up or down, alternative paths, specialisations) and trending titles. Reads live feeds.",
+      "The funnel for a role: how many postings exist in India, remote, in a state, in a city/locality and in the last 7 days, plus geo heatmap distribution, role families and trending titles.",
     inputSchema: {
       type: "object",
       properties: {
         role: { type: "string" },
         state: { type: "string", description: "Indian state, e.g. 'tamil nadu'." },
         city: { type: "string" },
+        locality: { type: "string", description: "Micro-locality / corridor / PIN code, e.g. 'Velachery', 'Guindy', '600042'." },
         remote: { type: "boolean" },
         years: { type: "number" },
         skills: { type: "array", items: { type: "string" } },
+        maxAgeDays: { type: "number", description: "Only count/rank postings newer than N days (e.g. 7, 14, 30)." },
+        minSalaryLpa: { type: "number", description: "Minimum stated salary floor in LPA." },
         limit: { type: "number", description: "Shortlist size (default 10)." },
       },
       required: ["role"],
+    },
+  },
+  {
+    name: "geo_heatmap",
+    description:
+      "Return the hierarchical India -> State -> City -> Micro-Locality job intensity distribution (including corridors like Velachery, Guindy, OMR, Sriperumbudur, Whitefield) without guessing counts.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        role: { type: "string", description: "Target role, e.g. 'Product Manager' (optional)." },
+        state: { type: "string" },
+        city: { type: "string" },
+        locality: { type: "string", description: "Specific locality or PIN code to inspect, e.g. 'Velachery'." },
+        maxAgeDays: { type: "number", description: "Freshness cutoff in days (default 30)." },
+      },
     },
   },
   {
@@ -252,9 +336,11 @@ const TOOLS: Tool[] = [
         role: { type: "string" },
         state: { type: "string" },
         city: { type: "string" },
-        remote: { type: "boolean" },
+        locality: { type: "string" },
         years: { type: "number" },
         skills: { type: "array", items: { type: "string" } },
+        maxAgeDays: { type: "number", description: "Only rank postings newer than N days (e.g. 7, 14, 30)." },
+        minSalaryLpa: { type: "number", description: "Minimum stated salary floor in LPA." },
         limit: { type: "number", description: "Default 10." },
       },
       required: ["role"],
@@ -278,9 +364,16 @@ const TOOLS: Tool[] = [
               company: { type: "string" },
               location: { type: "string" },
               jd: { type: "string" },
+              score: { type: "number" },
+              have: { type: "array", items: { type: "string" }, description: "Matched skills, from shortlist." },
+              miss: { type: "array", items: { type: "string" }, description: "Missing skills, from shortlist. Without have/miss the gaps count as unknown." },
             },
             required: ["id", "title", "company"],
           },
+        },
+        situational: {
+          type: "boolean",
+          description: "When true (default), keeps Original PDF for direct/thin matches and skips severe mismatches instead of blind AI rewriting.",
         },
       },
       required: ["jobs"],
@@ -355,6 +448,85 @@ const TOOLS: Tool[] = [
       required: ["host"],
     },
   },
+  {
+    name: "view_screen",
+    description: "Context awareness: read what view/job the user is currently looking at in the UI plus recent portal learnings from data/LEARNINGS.md.",
+    inputSchema: { type: "object", properties: {} },
+  },
+  {
+    name: "navigate",
+    description: "Move shared UI navigation/selection state (active view, highlighted jobId, or resume strategy).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        view: { type: "string" },
+        activeJobId: { type: "string" },
+        resumeStrategy: { type: "string", enum: ["original", "tailored", "auto"] },
+      },
+    },
+  },
+  {
+    name: "choose_resume_strategy",
+    description: "Situational awareness engine: decide whether to keep Original Master Resume, tailor with AI, or skip/review manually.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        title: { type: "string" },
+        company: { type: "string" },
+        jd: { type: "string" },
+        score: { type: "number" },
+        candidateYears: { type: "number" },
+        miss: { type: "array", items: { type: "string" } },
+        have: { type: "array", items: { type: "string" } },
+      },
+      required: ["title", "company", "score"],
+    },
+  },
+  {
+    name: "record_learning",
+    description: "Append a durable site/application note to data/LEARNINGS.md.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        area: { type: "string" },
+        summary: { type: "string" },
+        detail: { type: "string" },
+      },
+      required: ["area", "summary"],
+    },
+  },
+  {
+    name: "prepare_submit",
+    description: "Hash-bound human approval gate (Agent-Native needsApproval): returns approval_required challenge + argumentsHash until approved=true matches hash.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        jobId: { type: "string" },
+        company: { type: "string" },
+        title: { type: "string" },
+        resumeMode: { type: "string", enum: ["original", "tailored"] },
+        noticePeriod: { type: "string" },
+        expectedCtc: { type: "string" },
+        channel: { type: "string" },
+        approved: { type: "boolean" },
+        approvalArgumentsHash: { type: "string" },
+      },
+      required: ["jobId", "company", "title", "resumeMode", "noticePeriod", "expectedCtc"],
+    },
+  },
+  {
+    name: "startup_radar",
+    description:
+      "Return the 9 Indian job categories (including emerging 2026 0-1 Builder, Founder's Office, AI Product & GTM roles), portal auth/dual-redirect protocols, and the self-learning Indian startup index (EV automotive, Fintech, YC India, Fortune 500). Optionally syncs data/company-index.json.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sector: { type: "string", enum: ["fintech", "ev-automotive", "ai-saas", "fortune500", "enterprise-saas"] },
+        city: { type: "string", description: "Filter company seeds by city, e.g. 'Chennai' or 'Bengaluru'." },
+        sync: { type: "boolean", description: "If true, writes/updates data/company-index.json." },
+      },
+    },
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -365,7 +537,7 @@ function text(value: unknown) {
   return { content: [{ type: "text", text: typeof value === "string" ? value : JSON.stringify(value, null, 2) }] };
 }
 
-async function callTool(name: string, args: any) {
+export async function callTool(name: string, args: any) {
   if (name === "search_jobs") {
     const req: JobRequest = {
       role: String(args.role ?? ""),
@@ -376,6 +548,8 @@ async function callTool(name: string, args: any) {
       sources: args.sources ?? ["public", "naukri"],
       profileDir: PROFILE_DIR,
       limit: typeof args.limit === "number" ? args.limit : 20,
+      ...(typeof args.maxAgeDays === "number" ? { maxAgeDays: args.maxAgeDays } : {}),
+      ...(typeof args.minSalaryLpa === "number" ? { minSalaryLpa: args.minSalaryLpa } : {}),
       sourceKeys: await sourceKeys(),
     };
     const result = await discoverJobs(req);
@@ -386,14 +560,20 @@ async function callTool(name: string, args: any) {
       matched: result.matched,
       connectors: result.connectors,
       jobs: result.jobs.slice(0, limit).map((j) => ({
+        id: j.id,
         title: j.title,
         company: j.company,
         location: j.location,
         workMode: j.workMode,
+        category: j.category,
+        experienceAsked: j.experienceAsked,
         score: j.score,
         matched: j.matched,
         source: j.source,
+        sourceUrl: j.sourceUrl,
+        applyUrl: j.applyUrl,
         datePosted: j.datePosted,
+        ageDays: j.ageDays,
         url: j.sourceUrl,
         missing: j.miss,
       })),
@@ -520,17 +700,19 @@ async function callTool(name: string, args: any) {
     return text({ ok: true, ...p, note: "Saved to data/profile.json." });
   }
 
-  if (name === "market_summary" || name === "shortlist") {
-    const role = String(args.role ?? "");
+  if (name === "market_summary" || name === "shortlist" || name === "geo_heatmap") {
+    const role = String(args.role ?? (name === "geo_heatmap" ? "Product Manager" : ""));
     const req: JobRequest = {
       role,
       cities: args.city ? [String(args.city)] : [],
       skills: args.skills ?? [],
       years: typeof args.years === "number" ? args.years : undefined,
       responsibilities: args.skills ?? [],
-      sources: ["public", "naukri", "indeed"],
+      sources: name === "geo_heatmap" ? ["public"] : ["public", "naukri", "indeed"],
       profileDir: PROFILE_DIR,
-      limit: 200,
+      limit: 250,
+      ...(typeof args.maxAgeDays === "number" ? { maxAgeDays: args.maxAgeDays } : name === "geo_heatmap" ? { maxAgeDays: 30 } : {}),
+      ...(typeof args.minSalaryLpa === "number" ? { minSalaryLpa: args.minSalaryLpa } : {}),
       sourceKeys: await sourceKeys(),
     };
     const result = await discoverJobs(req);
@@ -539,13 +721,24 @@ async function callTool(name: string, args: any) {
       role,
       state: args.state ? String(args.state) : undefined,
       city: args.city ? String(args.city) : undefined,
+      locality: args.locality ? String(args.locality) : undefined,
       remote: Boolean(args.remote),
+      ...(typeof args.maxAgeDays === "number" ? { maxAgeDays: args.maxAgeDays } : {}),
       limit: typeof args.limit === "number" ? args.limit : 10,
     });
+    if (name === "geo_heatmap") {
+      return text({
+        role,
+        counts: sum.counts,
+        geoDistribution: sum.geoDistribution,
+        scoredAt: sum.scoredAt,
+        note: "Real counts across fetched sources. Zero-hit localities show nearby corridor totals honestly.",
+      });
+    }
     if (name === "shortlist") {
       return text({
         role,
-        geography: { state: sum.state ?? null, city: sum.city ?? null, remote: Boolean(args.remote) },
+        geography: { state: sum.state ?? null, city: sum.city ?? null, locality: sum.locality ?? null, remote: Boolean(args.remote) },
         counts: sum.counts,
         shortlist: sum.shortlist,
         note: "Start with 10. Every application spends model tokens and the candidate's attention.",
@@ -567,10 +760,50 @@ async function callTool(name: string, args: any) {
     const d = prof.details || {};
     const years = Number(String(prof.years ?? "").replace(/[^0-9.]/g, ""));
 
-    const results: Array<{ id: string; ok: boolean; error?: string }> = [];
+    const useSituational = args.situational !== false;
+    const results: Array<{ id: string; ok: boolean; decision?: string; reason?: string; error?: string }> = [];
     for (const j of jobs) {
       const id = String(j.id ?? "");
       try {
+        if (useSituational && typeof j.score === "number") {
+          const strat = chooseResumeStrategy({
+            title: String(j.title ?? ""),
+            company: String(j.company ?? ""),
+            jd: String(j.jd ?? j.description ?? ""),
+            score: j.score,
+            candidateYears: Number.isFinite(years) && years > 0 ? years : undefined,
+            candidateText: resume.text,
+            ...(Array.isArray(j.have) ? { have: j.have.map(String) } : {}),
+            ...(Array.isArray(j.miss) ? { miss: j.miss.map(String) } : {}),
+          });
+          if (strat.strategy === "skip_or_manual") {
+            results.push({ id, ok: true, decision: "skip_or_manual", reason: strat.reasons[0] });
+            continue;
+          }
+          if (strat.strategy === "original") {
+            const orig = await serverApi("/api/tailored/use-original", {
+              jobId: id,
+              job: { title: String(j.title ?? ""), company: String(j.company ?? "") },
+              profile: {
+                fullName: d.name ?? "",
+                email: d.email ?? "",
+                phone: d.phone ?? "",
+                city: d.city ?? "",
+                linkedin: d.linkedin ?? "",
+                website: d.website ?? "",
+                title: d.currentTitle ?? "",
+                company: d.currentCompany ?? "",
+              },
+              resumeText: resume.text,
+            });
+            results.push(
+              orig && orig.ok
+                ? { id, ok: true, decision: "original", reason: strat.reasons[0] }
+                : { id, ok: false, error: (orig && orig.error) || "Could not prepare original resume PDF." }
+            );
+            continue;
+          }
+        }
         const tailored = await serverApi("/api/tailor", {
           job: {
             title: String(j.title ?? ""),
@@ -592,15 +825,33 @@ async function callTool(name: string, args: any) {
           resumeText: resume.text,
         });
         if (!tailored || !tailored.ok) {
-          results.push({ id, ok: false, error: (tailored && (tailored.error || tailored.reason)) || "The model did not answer." });
+          results.push({ id, ok: false, error: (tailored && (tailored.hint || tailored.error || tailored.reason)) || "The model did not answer." });
           continue;
         }
+        const { renderTailoredResumeHtml } = await import("./lib/resume-html");
+        const html = renderTailoredResumeHtml(
+          tailored,
+          {
+            fullName: d.name ?? undefined,
+            email: d.email ?? undefined,
+            phone: d.phone ?? undefined,
+            city: d.city ?? undefined,
+            links: {
+              ...(d.linkedin ? { linkedin: d.linkedin } : {}),
+              ...(d.website ? { portfolio: d.website } : {}),
+            },
+          },
+          {
+            company: String(j.company ?? ""),
+            title: String(j.title ?? ""),
+          },
+        );
         const saved = await serverApi("/api/tailored/save", {
           jobId: id,
           data: tailored,
-          html: "",
+          html,
         });
-        results.push(saved && saved.ok ? { id, ok: true } : { id, ok: false, error: (saved && saved.error) || "Could not save the PDF." });
+        results.push(saved && saved.ok ? { id, ok: true, decision: "tailored" } : { id, ok: false, error: (saved && saved.error) || "Could not save the PDF." });
       } catch (e) {
         results.push({ id, ok: false, error: e instanceof Error ? e.message : String(e) });
       }
@@ -614,8 +865,13 @@ async function callTool(name: string, args: any) {
   }
 
   if (name === "start_apply_batch") {
-    const jobs = Array.isArray(args.jobs) ? args.jobs : [];
-    if (!jobs.length) throw new Error("Pass at least one job.");
+    const rawJobs = Array.isArray(args.jobs) ? args.jobs : [];
+    if (!rawJobs.length) throw new Error("Pass at least one job.");
+    const jobs = rawJobs.map((j: any) => ({
+      ...j,
+      sourceUrl: j.sourceUrl || j.url || "",
+      applyUrl: j.applyUrl || j.url || j.sourceUrl || "",
+    }));
     const prof = await getProfile(ROOT);
     const d = prof.details || {};
     const years = Number(String(prof.years ?? "").replace(/[^0-9.]/g, ""));
@@ -633,6 +889,13 @@ async function callTool(name: string, args: any) {
         currentCompany: d.currentCompany ?? "",
         currentTitle: d.currentTitle ?? "",
         years: Number.isFinite(years) && years > 0 ? years : undefined,
+        ...(d.currentCtc ? { currentCtc: String(d.currentCtc) } : {}),
+        ...(d.expectedCtc ? { expectedCtc: String(d.expectedCtc) } : {}),
+        ...(d.noticePeriod ? { noticePeriod: String(d.noticePeriod) } : {}),
+        ...(d.preferredWorkMode ? { preferredWorkMode: String(d.preferredWorkMode) } : {}),
+        ...(d.willingToRelocate ? { willingToRelocate: String(d.willingToRelocate) } : {}),
+        ...(d.workAuthorization ? { workAuthorization: String(d.workAuthorization) } : {}),
+        ...(d.preferredLocality ? { preferredLocality: String(d.preferredLocality) } : {}),
       },
     });
     return text(r);
@@ -641,12 +904,14 @@ async function callTool(name: string, args: any) {
   if (name === "get_apply_status") {
     const r = await serverApi("/api/autoapply/status");
     const st = r.state || {};
+    const challenge = st.ask ? toAgentChallenge(st.ask, SERVER) : null;
     return text({
       running: Boolean(st.running),
       current: st.current ?? null,
       cap: st.cap ?? null,
       used: st.used ?? null,
       ask: st.ask ?? null,
+      challenge,
       items: (st.items || []).map((i: any) => ({
         id: i.id,
         title: i.title,
@@ -657,8 +922,8 @@ async function callTool(name: string, args: any) {
         confirmation: i.confirmation ?? null,
         message: i.message ?? null,
       })),
-      note: st.ask
-        ? "The run is waiting on ask.id. Answer it with answer_ask."
+      note: challenge
+        ? `${challenge.errorCode}: ${challenge.policyNote}`
         : st.running
           ? "Running. Poll again in a few seconds."
           : "Not running.",
@@ -684,6 +949,63 @@ async function callTool(name: string, args: any) {
     return text({ ok: true, removed, host: String(args.host ?? "") });
   }
 
+  if (name === "view_screen") {
+    return text(await executeAction(SHARED_ACTIONS.view_screen, {}, { dataDir: DATA }));
+  }
+
+  if (name === "navigate") {
+    return text(await executeAction(SHARED_ACTIONS.navigate, args, { dataDir: DATA }));
+  }
+
+  if (name === "choose_resume_strategy") {
+    const resume = await getResume(ROOT);
+    const prof = await getProfile(ROOT);
+    const years = Number(String(prof.years ?? "").replace(/[^0-9.]/g, ""));
+    return text(
+      await executeAction(
+        SHARED_ACTIONS.choose_resume_strategy,
+        {
+          ...args,
+          ...(args.candidateYears == null && Number.isFinite(years) && years > 0 ? { candidateYears: years } : {}),
+          ...(resume?.text ? { candidateText: resume.text } : {}),
+        },
+        { dataDir: DATA },
+      ),
+    );
+  }
+
+  if (name === "record_learning") {
+    return text(await executeAction(SHARED_ACTIONS.record_learning, args, { dataDir: DATA }));
+  }
+
+  if (name === "prepare_submit") {
+    const { approved, approvalArgumentsHash, ...payload } = args;
+    return text(
+      await executeAction(SHARED_ACTIONS.prepare_submit, payload, {
+        dataDir: DATA,
+        approved: Boolean(approved),
+        approvalArgumentsHash: approvalArgumentsHash ? String(approvalArgumentsHash) : undefined,
+      }),
+    );
+  }
+
+  if (name === "startup_radar") {
+    const sector = args.sector ? String(args.sector).toLowerCase() : "";
+    const city = args.city ? String(args.city).toLowerCase() : "";
+    const indexMeta = args.sync ? await syncStartupIndex(DATA) : null;
+    const companies = STARTUP_RADAR_SEEDS.filter((c) => {
+      if (sector && c.sector.toLowerCase() !== sector) return false;
+      if (city && !c.city.toLowerCase().includes(city)) return false;
+      return true;
+    });
+    return text({
+      ...(indexMeta ? { indexMeta } : {}),
+      categories: JOB_CATEGORIES.map(({ id, label, tier, sampleTitles }) => ({ id, label, tier, sampleTitles })),
+      companies,
+      portalAuthProfiles: PORTAL_AUTH_PROFILES,
+    });
+  }
+
   throw new Error(`Unknown tool: ${name}`);
 }
 
@@ -691,62 +1013,75 @@ async function callTool(name: string, args: any) {
 /* transport                                                           */
 /* ------------------------------------------------------------------ */
 
-function reply(id: unknown, result: unknown) {
-  process.stdout.write(JSON.stringify({ jsonrpc: "2.0", id, result }) + "\n");
-}
-
-function fail(id: unknown, code: number, message: string) {
-  process.stdout.write(JSON.stringify({ jsonrpc: "2.0", id, error: { code, message } }) + "\n");
-}
-
-const rl = createInterface({ input: process.stdin, crlfDelay: Infinity });
-
-rl.on("line", async (line) => {
-  const trimmed = line.trim();
-  if (!trimmed) return;
-
-  let msg: any;
-  try {
-    msg = JSON.parse(trimmed);
-  } catch {
-    return fail(null, -32700, "Parse error");
-  }
-
-  const { id, method, params } = msg;
+/** Shared JSON-RPC dispatcher used by both stdio transport and HTTP /api/mcp. */
+export async function dispatchMcpRpc(msg: any): Promise<any | undefined> {
+  const { id, method, params } = msg ?? {};
 
   try {
     if (method === "initialize") {
-      return reply(id, {
-        protocolVersion: PROTOCOL,
-        capabilities: { tools: {} },
-        serverInfo: SERVER_INFO,
-      });
+      return {
+        jsonrpc: "2.0",
+        id,
+        result: {
+          protocolVersion: negotiateProtocol(params?.protocolVersion),
+          capabilities: { tools: {} },
+          serverInfo: SERVER_INFO,
+        },
+      };
     }
 
-    if (method === "notifications/initialized") return;
+    if (method === "notifications/initialized") return undefined;
 
-    if (method === "ping") return reply(id, {});
+    if (method === "ping") return { jsonrpc: "2.0", id, result: {} };
 
-    if (method === "tools/list") return reply(id, { tools: TOOLS });
+    if (method === "tools/list") return { jsonrpc: "2.0", id, result: { tools: TOOLS } };
 
     if (method === "tools/call") {
       const name = params?.name;
       const args = params?.arguments ?? {};
       try {
         const result = await callTool(name, args);
-        return reply(id, result);
+        return { jsonrpc: "2.0", id, result };
       } catch (e) {
-        return reply(id, {
-          content: [{ type: "text", text: e instanceof Error ? e.message : String(e) }],
-          isError: true,
-        });
+        return {
+          jsonrpc: "2.0",
+          id,
+          result: {
+            content: [{ type: "text", text: e instanceof Error ? e.message : String(e) }],
+            isError: true,
+          },
+        };
       }
     }
 
-    return fail(id, -32601, `Method not found: ${method}`);
+    return { jsonrpc: "2.0", id, error: { code: -32601, message: `Method not found: ${method}` } };
   } catch (e) {
-    return fail(id, -32603, e instanceof Error ? e.message : String(e));
+    return { jsonrpc: "2.0", id, error: { code: -32603, message: e instanceof Error ? e.message : String(e) } };
   }
-});
+}
 
-process.stderr.write(`career-ops-india MCP server ready (${TOOLS.length} tools)\n`);
+const isMain = Boolean(
+  process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url))
+);
+
+if (isMain) {
+  const rl = createInterface({ input: process.stdin, crlfDelay: Infinity });
+
+  rl.on("line", async (line) => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+
+    let msg: any;
+    try {
+      msg = JSON.parse(trimmed);
+    } catch {
+      process.stdout.write(JSON.stringify({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "Parse error" } }) + "\n");
+      return;
+    }
+
+    const out = await dispatchMcpRpc(msg);
+    if (out !== undefined) process.stdout.write(JSON.stringify(out) + "\n");
+  });
+
+  process.stderr.write(`career-ops-india MCP server ready (${TOOLS.length} tools)\n`);
+}

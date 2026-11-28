@@ -34,38 +34,38 @@
     .brand { display: flex; align-items: center; gap: 10px; padding: 0 6px 30px; }
     .brand .wm { font-size: 14px; letter-spacing: -0.01em; line-height: 1.2; color: #f2f5f6; }
     .brand .wm b { font-weight: 650; }
-    .brand .wm span { color: #7e9a9a; font-weight: 400; }
+    .brand .wm span { color: #8a8a8a; font-weight: 400; }
 
     .steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
     .steps li { position: relative; }
     .steps button {
       display: flex; align-items: center; gap: 12px; width: 100%;
       padding: 10px 12px; border: 0; border-radius: var(--r-md);
-      background: transparent; color: #8fa8a8;
+      background: transparent; color: #9a9a9a;
       font: inherit; font-size: 13.5px; text-align: left; cursor: pointer;
       transition: background var(--t-fast), color var(--t-fast);
     }
-    .steps button:hover:not(:disabled) { background: var(--rail-active); color: #dbeceb; }
+    .steps button:hover:not(:disabled) { background: var(--rail-active); color: #ffe6d5; }
     .steps button:disabled { cursor: default; opacity: 0.55; }
     .steps button:focus-visible { outline: 3px solid rgba(143, 179, 199, 0.45); outline-offset: 1px; }
     .steps .num {
       display: grid; place-items: center; flex: 0 0 auto;
       width: 22px; height: 22px; border-radius: 50%;
-      background: #14484a; color: #5f7f80;
+      background: #1c1c1c; color: #707070;
       font-size: 10.5px; font-weight: 700;
       transition: background var(--t-mid) var(--ease-out), color var(--t-mid), transform var(--t-mid) var(--ease-spring);
     }
     .steps .lbl { flex: 1; }
-    .steps .state { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: #8fbdbd; }
-    .steps li[data-state="done"] button { color: #a8c2c2; }
-    .steps li[data-state="done"] .num { background: transparent; color: #5fa98a; }
+    .steps .state { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: #ffb07a; }
+    .steps li[data-state="done"] button { color: #b8b8b8; }
+    .steps li[data-state="done"] .num { background: transparent; color: #34d399; }
     .steps li[data-state="now"] button { color: #ffffff; font-weight: 600; background: var(--rail-active); }
     .steps li[data-state="now"] .num { background: #f2f5f6; color: var(--rail); transform: scale(1.06); }
-    .steps li[data-state="now"] .state { color: #8fbdbd; }
+    .steps li[data-state="now"] .state { color: #ffb07a; }
 
-    .side-foot { margin-top: auto; padding: 18px 8px 0; border-top: 1px solid #1d4a4c; }
-    .side-foot p { margin: 0 0 10px; font-size: 12px; line-height: 1.55; color: #7e9a9a; }
-    .side-foot .lock { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 500; color: #8fa8a8; }
+    .side-foot { margin-top: auto; padding: 18px 8px 0; border-top: 1px solid #222222; }
+    .side-foot p { margin: 0 0 10px; font-size: 12px; line-height: 1.55; color: #8a8a8a; }
+    .side-foot .lock { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 500; color: #9a9a9a; }
     .side-foot .lock svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     /* ---------------- main column ---------------- */
@@ -206,7 +206,7 @@
     }
     .mt.exact { background: var(--ok-soft); color: var(--ok); }
     .mt.alias { background: var(--warn-soft); color: var(--warn); }
-    .mt.spec { background: #f3e8fd; color: #6b21a8; }
+    .mt.spec { background: var(--surface-3); color: var(--ink-2); }
     .mt.rel { background: var(--accent-soft); color: var(--accent-ink); }
 
     .fallback {
@@ -243,7 +243,7 @@
     }
     .opt[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
     .opt[aria-pressed="true"] .txt { color: var(--accent-ink); font-weight: 550; }
-    .opt[aria-pressed="true"] .tick { background: var(--accent); color: #fff; box-shadow: none; transform: scale(1.05); }
+    .opt[aria-pressed="true"] .tick { background: var(--accent); color: #0a0a0a; box-shadow: none; transform: scale(1.05); }
 
     .toolbar { display: flex; align-items: center; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
     .toolbar .count { margin-left: auto; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -398,7 +398,7 @@
     .pill.direct { background: var(--ok-soft); color: var(--ok); }
     .pill.prog { background: var(--accent-soft); color: var(--accent-ink); }
     .pill.adj { background: var(--warn-soft); color: var(--warn); }
-    .pill.spec { background: #f3e8fd; color: #6b21a8; }
+    .pill.spec { background: var(--surface-3); color: var(--ink-2); }
 
     /* ---------------- action bar ---------------- */
 
@@ -520,8 +520,80 @@
       .drop .bar > i { animation: none; width: 100%; }
     }
   </style>
+  <link rel="stylesheet" href="fx.css" />
+  <script>try{if(localStorage.getItem("co.theme")==="light")document.documentElement.setAttribute("data-theme","light")}catch(e){}</script>
+  <style id="fx-onboarding">
+    /* onboarding: loaded after fx.css. Layout and motion only; colour comes from fx.css tokens. */
+    .main { background: transparent !important; }
+
+    /* step change: slides in from the side you are heading to */
+    .step[data-active][data-enter] > * { animation: ob-in 520ms cubic-bezier(0.32, 0.72, 0, 1) both !important; }
+    main[data-dir="back"] .step[data-active][data-enter] > * { animation-name: ob-in-back !important; }
+    @keyframes ob-in { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+    @keyframes ob-in-back { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+    @keyframes ob-spin { to { transform: rotate(360deg); } }
+
+    .step h1 { color: var(--ink); padding-bottom: 4px; }
+    .stepnum { color: var(--muted) !important; font-family: var(--mono); }
+
+    /* feature tiles */
+    .bento { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0 0 22px; }
+    .bento .tile { padding: 14px 14px 13px; font-size: 12.5px; line-height: 1.45; border-radius: 14px; }
+    .bento .tile i { display: grid; place-items: center; width: 30px; height: 30px; margin-bottom: 9px; border-radius: 9px; }
+    .bento .tile i svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .bento .tile strong { display: block; color: var(--ink); font-size: 13px; margin-bottom: 2px; }
+    .bento .tile span { color: var(--muted); }
+    @media (max-width: 620px) { .bento { grid-template-columns: 1fr; } }
+
+    .searchbox input { border-radius: 14px !important; height: 52px !important; }
+
+    /* drop zone: a hairline that runs round it while the resume is read */
+    .drop { position: relative; isolation: isolate; border-radius: 18px !important; }
+    .drop[data-busy]::before {
+      content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1.5px; z-index: 1; pointer-events: none;
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+      animation: fx-beam 1.6s linear infinite;
+    }
+    .drop[data-busy]::after {
+      content: ""; position: absolute; left: 6%; right: 6%; height: 40px; top: 0; pointer-events: none; z-index: 0;
+      animation: ob-scan 1.4s ease-in-out infinite alternate;
+    }
+    @keyframes ob-scan { from { top: 4%; } to { top: calc(96% - 40px); } }
+
+    #next svg { transition: transform 260ms cubic-bezier(0.32, 0.72, 0, 1); }
+    #next:hover svg { transform: translateX(3px); }
+    #next { min-width: 150px; }
+
+    /* intro: plays once per tab, skippable. A wordmark, nothing else. */
+    .intro {
+      position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; cursor: pointer;
+      background: var(--bg);
+      transition: opacity 600ms ease, transform 800ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .intro.done { opacity: 0; transform: scale(1.02); pointer-events: none; }
+    .intro .core { display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; padding: 24px; }
+    .intro .orb { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); animation: ob-breathe 1.8s ease-in-out infinite; }
+    @keyframes ob-breathe { 50% { transform: scale(0.8); opacity: 0.7; } }
+    .intro .k { font-family: var(--mono); font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted); opacity: 0; animation: fx-rise 600ms 150ms cubic-bezier(0.32, 0.72, 0, 1) forwards; }
+    .intro .t { font-family: var(--display); font-size: clamp(30px, 4.4vw, 56px); font-weight: 650; letter-spacing: -0.035em; color: var(--ink); line-height: 1.05; min-height: 1.1em; }
+    .intro .t .g { color: var(--muted); }
+    .intro .skip { font-size: 12px; color: var(--muted); opacity: 0; animation: fx-rise 600ms 900ms ease forwards; }
+    @media (prefers-reduced-motion: reduce) {
+      .intro { display: none !important; }
+      .step[data-active][data-enter] > * { animation: none !important; }
+    }
+  </style>
 </head>
 <body>
+  <div class="intro" id="intro" aria-hidden="true">
+    <div class="core">
+      <div class="orb"></div>
+      <div class="k">career ops india</div>
+      <div class="t" id="introText"></div>
+      <div class="skip">click anywhere to skip</div>
+    </div>
+  </div>
   <div class="shell">
     <!-- ---------------- side rail ---------------- -->
     <aside class="side">
@@ -563,6 +635,13 @@
           <span class="eyebrow">Target role</span>
           <h1>What role are you aiming for?</h1>
           <p class="sub">Type any job title. We match it against the occupation index, then show the adjacent roles it can lead to.</p>
+
+          <div class="bento">
+            <div class="tile glass"><i><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></i><strong>100% local-first</strong><span>CVs, keys and sessions stay in <code>data/</code>. No cloud upload, no paywall.</span></div>
+            <div class="tile glass"><i><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></i><strong>Deterministic 100-pt score</strong><span>Same CV and job, same score. ATS gaps across 30+ portals.</span></div>
+            <div class="tile glass"><i><svg viewBox="0 0 24 24"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 15.6 7.1 18.2l.9-5.5-4-3.9 5.5-.8z"/></svg></i><strong>Zero-invention tailoring</strong><span>Keeps your original when it wins; never adds a skill or metric.</span></div>
+            <div class="tile glass"><i><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg></i><strong>Approval-gated apply</strong><span>Never guesses CTC or notice period. Pauses for OTP and captcha.</span></div>
+          </div>
 
           <div class="field">
             <label for="roleInput">Role title</label>
@@ -848,6 +927,35 @@
     const { FAMILIES, POPULAR, OCCUPATIONS, MATCH_LABEL, MATCH_CLASS,
             searchOccupations, resolveFamily, escapeHtml, GENERIC } = window.CO;
     const UI = window.CO.ui;
+
+    (function intro() {
+      const el = document.getElementById("intro");
+      if (!el) return;
+      let seen = false;
+      try { seen = sessionStorage.getItem("co.intro") === "1"; sessionStorage.setItem("co.intro", "1"); } catch {}
+      if (seen || UI.reduce) { el.remove(); return; }
+      const out = document.getElementById("introText");
+      const words = ["Your next role,", " on autopilot."];
+      const full = words.join("");
+      const glyphs = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#%&*";
+      const t0 = performance.now();
+      const dur = 1100;
+      (function decode(t) {
+        const p = Math.min(1, (t - t0) / dur);
+        const n = Math.floor(full.length * p);
+        let txt = full.slice(0, n);
+        for (let i = n; i < Math.min(full.length, n + 6); i++) txt += full[i] === " " ? " " : glyphs[(Math.random() * glyphs.length) | 0];
+        const cut = words[0].length;
+        out.innerHTML = UI.esc(txt.slice(0, cut)) + (txt.length > cut ? '<span class="g">' + UI.esc(txt.slice(cut)) + "</span>" : "");
+        if (p < 1) requestAnimationFrame(decode);
+      })(t0);
+      const close = () => {
+        el.classList.add("done");
+        setTimeout(() => el.remove(), 900);
+      };
+      el.addEventListener("click", close, { once: true });
+      setTimeout(close, 2300);
+    })();
 
     /* ---------- resume extraction ----------
        Deterministic, in the browser, no model and no key. Every value
@@ -1504,6 +1612,7 @@
         else btn.querySelector(".num").textContent = String(n);
       });
 
+      $("#steps").style.setProperty("--done", String((state.step - 1) / (TOTAL - 1)));
       $("#topCount").textContent = `Step ${state.step} of ${TOTAL}`;
       $("#bar").style.width = `${((state.step - 1) / (TOTAL - 1)) * 100}%`;
 
@@ -2124,7 +2233,9 @@
     /* ---------- navigation ---------- */
 
     function goTo(n) {
-      state.step = Math.max(1, Math.min(TOTAL, n));
+      const next = Math.max(1, Math.min(TOTAL, n));
+      document.querySelector("main").dataset.dir = next < state.step ? "back" : "fwd";
+      state.step = next;
       render();
     }
 
@@ -2149,6 +2260,42 @@
         localStorage.setItem("co.masterFile", state.file ? state.file.name : "");
       } catch {}
       UI.toast("Profile saved. Opening your workspace.", { kind: "ok", title: "Ready" });
+      if (UI.confetti) {
+        const r = document.getElementById("next").getBoundingClientRect();
+        UI.confetti(r.left + r.width / 2, r.top);
+      }
+      try {
+        const ob = JSON.parse(sessionStorage.getItem("co.onboarding") || "{}");
+        const cities = Array.isArray(ob.cities) ? ob.cities : [];
+        const yearsNum = typeof ob.years === "number" ? ob.years : parseInt(String(ob.years || "0"), 10) || undefined;
+        fetch("/api/profile", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            role: ob.role || "",
+            years: yearsNum != null ? String(yearsNum) : "",
+            cities,
+            modes: ob.modes || [],
+            skills: ob.skills || [],
+            details: {
+              name: ob.fullName || "",
+              email: ob.email || "",
+              city: cities[0] || "Chennai",
+              linkedin: ob.linkedin || "",
+            },
+          }),
+        }).catch(() => {});
+        if (state && state.rawText && state.rawText.trim().length > 40) {
+          fetch("/api/resume", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              text: state.rawText,
+              file: state.file ? state.file.name : "resume.txt",
+            }),
+          }).catch(() => {});
+        }
+      } catch {}
       setTimeout(() => { location.href = "map.html"; }, 420);
     }
 
@@ -2195,12 +2342,37 @@
 
     /* "Change resume" on the prepare page lands here on step 3. */
     const reopenResume = sessionStorage.getItem("co.reopenResume");
-    if (reopenResume) {
+    /* index.html#edit-N opens one step of a finished profile for editing
+       (the profile menu in Jobs links here), instead of starting over. */
+    const editStep = reopenResume ? 3 : Number((String(location.hash).match(/^#edit-([1-7])$/) || [])[1] || 0);
+    if (editStep) (async () => {
       sessionStorage.removeItem("co.reopenResume");
-      const saved = (() => {
+      /* editing, not setting up: the way out goes back to the app */
+      const out = document.createElement("a");
+      out.className = "btn btn--sm edit-exit";
+      out.href = "settings.html#profile";
+      out.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span class="btn-label">Back to Settings</span>';
+      out.addEventListener("click", (e) => { if (document.referrer && new URL(document.referrer).origin === location.origin && history.length > 1) { e.preventDefault(); history.back(); } });
+      document.body.prepend(out);
+      let saved = (() => {
         try { return JSON.parse(sessionStorage.getItem("co.onboarding") || "null"); }
         catch { return null; }
       })();
+      /* A returning user in a new tab: this tab never ran setup, so the step
+         opens from the profile saved on this computer instead of blank. */
+      if (!saved) {
+        try {
+          const pr = await fetch("/api/profile").then((r) => (r.ok ? r.json() : null));
+          if (pr && pr.role) {
+            const d = pr.details || {};
+            const fams = (window.CO && window.CO.FAMILIES) || {};
+            const family = Object.keys(fams).find((k) => (fams[k].roles || []).some((r) => String(r).toLowerCase() === String(pr.role).toLowerCase())) || null;
+            const mode = String(d.preferredWorkMode || "");
+            saved = { role: pr.role, family, cities: d.city ? [d.city] : [], modes: mode && mode !== "Any" ? [mode] : [], years: pr.years, fullName: d.name || "", email: d.email || "", linkedin: d.linkedin || "" };
+            sessionStorage.setItem("co.onboarding", JSON.stringify(saved));
+          }
+        } catch { /* open the step blank */ }
+      }
       if (saved) {
         state.role = saved.role || "";
         state.family = saved.family || null;
@@ -2223,8 +2395,9 @@
         renderFamilyTag();
         renderPrefs();
       }
-      goTo(3);
-    } else {
+      goTo(editStep);
+    })();
+    else {
       render();
     }
   </script>

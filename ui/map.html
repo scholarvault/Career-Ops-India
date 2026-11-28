@@ -69,7 +69,7 @@
       border-radius: 12px; padding: 14px 18px;
       transition: border-color .16s ease, background .16s ease;
     }
-    .title-row[data-off] { background: #fbfbfc; border-color: #eceef1; }
+    .title-row[data-off] { background: var(--surface-2); border-color: #eceef1; }
     .title-row[data-off] .name { color: var(--muted); text-decoration: line-through; text-decoration-color: #c4c7cb; }
     .title-row .name { flex: 1; font-size: 15px; }
     .title-row .name .primary {
@@ -88,7 +88,7 @@
     }
     .switch::after {
       content: ""; position: absolute; top: 3px; left: 3px;
-      width: 18px; height: 18px; border-radius: 50%; background: #fff;
+      width: 18px; height: 18px; border-radius: 50%; background: var(--surface);
       transition: transform .18s ease;
     }
     .switch[aria-checked="true"] { background: var(--accent); }
@@ -104,9 +104,9 @@
       font-size: 12px; padding: 3px 9px; border-radius: 999px; white-space: nowrap;
       background: var(--chip); color: var(--muted);
     }
-    .tag.live { background: #e6f4ea; color: #137333; }
+    .tag.live { background: var(--ok-soft); color: #137333; }
     .tag.login { background: var(--accent-soft); color: var(--accent-ink); }
-    .tag.off { background: #fce8e6; color: #c5221f; }
+    .tag.off { background: var(--bad-soft); color: #c5221f; }
 
     /* how a "your session" source is connected */
     .connect {
@@ -173,7 +173,7 @@
     .step-card .d { font-size: 13px; color: var(--muted); line-height: 1.45; }
 
     .note {
-      background: #fef7e0; border: 1px solid #f2d98c; color: #7a5c00;
+      background: var(--warn-soft); border: 1px solid #f2d98c; color: #7a5c00;
       border-radius: 10px; padding: 12px 16px; font-size: 14px; margin: 20px 0 0;
     }
 
@@ -184,11 +184,14 @@
     .footer-inner { max-width: var(--max); margin: 0 auto; display: flex; justify-content: flex-end; gap: 12px; }
     .btn { appearance: none; border-radius: 10px; padding: 14px 28px; font: inherit; font-weight: 500; cursor: pointer; min-width: 108px; }
     .btn-ghost { background: var(--surface); border: 1px solid var(--border); color: var(--accent); }
-    .btn-ghost:hover { background: #f1f3f4; }
+    .btn-ghost:hover { background: var(--surface-3); }
     .btn-primary { background: var(--accent); border: 1px solid var(--accent); color: #fff; }
-    .btn-primary:hover { background: #1765cc; }
+    .btn-primary:hover { background: #9a3412; }
     .btn:disabled { opacity: .45; cursor: not-allowed; }
   </style>
+  <link rel="stylesheet" href="fx.css" />
+  <script>try{if(localStorage.getItem("co.theme")==="light")document.documentElement.setAttribute("data-theme","light")}catch(e){}</script>
+  <script src="design.js" defer></script>
 </head>
 <body>
   <header>
@@ -212,68 +215,6 @@
       searched at a lower weight and never treated as the same role.
     </p>
 
-    <h2>Where we look</h2>
-    <div class="sources" id="sources"></div>
-
-    <div class="connect">
-      <div class="connect-head">
-        <span class="connect-ico" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1.5-1.5"/></svg>
-        </span>
-        <span class="connect-t">
-          <b>How “your session” works</b>
-          <small>No password is ever typed into this app.</small>
-        </span>
-        <button class="btn btn-sm btn-primary" id="connectBtn" type="button" aria-expanded="false" aria-controls="connectSteps">
-          <span class="btn-label">Connect Naukri</span>
-        </button>
-      </div>
-      <ol class="connect-steps" id="connectSteps" hidden>
-        <li><b>Press Connect Naukri.</b> A real Chrome opens <em>inside Career-Ops</em> - not a separate window - at naukri.com. You sign in there yourself.</li>
-        <li><b>Sign in there yourself</b> — password, Google, or the OTP Naukri sends. This app never sees the password and never stores it.</li>
-        <li><b>We keep only the session folder</b> at <code>data/browser-profile</code>. That is what lets the next search run as you without asking again.</li>
-        <li><b>Discovery reads the public search pages</b> and stores the posting, its date and the link. Nothing is submitted.</li>
-        <li><b>On a posting, Apply opens the real form.</b> We fill what your profile already answers; auto apply can submit it, or you press submit. Many Naukri apply buttons hand off to the company's own ATS (Lever, Greenhouse, Workday) — those we can fill and submit directly.</li>
-      </ol>
-      <div class="connect-actions" id="connectActions" hidden>
-        <a class="btn btn-sm btn-primary" href="browser.html?naukri=1">
-          <span class="btn-label">Open the browser</span>
-        </a>
-        <a class="btn btn-sm btn-ghost" href="browser.html?indeed=1">
-          <span class="btn-label">Open Indeed India</span>
-        </a>
-      </div>
-      <p class="connect-note">
-        Naukri has no “sign in with Career-Ops” button and no permission screen to grant. There is no third-party OAuth.
-        The only honest route is the one above: you sign in on Naukri's own page, in your own browser.
-        If Naukri shows a bot check, the window waits for you — we never solve it.
-      </p>
-    </div>
-
-    <p class="hint">
-      Sources marked <em>live</em> need no login. Sources marked <em>your session</em> open the real
-      site in your browser and you sign in yourself — we never see the password.
-    </p>
-
-    <h2>What happens next</h2>
-    <div class="steps">
-      <div class="step-card">
-        <div class="num">1</div>
-        <div class="t">Discover</div>
-        <div class="d">We pull live postings from the approved titles and keep the posting date separate from the date we found it.</div>
-      </div>
-      <div class="step-card">
-        <div class="num">2</div>
-        <div class="t">Score</div>
-        <div class="d">Every posting gets a deterministic 100-point score. A model writes the explanation; it never writes the number.</div>
-      </div>
-      <div class="step-card">
-        <div class="num">3</div>
-        <div class="t">You approve</div>
-        <div class="d">We fill the form. You review it and submit. Nothing is sent without your click.</div>
-      </div>
-    </div>
-
     <div class="note" id="note" hidden></div>
   </main>
 
@@ -290,7 +231,26 @@
 
     const RAW = sessionStorage.getItem("co.onboarding");
     const saved = RAW ? JSON.parse(RAW) : null;
-    if (!saved) location.replace("index.html");
+    /* This tab did not run setup (a new tab, a restart, another day): build
+       the map from the profile saved on this computer. Setup only when there
+       is no profile at all. */
+    if (!saved) {
+      fetch("/api/profile").then((r) => (r.ok ? r.json() : null)).then((pr) => {
+        if (!pr || !pr.role) { location.replace("index.html"); return; }
+        const d = pr.details || {};
+        const role = String(pr.role);
+        const fams = (window.CO && window.CO.FAMILIES) || {};
+        const family = Object.keys(fams).find((k) => (fams[k].roles || []).some((r) => String(r.role || r.title || r).toLowerCase() === role.toLowerCase())) || null;
+        const mode = String(d.preferredWorkMode || "");
+        sessionStorage.setItem("co.onboarding", JSON.stringify({
+          role, family,
+          cities: d.city ? [d.city] : [],
+          modes: mode && mode !== "Any" ? [mode] : [],
+          exp: [], tasks: [], years: pr.years,
+        }));
+        location.reload();
+      }).catch(() => location.replace("index.html"));
+    }
 
     const FALLBACK = {
       role: "",
@@ -407,24 +367,7 @@
 
     /* ---------- navigation ---------- */
 
-    const connectBtn = $("#connectBtn");
-    const connectSteps = $("#connectSteps");
-    const connectActions = $("#connectActions");
-    connectBtn.addEventListener("click", () => {
-      const open = connectSteps.hidden;
-      connectSteps.hidden = !open;
-      connectActions.hidden = !open;
-      connectBtn.setAttribute("aria-expanded", String(open));
-      connectBtn.querySelector(".btn-label").textContent = open ? "Hide the steps" : "Connect Naukri";
-      if (open) {
-        connectSteps.animate(
-          [{ opacity: 0, transform: "translateY(-4px)" }, { opacity: 1, transform: "none" }],
-          { duration: 220, easing: "cubic-bezier(.22,.61,.36,1)" }
-        );
-      }
-    });
-
-    $("#back").addEventListener("click", () => { location.href = "index.html"; });
+    $("#back").addEventListener("click", () => { if (history.length > 1) history.back(); else location.href = "workspace.html#jobs"; });
 
     $("#start").addEventListener("click", () => {
       sessionStorage.setItem("co.map", JSON.stringify({
@@ -436,7 +379,6 @@
 
     renderStrip();
     renderTitles();
-    renderSources();
     renderStart();
   </script>
 </body>

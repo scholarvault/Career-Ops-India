@@ -18,6 +18,7 @@ import { CHROME_PATH } from "./browser";
 export type TailoredRecord = {
   jobId: string;
   savedAt: string;
+  mode?: "tailored" | "original";
   data: any;
   pdf: string;
   pdfSha256: string;
@@ -26,11 +27,37 @@ export type TailoredRecord = {
 const safe = (id: string) => String(id || "job").replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 120);
 const dirOf = (root: string) => join(root, "data", "tailored");
 
+export async function saveTailoredPdfBytes(
+  root: string,
+  jobId: string,
+  data: any,
+  pdfBytes: Buffer,
+  mode: "tailored" | "original" = "original",
+): Promise<TailoredRecord> {
+  const dir = dirOf(root);
+  await mkdir(dir, { recursive: true });
+  const key = safe(jobId);
+  const pdfPath = join(dir, `${key}.pdf`);
+  await writeFile(pdfPath, pdfBytes);
+  const pdfSha256 = createHash("sha256").update(pdfBytes).digest("hex");
+  const rec: TailoredRecord = {
+    jobId: String(jobId),
+    savedAt: new Date().toISOString(),
+    mode,
+    data,
+    pdf: pdfPath,
+    pdfSha256,
+  };
+  await writeFile(join(dir, `${key}.json`), JSON.stringify(rec, null, 2), "utf8");
+  return rec;
+}
+
 export async function saveTailored(
   root: string,
   jobId: string,
   data: any,
-  html: string
+  html: string,
+  mode: "tailored" | "original" = "tailored",
 ): Promise<TailoredRecord> {
   if (!CHROME_PATH) throw new Error("Chrome or Edge was not found on this machine.");
   const dir = dirOf(root);
@@ -57,6 +84,7 @@ export async function saveTailored(
   const rec: TailoredRecord = {
     jobId: String(jobId),
     savedAt: new Date().toISOString(),
+    mode,
     data,
     pdf: pdfPath,
     pdfSha256,

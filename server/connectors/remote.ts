@@ -51,7 +51,10 @@ function clean(s: unknown): string {
 
 function iso(v: unknown): string | undefined {
   if (!v) return undefined;
-  const d = new Date(String(v));
+  /* Himalayas sends Unix seconds (1795109930); new Date("1795109930") is
+     Invalid Date, which silently dropped every Himalayas posting date. */
+  const n = typeof v === "number" ? v : /^\d{9,13}$/.test(String(v)) ? Number(v) : NaN;
+  const d = Number.isFinite(n) ? new Date(n < 1e12 ? n * 1000 : n) : new Date(String(v));
   return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
 }
 
@@ -104,10 +107,22 @@ function remoteLoc(loc: string): string {
 
 async function fromHimalayas(role: string): Promise<Job[]> {
   const now = new Date().toISOString();
-  const data = (await getJson("https://himalayas.app/jobs/api?limit=100")) as {
+  /* The plain feed is the 20 newest jobs worldwide, which most days holds no
+     India-eligible posting. The search endpoint filters country and role on
+     the server: "product manager" + IN returned ~270 rows on 2026-11-27.
+     An empty locationRestrictions list means worldwide. */
+  const q = new URLSearchParams({ country: "IN", limit: "50" });
+  if (role) q.set("q", role);
+  const data = (await getJson(`https://himalayas.app/jobs/api/search?${q}`)) as {
     jobs?: Array<Record<string, unknown>>;
   };
+  const nowMs = Date.now();
   return (data.jobs ?? [])
+    /* Himalayas says when a posting expires; an expired one is closed. */
+    .filter((r) => {
+      const exp = iso(r.expiryDate);
+      return !exp || Date.parse(exp) > nowMs;
+    })
     .map((r) => {
       const loc = ((r.locationRestrictions as string[] | undefined) ?? []).join(", ") || "Worldwide";
       const url = String(r.applicationLink ?? r.guid ?? "");
@@ -184,7 +199,9 @@ async function fromRemoteOK(role: string): Promise<Job[]> {
 
 async function fromJobicy(role: string): Promise<Job[]> {
   const now = new Date().toISOString();
-  const q = new URLSearchParams({ count: "50" });
+  /* The default feed is mostly USA-only. geo=anywhere returns the roles open
+     worldwide, which are the ones an applicant in India can take. */
+  const q = new URLSearchParams({ count: "50", geo: "anywhere" });
   if (role) q.set("tag", role);
   const data = (await getJson(`https://jobicy.com/api/v2/remote-jobs?${q}`)) as {
     jobs?: Array<Record<string, unknown>>;
@@ -293,3 +310,13 @@ export async function runRemote(source: RemoteSource, role: string): Promise<Rem
     return { jobs: [], ms: Date.now() - t0, error: e instanceof Error ? e.message : String(e) };
   }
 }
+
+export const REMOTE_POLICY = {
+  id: "remote",
+  name: "Remote Boards (Himalayas, Remotive, Remote OK, Jobicy, Working Nomads)",
+  tier: 1 as const,
+  discovery: "public-feed" as const,
+  submission: "user-directed" as const,
+  auth: [] as const,
+  notes: "Public RSS/JSON feeds requiring no login; applications open the target posting URL.",
+};

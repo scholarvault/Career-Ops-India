@@ -1,0 +1,13 @@
+{
+  "context": {
+    "fileName": ["AGENTS.md"]
+  },
+  "mcpServers": {
+    "career-ops-india": {
+      "command": "node",
+      "args": ["--import", "tsx", "server/mcp.ts"],
+      "timeout": 300000,
+      "trust": false
+    }
+  }
+}
